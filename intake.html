@@ -60,6 +60,11 @@
     --lh-body:  1.55;
 
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* Fixed header clearance — keep in sync with shared-header.js (#site-header height + bottom border) */
+    --site-header-stack: 53px;
+    /* Sticky sidebar sits below header + quote bar (approx. one row); tweak if quote bar height changes */
+    --section-nav-sticky-top: calc(var(--site-header-stack) + 52px);
   }
 
   * { box-sizing: border-box; }
@@ -79,6 +84,7 @@
     line-height: var(--lh-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    padding-top: var(--site-header-stack);
     padding-bottom: 220px; /* room for sticky footer */
   }
 
@@ -632,7 +638,7 @@
 
   /* ---------- print ---------- */
   @media print {
-    body { background: #fff; padding-bottom: 0; }
+    body { background: #fff; padding-bottom: 0; padding-top: 0; }
     header.brand {
       position: static;
       background: #fff;
@@ -739,6 +745,20 @@
     background: #1c1b13;
     border-color: rgba(201,164,76,0.12);
   }
+  [data-theme="dark"] .quote-id-chip {
+    background: rgba(201,164,76,0.07);
+    border-color: rgba(201,164,76,0.22);
+  }
+  [data-theme="dark"] .quote-persist-btn--ghost {
+    background: rgba(201,164,76,0.08);
+    border-color: rgba(201,164,76,0.28);
+    color: var(--ink);
+  }
+  [data-theme="dark"] .quote-persist-btn--ghost:hover {
+    background: rgba(201,164,76,0.14);
+    border-color: rgba(201,164,76,0.45);
+    color: var(--sage-hi);
+  }
   [data-theme="dark"] footer.summary {
     background: #141309;
     border-top-color: rgba(201,164,76,0.15);
@@ -781,7 +801,7 @@
 
   .section-nav-sidebar {
     position: sticky;
-    top: 110px;
+    top: var(--section-nav-sticky-top);
     width: 100%;
     max-width: 188px;
     background: var(--paper);
@@ -843,6 +863,125 @@
     min-width: 0;
     word-wrap: break-word;
     overflow-wrap: break-word;
+  }
+
+  /* Quote persistence bar (below shared header) */
+  #quotePersistBar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px 24px;
+    padding: 14px clamp(20px, 4vw, 40px) 13px;
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--line-gold);
+    font-family: var(--sans);
+    position: sticky;
+    top: var(--site-header-stack);
+    z-index: 90;
+    isolation: isolate;
+  }
+  #quotePersistBar.is-visible {
+    display: flex;
+  }
+  .quote-persist-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    min-width: 0;
+  }
+  #quoteSlugWrap.quote-persist-slug-wrap {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    min-width: 0;
+  }
+  #quoteSlugWrap.quote-persist-slug-wrap.is-visible {
+    display: flex;
+  }
+  .quote-id-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 14px;
+    background: rgba(201, 164, 76, 0.1);
+    border: 1px solid rgba(201, 164, 76, 0.32);
+    border-radius: var(--r-sm);
+  }
+  .quote-persist-id__label {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  #quoteSlug.quote-id-code {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--gold-dk);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+  }
+  .quote-persist-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .quote-persist-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    border-radius: var(--r-pill);
+    padding: 7px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: background 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+  }
+  .quote-persist-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(201, 164, 76, 0.35);
+  }
+  .quote-persist-btn--ghost {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(201, 164, 76, 0.45);
+    color: var(--sage);
+  }
+  .quote-persist-btn--ghost:hover {
+    background: rgba(201, 164, 76, 0.14);
+    border-color: var(--gold);
+    color: var(--sage-hi);
+  }
+  .quote-persist-btn--danger {
+    background: transparent;
+    border: 1px solid rgba(184, 53, 44, 0.38);
+    color: var(--red);
+  }
+  .quote-persist-btn--danger:hover {
+    background: var(--red-soft);
+    border-color: var(--red);
+  }
+  .quote-persist-status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  #priceTimestamp {
+    color: var(--ink-soft);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+  }
+  #saveStatus {
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
   }
 
   /* =================================================================

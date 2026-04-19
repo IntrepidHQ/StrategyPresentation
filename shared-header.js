@@ -46,19 +46,26 @@
   styleEl.textContent = `
   #site-header {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
     background: #0a0a08;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 5%; height: 60px;
+    gap: 12px;
+    padding: 0 clamp(16px, 5%, 72px); height: 52px;
     border-bottom: 1px solid rgba(201,164,76,.18);
   }
   .shdr-left {
-    display: flex; align-items: center; gap: 11px; text-decoration: none;
+    display: flex; align-items: center; gap: 10px; text-decoration: none;
+    min-width: 0;
   }
   .shdr-logo-icon {
-    width: 48px; height: 48px; overflow: hidden; flex-shrink: 0;
+    width: 40px; height: 40px; overflow: hidden; flex-shrink: 0;
   }
   .shdr-logo-icon img {
-    width: 48px; height: 48px;
+    width: 40px; height: 40px;
     object-fit: contain; object-position: center top;
     transform: scale(1.7); transform-origin: center top;
     display: block;
@@ -72,7 +79,10 @@
   }
   .shdr-name span { color: #C9A44C; }
   #site-header nav {
-    display: flex; align-items: center; gap: 26px;
+    display: flex; align-items: center; gap: 22px;
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-content: center;
   }
   #site-header nav a {
     color: rgba(255,255,255,.6); text-decoration: none;
@@ -110,7 +120,7 @@
   /* Mobile nav dropdown */
   .shdr-mobile-nav {
     display: none;
-    position: fixed; top: 60px; left: 0; right: 0; z-index: 99;
+    position: fixed; top: 53px; left: 0; right: 0; z-index: 99;
     background: #0a0a08;
     border-bottom: 1px solid rgba(201,164,76,.18);
     flex-direction: column; gap: 0;
