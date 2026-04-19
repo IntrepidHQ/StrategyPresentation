@@ -139,6 +139,13 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
 <div id="site-header-root"></div>
 <script src="./shared-header.js"></script>
 
+<!-- ── Task Detail Modal ────────────────────────────────────────────────── -->
+<div id="task-modal-overlay" class="task-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+  <div id="task-modal-panel" class="task-modal-panel" tabindex="-1">
+    <!-- content injected by JS -->
+  </div>
+</div>
+
 <!-- Bridge data-theme → Tailwind dark class -->
 <script>
 (function() {
@@ -225,72 +232,87 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
       </div>
 
       <div class="text-[11px] font-bold tracking-[.1em] uppercase text-white/35 mb-2">Pre-kickoff</div>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t1" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug flex items-center gap-1.5"><svg viewBox="0 0 34 12" width="30" height="11" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="6" cy="6" r="6" fill="#F62B54"/><circle cx="17" cy="6" r="6" fill="#FFCB00"/><circle cx="28" cy="6" r="6" fill="#00CA72"/></svg> Matt confirms Monday account</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t2" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug flex items-center gap-1.5"><svg viewBox="0 0 22 22" width="18" height="18" fill="none" class="flex-shrink-0 rounded" aria-hidden="true"><rect width="22" height="22" rx="4" fill="#2CA01C"/><path d="M6 9.5C6 8.4 6.9 7.5 8 7.5H11.5c1.9 0 3.5 1.4 3.5 3.25s-1.6 3.25-3.5 3.25H9v1.5H6V9.5zm3 .5v2H11.5c.6 0 1.1-.4 1.1-1s-.5-1-1.1-1H9z" fill="white"/><circle cx="14.5" cy="15" r="1.5" fill="white"/></svg> QB credentials shared</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t3" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug flex items-center gap-1.5"><img src="icons/gmail.svg" width="18" height="18" class="flex-shrink-0 rounded-sm" alt="Gmail" aria-hidden="true" /> Gmail OAuth approved</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t4" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Otter.ai account created</span>
-      </label>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t1" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t1')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors flex items-center gap-1.5 group"><svg viewBox="0 0 34 12" width="30" height="11" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="6" cy="6" r="6" fill="#F62B54"/><circle cx="17" cy="6" r="6" fill="#FFCB00"/><circle cx="28" cy="6" r="6" fill="#00CA72"/></svg> Confirm your Monday.com account</button>
+        <button onclick="openTaskModal('t1')" class="opacity-30 group-hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t2" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('cs2')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors flex items-center gap-1.5"><svg viewBox="0 0 22 22" width="18" height="18" fill="none" class="flex-shrink-0 rounded" aria-hidden="true"><rect width="22" height="22" rx="4" fill="#2CA01C"/><path d="M6 9.5C6 8.4 6.9 7.5 8 7.5H11.5c1.9 0 3.5 1.4 3.5 3.25s-1.6 3.25-3.5 3.25H9v1.5H6V9.5zm3 .5v2H11.5c.6 0 1.1-.4 1.1-1s-.5-1-1.1-1H9z" fill="white"/><circle cx="14.5" cy="15" r="1.5" fill="white"/></svg> QB credentials shared</button>
+        <button onclick="openTaskModal('cs2')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t3" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('cs3')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors flex items-center gap-1.5"><img src="icons/gmail.svg" width="18" height="18" class="flex-shrink-0 rounded-sm" alt="Gmail" aria-hidden="true" /> Gmail OAuth approved</button>
+        <button onclick="openTaskModal('cs3')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t4" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t4')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Otter.ai account created</button>
+        <button onclick="openTaskModal('t4')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
 
       <div class="text-[11px] font-bold tracking-[.1em] uppercase text-white/35 mt-3 mb-2">Discovery (D1–4)</div>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t5" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Kickoff workshop complete</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t6" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Process map signed off</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t7" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Scope frozen</span>
-      </label>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t5" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t5')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Kickoff workshop complete</button>
+        <button onclick="openTaskModal('t5')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t6" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t6')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Process map signed off</button>
+        <button onclick="openTaskModal('t6')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t7" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t7')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Scope frozen</button>
+        <button onclick="openTaskModal('t7')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
 
       <div class="text-[11px] font-bold tracking-[.1em] uppercase text-white/35 mt-3 mb-2">Build (D7–11)</div>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t8" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">4 boards configured</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t9" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug flex items-center gap-1.5"><svg viewBox="0 0 30 20" width="26" height="17" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="3.5" cy="10" r="3.5" fill="#EA4B71"/><circle cx="15" cy="3.5" r="3.5" fill="#EA4B71"/><circle cx="15" cy="16.5" r="3.5" fill="#EA4B71"/><circle cx="26.5" cy="10" r="3.5" fill="#EA4B71"/><path d="M6.8 8.5L11.5 5M6.8 11.5L11.5 15M18.5 5L23.2 8.5M18.5 15L23.2 11.5" stroke="#EA4B71" stroke-width="1.5" stroke-linecap="round"/></svg> n8n on Railway</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t10" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Email draft workflow live</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t11" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">QB milestone hooks tested</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t12" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Health score formula live</span>
-      </label>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t8" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('cb1')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">4 boards configured</button>
+        <button onclick="openTaskModal('cb1')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t9" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t9')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors flex items-center gap-1.5"><svg viewBox="0 0 30 20" width="26" height="17" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="3.5" cy="10" r="3.5" fill="#EA4B71"/><circle cx="15" cy="3.5" r="3.5" fill="#EA4B71"/><circle cx="15" cy="16.5" r="3.5" fill="#EA4B71"/><circle cx="26.5" cy="10" r="3.5" fill="#EA4B71"/><path d="M6.8 8.5L11.5 5M6.8 11.5L11.5 15M18.5 5L23.2 8.5M18.5 15L23.2 11.5" stroke="#EA4B71" stroke-width="1.5" stroke-linecap="round"/></svg> n8n on Railway</button>
+        <button onclick="openTaskModal('t9')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t10" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t10')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Email draft workflow live</button>
+        <button onclick="openTaskModal('t10')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t11" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t11')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">QB milestone hooks tested</button>
+        <button onclick="openTaskModal('t11')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t12" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t12')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Health score formula live</button>
+        <button onclick="openTaskModal('t12')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
 
       <div class="text-[11px] font-bold tracking-[.1em] uppercase text-white/35 mt-3 mb-2">Launch (D14–20)</div>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t13" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Loom library recorded</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t14" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Matt + team trained</span>
-      </label>
-      <label class="sidebar-task flex items-start gap-2 py-1" data-task>
-        <input type="checkbox" id="t15" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-        <span class="text-[14px] text-white/60 leading-snug">Go-live complete</span>
-      </label>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t13" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t13')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Loom library recorded</button>
+        <button onclick="openTaskModal('t13')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t14" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t14')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">You + team trained</button>
+        <button onclick="openTaskModal('t14')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
+      <div class="sidebar-task flex items-center gap-2 py-1" data-task>
+        <input type="checkbox" id="t15" class="flex-shrink-0" onchange="updateProgress()"/>
+        <button onclick="openTaskModal('t15')" class="flex-1 text-left text-[14px] text-white/60 leading-snug hover:text-white/85 transition-colors">Go-live complete</button>
+        <button onclick="openTaskModal('t15')" class="opacity-30 hover:opacity-70 transition-opacity flex-shrink-0 text-white" aria-label="View task details"><svg viewBox="0 0 14 14" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+      </div>
     </div>
   </aside>
 
@@ -311,48 +333,43 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
       </span>
     </div>
     <div class="flex items-center gap-2">
-      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all" onclick="showToast('Filters configurable after Monday.com is connected.')"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-70" aria-hidden="true"><path d="M2 3h12l-4.5 5v5.5L6.5 12V8L2 3z"/></svg> Filter</button>
-      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all" onclick="showToast('4 automations pre-built and ready to activate — n8n deploys Day 9.')">
-        <span class="flex items-center gap-1.5"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 opacity-90" aria-hidden="true"><path d="M9 2L4 9h6l-3 5 7-8H9l1-4z"/></svg> Automations</span>
-        <span class="ml-1 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-1.5 py-0.5 rounded">4 active</span>
-      </button>
+      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all" onclick="showToast('Filters configurable after Monday.com is connected.')" class="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 flex-shrink-0" aria-hidden="true"><path d="M2 3h12l-4.5 5v5.5L6.5 12V8L2 3z"/></svg> Filter</button>
+      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all" onclick="showToast('4 automations pre-built and ready to activate — n8n deploys Day 9.')" class="inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all whitespace-nowrap"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 opacity-90 flex-shrink-0" aria-hidden="true"><path d="M9 2L4 9h6l-3 5 7-8H9l1-4z"/></svg> Automations <span class="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-1.5 py-0.5 rounded whitespace-nowrap">4 active</span></button>
     </div>
   </div>
 
   <!-- Credential banner -->
   <div class="flex flex-wrap items-center gap-2 px-6 py-2.5 bg-gold/5 border-b border-gold/15 text-xs text-stone-600 dark:text-stone-400">
     <span class="font-bold text-sm text-gold/90">Needs:</span>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px]"><svg viewBox="0 0 34 12" width="30" height="11" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="6" cy="6" r="6" fill="#F62B54"/><circle cx="17" cy="6" r="6" fill="#FFCB00"/><circle cx="28" cy="6" r="6" fill="#00CA72"/></svg> Monday.com</span>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px]"><svg viewBox="0 0 22 22" width="18" height="18" fill="none" class="flex-shrink-0 rounded" aria-hidden="true"><rect width="22" height="22" rx="4" fill="#2CA01C"/><path d="M6 9.5C6 8.4 6.9 7.5 8 7.5H11.5c1.9 0 3.5 1.4 3.5 3.25s-1.6 3.25-3.5 3.25H9v1.5H6V9.5zm3 .5v2H11.5c.6 0 1.1-.4 1.1-1s-.5-1-1.1-1H9z" fill="white"/><circle cx="14.5" cy="15" r="1.5" fill="white"/></svg> QuickBooks</span>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[15px]"><img src="icons/supabase.svg" width="18" height="18" class="flex-shrink-0" alt="Supabase" aria-hidden="true" /> Supabase ✓</span>
-    <span class="ml-auto text-[15px] text-stone-600 dark:text-stone-400">Matt's 15-min morning review</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><svg viewBox="0 0 34 12" width="30" height="11" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="6" cy="6" r="6" fill="#F62B54"/><circle cx="17" cy="6" r="6" fill="#FFCB00"/><circle cx="28" cy="6" r="6" fill="#00CA72"/></svg> Monday.com</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><svg viewBox="0 0 22 22" width="18" height="18" fill="none" class="flex-shrink-0 rounded" aria-hidden="true"><rect width="22" height="22" rx="4" fill="#2CA01C"/><path d="M6 9.5C6 8.4 6.9 7.5 8 7.5H11.5c1.9 0 3.5 1.4 3.5 3.25s-1.6 3.25-3.5 3.25H9v1.5H6V9.5zm3 .5v2H11.5c.6 0 1.1-.4 1.1-1s-.5-1-1.1-1H9z" fill="white"/><circle cx="14.5" cy="15" r="1.5" fill="white"/></svg> QuickBooks</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><svg viewBox="0 0 30 20" width="22" height="14" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="3.5" cy="10" r="3.5" fill="#EA4B71"/><circle cx="15" cy="3.5" r="3.5" fill="#EA4B71"/><circle cx="15" cy="16.5" r="3.5" fill="#EA4B71"/><circle cx="26.5" cy="10" r="3.5" fill="#EA4B71"/><path d="M6.8 8.5L11.5 5M6.8 11.5L11.5 15M18.5 5L23.2 8.5M18.5 15L23.2 11.5" stroke="#EA4B71" stroke-width="1.5" stroke-linecap="round"/></svg> n8n</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><img src="icons/gmail.svg" width="16" height="16" class="flex-shrink-0 rounded-sm" alt="Gmail" aria-hidden="true"/> Gmail</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-[15px] whitespace-nowrap"><img src="icons/supabase.svg" width="18" height="18" class="flex-shrink-0" alt="Supabase" aria-hidden="true" /> Supabase ✓</span>
+    <span class="ml-auto text-[15px] text-stone-600 dark:text-stone-400">Your 15-min morning review</span>
   </div>
 
   <!-- KPI strip -->
   <div class="grid grid-cols-4 gap-5 p-6 pb-5">
     <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 h-1 bg-gold rounded-t-2xl"></div>
       <div class="absolute bottom-4 right-4 opacity-[.07] dark:opacity-[.06] pointer-events-none" aria-hidden="true"><svg viewBox="0 0 30 30" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="15" r="12"/><path d="M15 8v14M11.5 11.5c0-1.7 1.6-3 3.5-3s3.5 1.3 3.5 3-1.6 3-3.5 3-3.5 1.3-3.5 3 1.6 3 3.5 3 3.5-1.3 3.5-3"/></svg></div>
       <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">Active Revenue</div>
       <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">$847K</div>
       <div class="text-[15px] font-semibold text-emerald-600 dark:text-emerald-400">↑ $62K from last month</div>
     </div>
     <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 h-1 bg-forest rounded-t-2xl"></div>
       <div class="absolute bottom-4 right-4 opacity-[.07] dark:opacity-[.06] pointer-events-none" aria-hidden="true"><svg viewBox="0 0 30 30" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="15" r="12"/><path d="M15 9v6l4 2.5"/></svg></div>
       <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">Revenue / Hour</div>
       <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">$118</div>
       <div class="text-[15px] text-stone-600 dark:text-stone-400">Across 5 active projects</div>
     </div>
     <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 h-1 bg-rose-500 rounded-t-2xl"></div>
       <div class="absolute bottom-4 right-4 opacity-[.07] dark:opacity-[.06] pointer-events-none" aria-hidden="true"><svg viewBox="0 0 30 30" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4L27 26H3L15 4z"/><path d="M15 14v5"/><circle cx="15" cy="23" r=".5" fill="currentColor"/></svg></div>
       <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">At Risk</div>
       <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">2</div>
       <div class="text-[15px] font-semibold text-rose-500">↓ Collins &amp; Pemberton</div>
     </div>
     <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 h-1 bg-gold rounded-t-2xl"></div>
       <div class="absolute bottom-4 right-4 opacity-[.07] dark:opacity-[.06] pointer-events-none" aria-hidden="true"><svg viewBox="0 0 30 30" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4a4 4 0 014 4v2c0 4 3 6 4 8H7c1-2 4-4 4-8V8a4 4 0 014-4z"/><path d="M12 24a3 3 0 006 0"/><line x1="15" y1="2" x2="15" y2="4"/></svg></div>
       <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">Pending Approvals</div>
       <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">3</div>
@@ -536,57 +553,63 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
           <div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div>
         </div>
         <div class="space-y-2.5">
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer group">
-            <input type="checkbox" id="cs1" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cs1" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1 min-w-0">
               <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300 leading-snug">Monday.com Pro — invite Hans as admin <span class="ml-1 text-xs font-bold bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md">needs login</span></div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Hans needs Admin access to build boards and formulas.</div>
             </div>
-          </label>
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer group">
-            <input type="checkbox" id="cs2" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
+            <button onclick="openTaskModal('cs1')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cs2" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1 min-w-0">
               <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300 leading-snug">QuickBooks — add Hans as Accountant <span class="ml-1 text-xs font-bold bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md">needs login</span></div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Accountant role is sufficient for milestone invoicing.</div>
             </div>
-          </label>
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer group">
-            <input type="checkbox" id="cs3" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
-              <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300 leading-snug">Gmail OAuth — Matt approves the n8n app <span class="ml-1 text-xs font-bold bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md">needs login</span></div>
-              <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Takes ~2 min in browser. Required for email drafts.</div>
+            <button onclick="openTaskModal('cs2')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cs3" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1 min-w-0">
+              <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300 leading-snug">Gmail OAuth — you approve the n8n app <span class="ml-1 text-xs font-bold bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md">needs login</span></div>
+              <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Takes 2 min in your browser. Required for email drafts.</div>
             </div>
-          </label>
+            <button onclick="openTaskModal('cs3')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
         </div>
       </div>
       <!-- Decisions -->
       <div>
         <div class="flex items-center gap-2 mb-3">
-          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Decisions Matt Makes</span>
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Your Decisions to Make</span>
           <div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div>
         </div>
         <div class="space-y-2">
-          <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15">
+          <button onclick="openTaskModal('decision-risk')" class="w-full text-left flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15 hover:border-gold/35 transition-colors group">
             <span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span>
-            <div>
+            <div class="flex-1">
               <div class="text-[14px] text-stone-700 dark:text-stone-300 leading-snug">What score triggers "At Risk"? (default: below 65)</div>
-              <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Matt decides → Hans programs into formula</div>
+              <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Your call → Hans programs it in</div>
             </div>
-          </div>
-          <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15">
+            <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5 text-gold opacity-50 group-hover:opacity-90 transition-opacity"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+          </button>
+          <button onclick="openTaskModal('decision-revhr')" class="w-full text-left flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15 hover:border-gold/35 transition-colors group">
             <span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span>
-            <div>
+            <div class="flex-1">
               <div class="text-[14px] text-stone-700 dark:text-stone-300 leading-snug">Target revenue per hour? (e.g. $90/hr minimum)</div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Sets the KPI baseline for the Rev/Hr widget</div>
             </div>
-          </div>
-          <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15">
+            <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5 text-gold opacity-50 group-hover:opacity-90 transition-opacity"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+          </button>
+          <button onclick="openTaskModal('decision-access')" class="w-full text-left flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15 hover:border-gold/35 transition-colors group">
             <span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span>
-            <div>
-              <div class="text-[14px] text-stone-700 dark:text-stone-300 leading-snug">Who sees the Command Center? Matt only, or leads too?</div>
+            <div class="flex-1">
+              <div class="text-[14px] text-stone-700 dark:text-stone-300 leading-snug">Who sees the Command Center? You only, or leads too?</div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Determines Monday view permissions</div>
             </div>
-          </div>
+            <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5 text-gold opacity-50 group-hover:opacity-90 transition-opacity"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+          </button>
         </div>
       </div>
       <!-- Build tasks -->
@@ -596,34 +619,38 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
           <div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div>
         </div>
         <div class="space-y-2">
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer">
-            <input type="checkbox" id="cb1" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cb1" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1">
               <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300">Create Monday Pro workspace</div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Day 7 — after scope freeze</div>
             </div>
-          </label>
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer">
-            <input type="checkbox" id="cb2" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
+            <button onclick="openTaskModal('cb1')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cb2" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1">
               <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300">Build Health Score formula column</div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Day 8 — weighted budget + schedule variance</div>
             </div>
-          </label>
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer">
-            <input type="checkbox" id="cb3" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
+            <button onclick="openTaskModal('cb2')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cb3" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1">
               <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300">Configure Rev/Hr widget</div>
               <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Day 9 — links labor hours to revenue</div>
             </div>
-          </label>
-          <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer">
-            <input type="checkbox" id="cb4" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/>
-            <div>
+            <button onclick="openTaskModal('cb3')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
+          <div class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors">
+            <input type="checkbox" id="cb4" class="mt-1 flex-shrink-0" onchange="updateProgress()"/>
+            <div class="flex-1">
               <div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300">Set up at-risk notification automation</div>
-              <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Day 10 — notify Matt when score drops</div>
+              <div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Day 10 — notifies you when score drops</div>
             </div>
-          </label>
+            <button onclick="openTaskModal('cb4')" class="flex-shrink-0 inline-flex items-center gap-1 text-[13px] font-semibold text-gold hover:text-gold-light transition-colors mt-0.5 whitespace-nowrap">Steps <svg viewBox="0 0 14 14" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+          </div>
         </div>
       </div>
     </div>
@@ -650,17 +677,18 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
       </span>
     </div>
     <div class="flex items-center gap-2">
-      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-500 dark:text-white/50 hover:border-gold transition-all" onclick="showToast('Grouping available after board is created in Monday.com.')"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="opacity-70" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg> Group: Phase</button>
-      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-500 dark:text-white/50 hover:border-gold transition-all" onclick="showToast('Filters configurable after Monday.com is connected.')"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-70" aria-hidden="true"><path d="M2 3h12l-4.5 5v5.5L6.5 12V8L2 3z"/></svg> Filter</button>
+      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-500 dark:text-white/50 hover:border-gold transition-all" onclick="showToast('Grouping available after board is created in Monday.com.')" class="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-500 dark:text-white/50 hover:border-gold transition-all"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="opacity-70 flex-shrink-0" aria-hidden="true"><path d="M2 4h12M4 8h8M6 12h4"/></svg> Group: Phase</button>
+      <button class="text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-500 dark:text-white/50 hover:border-gold transition-all" onclick="showToast('Filters configurable after Monday.com is connected.')" class="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold px-3 py-1.5 rounded-lg border border-stone-200 dark:border-white/10 bg-white dark:bg-white/5 text-stone-600 dark:text-white/55 hover:border-gold hover:text-stone-800 dark:hover:text-white/80 transition-all"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="opacity-70 flex-shrink-0" aria-hidden="true"><path d="M2 3h12l-4.5 5v5.5L6.5 12V8L2 3z"/></svg> Filter</button>
       <button class="text-[13px] font-bold px-3 py-1.5 rounded-lg bg-gold text-onyx hover:bg-gold-light transition-all shadow-sm" onclick="showToast('Project creation available once Monday.com account is connected — Day 11.')">+ Add Project</button>
     </div>
   </div>
 
   <div class="flex flex-wrap items-center gap-2 px-6 py-2.5 bg-gold/5 border-b border-gold/15 text-xs text-stone-600 dark:text-stone-400">
     <span class="font-bold text-sm text-gold/90">Needs:</span>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px]"><svg viewBox="0 0 34 12" width="30" height="11" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="6" cy="6" r="6" fill="#F62B54"/><circle cx="17" cy="6" r="6" fill="#FFCB00"/><circle cx="28" cy="6" r="6" fill="#00CA72"/></svg> Monday.com</span>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px]"><svg viewBox="0 0 22 22" width="18" height="18" fill="none" class="flex-shrink-0 rounded" aria-hidden="true"><rect width="22" height="22" rx="4" fill="#2CA01C"/><path d="M6 9.5C6 8.4 6.9 7.5 8 7.5H11.5c1.9 0 3.5 1.4 3.5 3.25s-1.6 3.25-3.5 3.25H9v1.5H6V9.5zm3 .5v2H11.5c.6 0 1.1-.4 1.1-1s-.5-1-1.1-1H9z" fill="white"/><circle cx="14.5" cy="15" r="1.5" fill="white"/></svg> QuickBooks</span>
-    <span class="ml-auto text-[15px] text-stone-600 dark:text-stone-400">Core board — health score, Rev/Hr, and QB milestone automation all live here</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><svg viewBox="0 0 34 12" width="30" height="11" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="6" cy="6" r="6" fill="#F62B54"/><circle cx="17" cy="6" r="6" fill="#FFCB00"/><circle cx="28" cy="6" r="6" fill="#00CA72"/></svg> Monday.com</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><svg viewBox="0 0 22 22" width="18" height="18" fill="none" class="flex-shrink-0 rounded" aria-hidden="true"><rect width="22" height="22" rx="4" fill="#2CA01C"/><path d="M6 9.5C6 8.4 6.9 7.5 8 7.5H11.5c1.9 0 3.5 1.4 3.5 3.25s-1.6 3.25-3.5 3.25H9v1.5H6V9.5zm3 .5v2H11.5c.6 0 1.1-.4 1.1-1s-.5-1-1.1-1H9z" fill="white"/><circle cx="14.5" cy="15" r="1.5" fill="white"/></svg> QuickBooks</span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold text-[15px] whitespace-nowrap"><svg viewBox="0 0 30 20" width="22" height="14" fill="none" class="flex-shrink-0" aria-hidden="true"><circle cx="3.5" cy="10" r="3.5" fill="#EA4B71"/><circle cx="15" cy="3.5" r="3.5" fill="#EA4B71"/><circle cx="15" cy="16.5" r="3.5" fill="#EA4B71"/><circle cx="26.5" cy="10" r="3.5" fill="#EA4B71"/><path d="M6.8 8.5L11.5 5M6.8 11.5L11.5 15M18.5 5L23.2 8.5M18.5 15L23.2 11.5" stroke="#EA4B71" stroke-width="1.5" stroke-linecap="round"/></svg> n8n</span>
+    <span class="ml-auto text-[15px] text-stone-600 dark:text-stone-400">Your core board — health score, Rev/Hr, and QB milestone automation all live here</span>
   </div>
 
   <div id="projects-view-table" data-view-board="projects">
@@ -837,19 +865,16 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
   <div id="projects-view-dashboard" data-view-board="projects" style="display:none" class="p-5">
     <div class="grid grid-cols-3 gap-4 mb-4">
       <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gold rounded-t-2xl"></div>
         <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">Total Budget</div>
         <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">$229K</div>
         <div class="text-sm text-stone-600 dark:text-stone-400">Across 5 active projects</div>
       </div>
       <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-emerald-500 rounded-t-2xl"></div>
         <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">Spent to Date</div>
         <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">$122K</div>
         <div class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">53% of budget · on pace</div>
       </div>
       <div class="rounded-2xl bg-white dark:bg-white/[.04] shadow-kpi ring-1 ring-stone-200/80 dark:ring-white/[.06] p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-rose-500 rounded-t-2xl"></div>
         <div class="text-[13px] font-bold tracking-widest uppercase text-stone-600 dark:text-stone-400 mb-2">Avg Health Score</div>
         <div class="text-4xl font-black text-stone-900 dark:text-white leading-none mb-2">79.8</div>
         <div class="text-sm font-semibold text-amber-600 dark:text-amber-400">↓ 2 projects need attention</div>
@@ -901,7 +926,7 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
         </div>
       </div>
       <div>
-        <div class="flex items-center gap-2 mb-3"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Decisions Matt Makes</span><div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div></div>
+        <div class="flex items-center gap-2 mb-3"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Your Decisions to Make</span><div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div></div>
         <div class="space-y-2">
           <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15"><span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span><div><div class="text-[14px] text-stone-700 dark:text-stone-300">What are the 3 invoice milestones? (20%/30%/50%)</div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Powers the QB invoice trigger in n8n</div></div></div>
           <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15"><span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span><div><div class="text-[14px] text-stone-700 dark:text-stone-300">Which phases exist? (Quote, Design, Build, Install…)</div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Determines Groups on the Projects board</div></div></div>
@@ -1098,7 +1123,7 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
         <label class="flex items-start gap-3 py-3 px-4 rounded-xl border border-stone-200 dark:border-white/[.06] bg-white dark:bg-white/[.02] hover:border-gold/40 transition-colors cursor-pointer"><input type="checkbox" id="ccs1" class="mt-0.5 flex-shrink-0" onchange="updateProgress()"/><div><div class="text-[14px] font-semibold text-stone-700 dark:text-stone-300">Monday.com — same Pro workspace <span class="ml-1 text-xs font-bold bg-rose-100 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-md">needs login</span></div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">CRM auto-mirrors from Projects via column linking.</div></div></label>
       </div>
       <div>
-        <div class="flex items-center gap-2 mb-3"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Decisions Matt Makes</span><div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div></div>
+        <div class="flex items-center gap-2 mb-3"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Your Decisions to Make</span><div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div></div>
         <div class="space-y-2">
           <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15"><span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span><div><div class="text-[14px] text-stone-700 dark:text-stone-300">What fields on every client record? (notes, spouse, pets…)</div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Relationship details matter for repeat business</div></div></div>
           <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15"><span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span><div><div class="text-[14px] text-stone-700 dark:text-stone-300">Provide existing client list (names + addresses)</div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Hans imports as seed data on Day 11</div></div></div>
@@ -1308,7 +1333,7 @@ input[type="checkbox"] { accent-color: #C9A44C; cursor: pointer; width: 15px; he
         </div>
       </div>
       <div>
-        <div class="flex items-center gap-2 mb-3"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Decisions Matt Makes</span><div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div></div>
+        <div class="flex items-center gap-2 mb-3"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 text-stone-400 dark:text-stone-500 mt-px" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.5 6.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg><span class="text-[13px] font-semibold tracking-[.1em] uppercase text-stone-600 dark:text-stone-400">Your Decisions to Make</span><div class="flex-1 h-px bg-stone-200 dark:bg-white/[.06]"></div></div>
         <div class="space-y-2">
           <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15"><span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span><div><div class="text-[14px] text-stone-700 dark:text-stone-300">What defines a "qualified" lead? (budget, job type, geography?)</div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">When Matt manually moves a card New → Qualified</div></div></div>
           <div class="flex items-start gap-3 py-3 px-4 rounded-xl bg-gold/5 border border-gold/15"><span class="w-5 h-5 rounded-md bg-gold/15 text-gold flex items-center justify-center text-[15px] font-bold flex-shrink-0 mt-0.5">?</span><div><div class="text-[14px] text-stone-700 dark:text-stone-300">How many days before auto follow-up triggers?</div><div class="text-[15px] text-stone-600 dark:text-stone-400 mt-0.5">Default: 2 business days after quote sent</div></div></div>
@@ -1385,6 +1410,28 @@ const showToast = (msg) => {
   toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 3200);
 };
 
+/* ── Task detail modal ───────────────────────────────────────────────────── */
+.task-modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.task-modal-overlay.open { opacity: 1; pointer-events: all; }
+.task-modal-panel {
+  width: 480px; max-width: 95vw;
+  height: 100vh; overflow-y: auto;
+  background: #fff;
+  transform: translateX(40px);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column;
+}
+.dark .task-modal-panel { background: #131711; }
+.task-modal-overlay.open .task-modal-panel { transform: translateX(0); }
+.task-modal-panel::-webkit-scrollbar { width: 4px; }
+.task-modal-panel::-webkit-scrollbar-thumb { background: rgba(201,164,76,0.3); border-radius: 2px; }
+
 /* ── Progress tracker ────────────────────────────────────────────────────── */
 const updateProgress = () => {
   const all     = document.querySelectorAll('input[type="checkbox"]');
@@ -1440,6 +1487,380 @@ if (document.readyState === 'loading') {
 } else {
   restoreState();
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TASK DETAIL MODAL
+══════════════════════════════════════════════════════════════════════════ */
+const TASKS = {
+  't1': {
+    title: 'Confirm your Monday.com account',
+    when: 'Before Day 1 — do this first',
+    why: 'Hans needs Admin access to build all four boards, create formula columns, and configure automations. Without this, nothing can be built. This is the single biggest blocker.',
+    steps: [
+      { label: 'Log in to Monday.com', detail: 'Go to monday.com and sign in with your business email.' },
+      { label: 'Check your plan', detail: 'Click your avatar (top-right) → Admin → Billing. Confirm you\'re on the Pro plan or higher. Formula columns and automations only work on Pro.' },
+      { label: 'Invite Hans as Admin', detail: 'Go to Admin → Users → Invite Members. Enter hans@intrepidhq.com and set the role to Admin. Click Send Invite.' },
+      { label: 'Let Hans know', detail: 'Send Hans a quick text that the invite is sent. He\'ll accept and confirm access within the hour.' },
+    ],
+    needs: ['monday.com login', 'Pro plan or higher'],
+    note: 'If you don\'t have Admin rights yourself, contact whoever set up the account.',
+  },
+  't4': {
+    title: 'Create an Otter.ai account',
+    when: 'Before Day 1 — Pre-kickoff',
+    why: 'Otter.ai automatically transcribes your client calls and site visits. These transcripts feed into the AI to generate follow-up emails and meeting summaries — cutting your post-call admin time significantly.',
+    steps: [
+      { label: 'Go to otter.ai', detail: 'Visit otter.ai in your browser.' },
+      { label: 'Sign up', detail: 'Click "Sign Up Free" and use your business email. The Free plan is fine to start.' },
+      { label: 'Download the mobile app', detail: 'Install the Otter.ai app on your phone. Hit record at the start of client calls and site walkthroughs.' },
+      { label: 'Share login with Hans', detail: 'Text Hans your Otter.ai username/email. He\'ll configure the export pipeline to pull transcripts.' },
+    ],
+    needs: ['Business email', 'Smartphone'],
+    note: 'Otter Free gives 300 min/month. Upgrade to Business ($20/mo) if you have heavy call volume.',
+  },
+  't5': {
+    title: 'Kickoff workshop',
+    when: 'Day 1–2',
+    why: 'The kickoff is where Hans maps out all your workflows — how you quote, communicate with clients, and track projects. Every automation built afterward is based on what he learns here.',
+    steps: [
+      { label: 'Block 2–3 hours with Hans', detail: 'This is a working session, not a presentation. Plan it at your shop or over video.' },
+      { label: 'Walk through your current process', detail: 'Show Hans exactly how you handle a project from first call to final invoice. Don\'t clean it up — he needs to see the real workflow.' },
+      { label: 'Identify your top 3 time sinks', detail: 'Where do you or your team spend the most admin time? Quoting? Follow-ups? Scheduling? These get prioritized.' },
+      { label: 'Review the strategy document together', detail: 'Hans will reference the proposal. Align on what gets built in Days 1–20.' },
+    ],
+    needs: ['2–3 hours of your time', 'Access to your current tools (email, spreadsheets, QB)'],
+    note: 'The more context Hans has on Day 1, the tighter and more useful the final system will be.',
+  },
+  't6': {
+    title: 'Sign off on the process map',
+    when: 'Day 3–4',
+    why: 'Hans will produce a visual diagram of every automation — what triggers it, what it does, and where you review or approve it. Your sign-off freezes this so Hans can start building.',
+    steps: [
+      { label: 'Review the process map Hans sends you', detail: 'You\'ll receive a PDF or shared diagram link. It shows each workflow as a flowchart.' },
+      { label: 'Check every automation trigger', detail: 'Make sure you understand what starts each workflow — e.g. "Project marked Complete → invoice draft created".' },
+      { label: 'Mark up any changes', detail: 'Use comments, a reply email, or a 15-min call to flag anything that doesn\'t match how you actually work.' },
+      { label: 'Send written approval', detail: 'A simple "Looks good — let\'s build it" message to Hans locks in the scope for the 20-day build.' },
+    ],
+    needs: ['15–20 min of focused review time'],
+    note: 'Changes after this point add time. Review carefully — this is your last low-cost chance to adjust.',
+  },
+  't7': {
+    title: 'Scope freeze',
+    when: 'Day 4',
+    why: 'Scope freeze means no new features get added to the 20-day build. This is the discipline that lets Hans ship on time. Anything new goes on a v2 list — not in this sprint.',
+    steps: [
+      { label: 'Confirm the feature list with Hans', detail: 'Review the 4 boards, 4 automations, and 3 integrations (Monday.com, QB, Gmail via n8n). Right priorities?' },
+      { label: 'Add nothing new', detail: 'If you think of a great new idea after Day 4, write it in your notes for v2. The current build is already ambitious for 20 days.' },
+      { label: 'Let Hans start building', detail: 'Once scope is frozen, Hans moves from planning to execution. Board builds begin Day 7.' },
+    ],
+    needs: ['Decision clarity on priorities'],
+    note: 'The biggest project risk is scope creep. Trust the plan.',
+  },
+  't9': {
+    title: 'n8n deployed on Railway',
+    when: 'Day 9 — handled by Hans',
+    why: 'n8n is the automation engine that connects Monday.com, QuickBooks, Gmail, and Otter.ai. It runs in the cloud on Railway so automations fire 24/7 without your computer being on.',
+    steps: [
+      { label: 'Hans handles the deployment', detail: 'Hans deploys and configures n8n on Railway — you don\'t need to touch anything technical for this step.' },
+      { label: 'Review the automation list', detail: 'Hans will share a summary of the 4 workflows he\'s built. Read through the trigger and output for each one.' },
+      { label: 'Complete your Gmail OAuth approval', detail: 'If you haven\'t done this yet, Hans will send you the OAuth link. Approve it so n8n can access Gmail.' },
+      { label: 'Watch the first live test', detail: 'Hans will demo it: mark a project "Complete" in Monday.com → watch the email draft appear in your Gmail Drafts within 30 seconds.' },
+    ],
+    needs: ['Gmail OAuth approved (see Gmail OAuth task)'],
+    note: 'Railway costs ~$5/month. This is included in the monthly platform costs in the invoice.',
+  },
+  't10': {
+    title: 'Email draft workflow live',
+    when: 'Day 10',
+    why: 'When a project milestone is hit in Monday.com, n8n automatically drafts a follow-up email using your client history and tone. You review and hit send — no more writing from scratch.',
+    steps: [
+      { label: 'Test the trigger', detail: 'Mark the Whitmore Kitchen project as "Phase Complete" in Monday.com.' },
+      { label: 'Check your Gmail Drafts', detail: 'A draft email addressed to the client should appear within 30 seconds.' },
+      { label: 'Review the draft quality', detail: 'Read it. If the tone is off or details are wrong, let Hans know — he adjusts the AI prompt that generates it.' },
+      { label: 'Send or edit', detail: 'You have full control. Every draft saves you 10–15 minutes of writing per project milestone.' },
+    ],
+    needs: ['Monday.com configured', 'Gmail OAuth approved', 'n8n live on Railway'],
+    note: 'Nothing gets sent automatically. You always review first. Ever.',
+  },
+  't11': {
+    title: 'QuickBooks milestone hooks tested',
+    when: 'Day 10–11',
+    why: 'When you mark a project phase "Complete" in Monday.com, n8n creates a draft invoice in QuickBooks for that milestone amount. You review and approve before anything goes to the client.',
+    steps: [
+      { label: 'Confirm Hans has QB Accountant access', detail: 'Check QuickBooks → Settings → Manage Users. Hans\'s email should appear with Accountant role.' },
+      { label: 'Mark a phase complete', detail: 'In Monday.com, change Whitmore Kitchen\'s Phase column to "M1 Complete".' },
+      { label: 'Check QuickBooks for the draft invoice', detail: 'Open QuickBooks → Sales → Invoices. A draft for the milestone amount should appear within 60 seconds.' },
+      { label: 'Verify amounts and client info', detail: 'Make sure the amounts match your contract. Flag any discrepancies to Hans.' },
+    ],
+    needs: ['Hans has QuickBooks Accountant access', 'Milestone amounts entered in Monday.com'],
+    note: 'Milestone amounts must be set by you in Monday.com. Hans can\'t guess your contract values.',
+  },
+  't12': {
+    title: 'Health score formula live',
+    when: 'Day 11',
+    why: 'The Health Score gives every project a number from 0–100 based on budget usage and schedule. It powers the "At Risk" alerts and the dashboard you\'ll use every morning.',
+    steps: [
+      { label: 'Set your At Risk threshold', detail: 'Tell Hans: below what score should a project be flagged? Default is 65. Click the "Set your At Risk score" task above for more detail.' },
+      { label: 'Enter real budget numbers', detail: 'For each active project in Monday.com, enter the contract value and estimated hours. The formula needs real data to score accurately.' },
+      { label: 'Review the Health column', detail: 'Open the Projects board. The health bar should reflect reality — Whitmore above 85, Collins below 60.' },
+      { label: 'Trigger a test alert', detail: 'Hans manually drops a test project score below your threshold to confirm the notification reaches your phone.' },
+    ],
+    needs: ['Real project budget figures', 'Your At Risk threshold decision'],
+    note: 'Formula weights: 50% budget burn rate + 30% schedule variance + 20% completion percentage.',
+  },
+  't13': {
+    title: 'Loom training library recorded',
+    when: 'Day 14–16',
+    why: 'Short Loom videos (2–5 min each) are how your team learns the system without you explaining it over and over. Hans records the technical ones; you record one in your own words.',
+    steps: [
+      { label: 'Hans records the technical walkthroughs', detail: 'Hans covers: how boards update, how automations trigger, how to use the CEO Command Center for your morning review.' },
+      { label: 'You record one video: "How I use this"', detail: 'A 3-minute screen recording of you running through your morning dashboard review. This becomes the gold standard for your team.' },
+      { label: 'Videos go into Monday Docs', detail: 'Hans creates a "How-To Library" docs board where all Loom links live, organized by topic.' },
+    ],
+    needs: ['Loom account — free tier works', '30–45 min total recording time'],
+    note: 'These videos are invaluable when someone forgets how something works in Month 3.',
+  },
+  't14': {
+    title: 'You + team trained',
+    when: 'Day 17–18',
+    why: 'A 60–90 min group session where Hans walks your team through the boards, shows how to update project status, and answers questions. This is when the system becomes theirs, not just yours.',
+    steps: [
+      { label: 'Schedule a team session', detail: 'Block 60–90 min with everyone who will touch Monday.com: project leads, estimators, office staff.' },
+      { label: 'Hans leads the walkthrough', detail: 'He demos each board, explains how status updates flow, and shows how automations trigger.' },
+      { label: 'Everyone updates a real project', detail: 'Each person picks a live project and updates its status. This cements the habit.' },
+      { label: 'Collect questions and edge cases', detail: 'Write down anything the system doesn\'t handle. These become v2 fixes in the next sprint.' },
+    ],
+    needs: ['60–90 min with your full team', 'Everyone needs Monday.com Member access — Hans sets this up'],
+    note: 'Training quality determines adoption. Block the time and make attendance mandatory.',
+  },
+  't15': {
+    title: 'Go-live',
+    when: 'Day 20',
+    why: 'Go-live means the system runs with real data. No more dummy projects. Automations are watching real Monday.com boards and firing when triggered by your actual workflow.',
+    steps: [
+      { label: 'Migrate all active projects', detail: 'You and Hans spend 2–3 hours entering all 5 active projects with real data: budget, hours, milestones, client contacts.' },
+      { label: 'Archive your old spreadsheets', detail: 'Move them to a "Pre-Monday Archive" folder. Don\'t delete — just get them off your desktop.' },
+      { label: 'Run the system for one full week', detail: 'Do your morning review using the Command Center. Update project status in Monday instead of spreadsheets.' },
+      { label: 'Week 1 check-in with Hans', detail: 'Hans verifies all automations are firing correctly, no emails are going to wrong clients, and health scores look accurate.' },
+    ],
+    needs: ['All active project data ready', 'Full team trained'],
+    note: 'Week 1 will feel slower than your old way. Week 3, it\'ll feel faster. By Month 2, you\'ll never go back.',
+  },
+  'cs1': {
+    title: 'Invite Hans as Monday.com Admin',
+    when: 'Immediately — before anything else',
+    why: 'Hans cannot build a single board until he has Admin access to your Monday.com workspace. This is the number one blocker for the entire project.',
+    steps: [
+      { label: 'Sign into Monday.com', detail: 'Go to monday.com and sign in with your credentials.' },
+      { label: 'Open Admin settings', detail: 'Click your avatar in the top-right corner → Admin (or visit monday.com/admin directly).' },
+      { label: 'Go to Users', detail: 'In the Admin panel sidebar, click "Users".' },
+      { label: 'Click "Invite Members"', detail: 'Enter hans@intrepidhq.com in the email field.' },
+      { label: 'Set role to Admin', detail: 'In the Role dropdown, select "Admin". This gives Hans full access to build boards, formulas, and automations.' },
+      { label: 'Send the invite', detail: 'Click Send Invite. Hans will receive it and accept within the hour.' },
+    ],
+    needs: ['Monday.com Pro account', 'Your Admin login'],
+    note: 'If you don\'t have Admin rights yourself, ask whoever set up the account to send the invite.',
+  },
+  'cs2': {
+    title: 'Add Hans as QuickBooks Accountant',
+    when: 'Before Day 1',
+    why: 'The Accountant role gives Hans the read/write access he needs to build the milestone invoice automation — without exposing your payroll or bank accounts to him.',
+    steps: [
+      { label: 'Sign into QuickBooks Online', detail: 'Go to app.qbo.intuit.com and sign in.' },
+      { label: 'Open Settings', detail: 'Click the gear icon (⚙️) in the top-right corner.' },
+      { label: 'Click "Manage Users"', detail: 'Find this under the "Your Company" section in Settings.' },
+      { label: 'Click "Add user"', detail: 'Select "Accounting firms" or "External accountant" as the user type.' },
+      { label: 'Enter Hans\'s email', detail: 'Type hans@intrepidhq.com in the email field.' },
+      { label: 'Save and invite', detail: 'Click Save. Hans receives an invitation email and confirms access.' },
+    ],
+    needs: ['QuickBooks Online account', 'Master Admin login'],
+    note: 'Accountant role ≠ full admin. Hans can see invoices and customers — not payroll or bank data.',
+  },
+  'cs3': {
+    title: 'Approve Gmail OAuth for n8n',
+    when: 'Day 8–9, when Hans sends you the link',
+    why: 'This one-time permission lets n8n draft and send emails through your Gmail. Nothing is automatic — every draft lands in your Gmail Drafts folder for your review before anything goes out.',
+    steps: [
+      { label: 'Wait for Hans\'s OAuth link', detail: 'Hans generates a Google authorization URL from n8n and sends it to you via text.' },
+      { label: 'Open the link in Chrome', detail: 'Make sure you\'re signed into your business Google account, not a personal Gmail.' },
+      { label: 'Review the permissions', detail: 'Google shows what n8n is requesting: Read/Write Gmail, Send on your behalf. This is expected and required.' },
+      { label: 'Click "Allow"', detail: 'Approve the connection. You\'ll see a confirmation page.' },
+      { label: 'Text Hans "done"', detail: 'Hans tests the connection immediately with a test email to himself to verify it works.' },
+    ],
+    needs: ['Your business Gmail open in browser', 'Hans\'s OAuth link (he sends it to you)'],
+    note: 'You can revoke anytime: Google Account → Security → Third-party apps → n8n → Remove Access.',
+  },
+  'decision-risk': {
+    title: 'Set your At Risk score threshold',
+    when: 'Day 6–7, before Health Score is built',
+    why: 'The Health Score formula needs your threshold to know when to flag a project "At Risk" and ping you. You decide the number that matches how you run projects.',
+    steps: [
+      { label: 'Understand the scale', detail: 'Health scores run 0–100. 100 = perfect (on budget, on schedule). 0 = seriously off track. Default threshold: below 65 = At Risk.' },
+      { label: 'Choose your sensitivity', detail: 'Want earlier warnings? Set it at 70. Only want alerts for serious problems? Use 55. Most shops do well starting at 65.' },
+      { label: 'Tell Hans your number', detail: 'Text or email Hans: "Set At Risk threshold to [X]." He programs it into the formula column.' },
+      { label: 'You can change it later', detail: 'The formula is editable. If 65 feels too noisy after Week 1, Hans adjusts it in 5 minutes.' },
+    ],
+    needs: ['Just your decision'],
+    note: 'Our recommendation: start at 65. Review after your first full month live and adjust based on real data.',
+  },
+  'decision-revhr': {
+    title: 'Set your target Revenue per Hour',
+    when: 'Day 6–7',
+    why: 'The Rev/Hr KPI shows whether each project is generating the revenue per labor hour you need to hit your profit goals. Without your target, the widget is just a number.',
+    steps: [
+      { label: 'Find your current baseline', detail: 'Look at your last 6 months. Divide total revenue by total hours billed. That\'s your current average Rev/Hr.' },
+      { label: 'Set an aspirational target', detail: 'Your target should be 10–20% above your current average. If you\'re averaging $95/hr, aim for $110/hr.' },
+      { label: 'Tell Hans your number', detail: 'Hans sets this as the KPI baseline in Monday.com. Projects above target = green; below = yellow or red.' },
+      { label: 'Review it monthly', detail: 'As real data flows in from Monday.com, you\'ll see which project types are most profitable — and adjust accordingly.' },
+    ],
+    needs: ['Your historical billing data — rough is fine'],
+    note: 'The current simulation shows $90/hr as the default baseline. Let Hans know your real number.',
+  },
+  'decision-access': {
+    title: 'Decide who sees the Command Center',
+    when: 'Day 6–7',
+    why: 'The CEO Command Center shows revenue, health scores, and client risk data. You decide whether this stays private or gets shared with project leads.',
+    steps: [
+      { label: 'Option A: You only (recommended for Day 1)', detail: 'The Command Center is set as a private board. Your team sees the Projects board and their tasks, not the financial KPIs.' },
+      { label: 'Option B: You + project leads', detail: 'Project leads see project health scores but not revenue figures. More transparency, still protected financials.' },
+      { label: 'Option C: Full team visibility', detail: 'Everyone sees everything. Creates accountability but exposes business financials to crew. Not recommended for your first month.' },
+      { label: 'Tell Hans your choice', detail: 'Hans configures Monday.com board visibility settings based on your decision.' },
+    ],
+    needs: ['Your call'],
+    note: 'Recommendation: Start with Option A. Expand access after Month 1 once you\'re comfortable with how the data looks.',
+  },
+  'cb1': {
+    title: 'Create Monday Pro workspace',
+    when: 'Day 7 — Hans handles this',
+    why: 'Hans creates the full workspace structure in Monday.com: all four boards, column configurations, groups, and folder organization. This is the foundation everything else runs on.',
+    steps: [
+      { label: 'Prerequisite: Hans needs Admin access', detail: 'This cannot start until you\'ve completed the "Invite Hans as Admin" task (cs1). That\'s the only blocker.' },
+      { label: 'Hans builds all 4 boards', detail: 'He creates CEO Command Center, Projects, Customer CRM, and Leads & Intake — with the right column types (Status, Numbers, Formula, Timeline, Files).' },
+      { label: 'You get a Loom walkthrough', detail: 'Hans sends you a 5-minute video tour of the workspace around Day 8. Watch it before anything else.' },
+      { label: 'Give feedback', detail: 'Leave comments or schedule a 15-min call if anything needs adjusting. The structure is easier to change now than after data is in.' },
+    ],
+    needs: ['Hans has Admin access (cs1 done)', 'Monday.com Pro plan active'],
+    note: 'Don\'t start entering real project data until Hans tells you the structure is locked.',
+  },
+  'cb2': {
+    title: 'Health Score formula column',
+    when: 'Day 8 — Hans builds this',
+    why: 'The Health Score is a custom formula column that calculates each project\'s "fitness" on a 0–100 scale. It powers your "At Risk" alerts and the CEO dashboard health bars.',
+    steps: [
+      { label: 'Prerequisite: your At Risk threshold', detail: 'Hans needs your threshold number before he can configure the formula trigger. See "Set your At Risk score threshold".' },
+      { label: 'Hans builds the formula', detail: 'The formula weighs: 50% budget burn rate + 30% schedule variance + 20% completion percentage.' },
+      { label: 'You enter real project numbers', detail: 'For the formula to score accurately, enter real budget and hours data for all 5 active projects in Monday.com.' },
+      { label: 'Verify the scores look right', detail: 'Whitmore (your healthiest project) should score above 85. Collins (struggling) should score below 60.' },
+    ],
+    needs: ['At Risk threshold set (decision-risk)', 'Real project budget and hours figures'],
+    note: 'Formula weights can be adjusted after a month of live data if the scoring feels off.',
+  },
+  'cb3': {
+    title: 'Configure Rev/Hr widget',
+    when: 'Day 9 — Hans configures this',
+    why: 'The Revenue per Hour widget shows whether each project is hitting your profitability target. At a glance, you see which jobs are making money and which are bleeding hours.',
+    steps: [
+      { label: 'Prerequisite: your Rev/Hr target', detail: 'Hans needs your target number before configuring the widget. See "Set your target Revenue per Hour".' },
+      { label: 'Hans builds the widget', detail: 'The widget pulls labor hours from Monday.com and revenue from the project budget column to calculate Rev/Hr per project.' },
+      { label: 'Color thresholds set automatically', detail: 'Above target = gold. 75–99% of target = amber. Below 75% = red.' },
+      { label: 'Test with real data', detail: 'Enter real hours for one project and verify the widget shows the correct Rev/Hr figure.' },
+    ],
+    needs: ['Rev/Hr target set (decision-revhr)', 'Real labor hours entered per project'],
+    note: 'This single metric can tell you which project types you should focus on — and which to stop quoting.',
+  },
+  'cb4': {
+    title: 'At Risk notification automation',
+    when: 'Day 10 — Hans builds this',
+    why: 'When a project\'s Health Score drops below your threshold, Monday.com sends you a notification — email and push — so you can intervene before the project goes seriously off track.',
+    steps: [
+      { label: 'Prerequisite: At Risk threshold', detail: 'Make sure "Set your At Risk score threshold" is decided. Hans programs your number into the automation trigger.' },
+      { label: 'Hans creates the automation', detail: 'Monday.com automation recipe: "When Health Score drops below [threshold] → notify you via email and push notification."' },
+      { label: 'Test the notification', detail: 'Hans manually drops a test project score below the threshold and confirms you receive the notification on your phone.' },
+      { label: 'Verify the right channels', detail: 'Confirm it reaches your phone (Monday.com app) and email. Adjust delivery preferences if needed.' },
+    ],
+    needs: ['At Risk threshold decided (decision-risk)', 'Monday.com app installed on your phone'],
+    note: 'You\'re notified when the score drops below threshold — not on every recalculation. No notification spam.',
+  },
+};
+
+const openTaskModal = (taskId) => {
+  const task = TASKS[taskId];
+  if (!task) return;
+
+  const modal = document.getElementById('task-modal-overlay');
+  const panel = document.getElementById('task-modal-panel');
+
+  panel.innerHTML = `
+    <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white dark:bg-[#131711] border-b border-stone-200 dark:border-white/[.06]">
+      <div class="flex items-center gap-2">
+        <div class="w-1.5 h-5 rounded-full bg-gold flex-shrink-0"></div>
+        <span class="text-[11px] font-bold tracking-[.16em] uppercase text-stone-500 dark:text-stone-400">Task Details</span>
+      </div>
+      <button onclick="closeTaskModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-stone-100 dark:hover:bg-white/[.07] transition-colors text-stone-500 dark:text-stone-400" aria-label="Close">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="p-6 flex-1">
+      <div class="mb-1 text-[12px] font-semibold text-gold tracking-wide">${task.when}</div>
+      <h2 class="text-[22px] font-black text-stone-900 dark:text-white leading-tight mb-5" style="font-family:minerva-modern,Georgia,serif">${task.title}</h2>
+
+      <div class="rounded-xl bg-gold/6 border border-gold/15 px-4 py-3.5 mb-6">
+        <div class="text-[11px] font-bold tracking-[.14em] uppercase text-gold mb-1.5">Why this matters</div>
+        <p class="text-[15px] text-stone-700 dark:text-stone-300 leading-relaxed">${task.why}</p>
+      </div>
+
+      <div class="mb-6">
+        <div class="text-[11px] font-bold tracking-[.14em] uppercase text-stone-500 dark:text-stone-400 mb-3">Steps</div>
+        <div class="space-y-3">
+          ${task.steps.map((s, i) => `
+            <div class="flex gap-3">
+              <div class="flex-shrink-0 w-6 h-6 rounded-full bg-stone-100 dark:bg-white/[.07] flex items-center justify-center text-[12px] font-bold text-stone-500 dark:text-stone-400 mt-0.5">${i + 1}</div>
+              <div>
+                <div class="text-[15px] font-semibold text-stone-800 dark:text-stone-100 leading-snug">${s.label}</div>
+                <div class="text-[14px] text-stone-600 dark:text-stone-400 mt-0.5 leading-relaxed">${s.detail}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      ${task.needs && task.needs.length ? `
+      <div class="rounded-xl bg-stone-50 dark:bg-white/[.03] border border-stone-200 dark:border-white/[.06] px-4 py-3.5 mb-4">
+        <div class="text-[11px] font-bold tracking-[.14em] uppercase text-stone-500 dark:text-stone-400 mb-2">What you'll need</div>
+        <ul class="space-y-1">
+          ${task.needs.map(n => `<li class="flex items-center gap-2 text-[14px] text-stone-700 dark:text-stone-300"><svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="#C9A44C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="2 6 5 9 10 3"/></svg>${n}</li>`).join('')}
+        </ul>
+      </div>
+      ` : ''}
+
+      ${task.note ? `
+      <div class="flex gap-2.5 px-4 py-3 rounded-xl bg-stone-100 dark:bg-white/[.04] border border-stone-200 dark:border-white/[.05]">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="flex-shrink-0 mt-0.5 text-stone-400 dark:text-stone-500"><circle cx="8" cy="8" r="6"/><path d="M7.5 7.5c0-1 .7-1.5 1.5-1.5s1.5.5 1.5 1.5-1 1.5-1.5 2v.5"/><circle cx="8" cy="11.5" r=".5" fill="currentColor"/></svg>
+        <p class="text-[13px] text-stone-600 dark:text-stone-400 leading-relaxed">${task.note}</p>
+      </div>
+      ` : ''}
+    </div>
+  `;
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+const closeTaskModal = () => {
+  const modal = document.getElementById('task-modal-overlay');
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+// Close on overlay click
+document.getElementById('task-modal-overlay')?.addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeTaskModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeTaskModal();
+});
 </script>
 </body>
 </html>
