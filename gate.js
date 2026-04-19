@@ -48,13 +48,13 @@
     }
 
     .sw-gate-logo {
-      width: 44px; height: 44px; overflow: hidden;
+      width: 56px; height: 56px;
       margin: 0 auto 22px;
     }
     .sw-gate-logo img {
-      width: 44px; height: 44px;
-      object-fit: contain; object-position: center top;
-      transform: scale(1.7); transform-origin: center top;
+      width: 56px; height: 56px;
+      object-fit: contain;
+      display: block;
     }
 
     .sw-gate-eyebrow {
@@ -344,7 +344,7 @@
   function _logoSrc() {
     const path = location.pathname;
     const depth = (path.match(/\//g) || []).length;
-    return depth <= 1 ? './logo.webp' : '../logo.webp';
+    return depth <= 1 ? './favicon.png' : '../favicon.png';
   }
 
   function _bindEnterKey() {
