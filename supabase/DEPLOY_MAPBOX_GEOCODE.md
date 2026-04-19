@@ -43,7 +43,17 @@ There is an [open CLI issue](https://github.com/supabase/cli/issues/4802) where 
 
 If it persists, contact Supabase support with the debug log.
 
-## 4. Until deploy works: browser Mapbox token
+## 4. Deploy from GitHub Actions (no local CLI auth)
+
+If your laptop CLI keeps returning 403, use a **Personal Access Token** from an account that is **Owner or Administrator** on the Saunders project:
+
+1. GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**
+2. Name: `SUPABASE_ACCESS_TOKEN`, value: your PAT (`sbp_…` from the Supabase account page).
+3. **Actions** tab → workflow **Deploy mapbox-geocode Edge Function** → **Run workflow**.
+
+The workflow lives at `.github/workflows/deploy-mapbox-geocode.yml`.
+
+## 5. Until deploy works: browser Mapbox token
 
 The intake form already falls back to **`mapbox-config.js`** → `window.__MAPBOX_ACCESS_TOKEN` with your public **`pk.`** Mapbox token so address search works without Edge Functions. In the Mapbox dashboard, restrict that token by **URL** (your site only) to limit abuse.
 
