@@ -659,6 +659,24 @@
 <div id="site-header-root"></div>
 <script src="./shared-header.js"></script>
 
+<!-- Quote persistence bar -->
+<div id="quotePersistBar" style="
+  display:none; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  padding:9px 24px; background:var(--paper-2); border-bottom:1px solid var(--line-gold);
+  font-size:11.5px; font-family:var(--sans); letter-spacing:.04em; position:sticky; top:56px; z-index:90;
+">
+  <span id="quoteSlugWrap" style="display:none;gap:10px;align-items:center;">
+    <span style="text-transform:uppercase;letter-spacing:.12em;color:var(--ink-soft);font-size:10px;font-weight:700;">Quote ID</span>
+    <span id="quoteSlug" style="font-variant-numeric:tabular-nums;font-weight:600;color:var(--gold-dk);font-size:12px;"></span>
+    <button onclick="copyQuoteLink()" style="background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:11px;padding:0;text-decoration:underline;" title="Copy link to this quote">Copy link</button>
+    <button onclick="newQuote()" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:11px;padding:0;text-decoration:underline;" title="Start a new quote">New quote</button>
+  </span>
+  <span style="display:flex;gap:16px;align-items:center;">
+    <span id="priceTimestamp" style="color:var(--ink-soft);font-size:10.5px;"></span>
+    <span id="saveStatus" style="font-size:11px;color:var(--ink-soft);">Connecting…</span>
+  </span>
+</div>
+
 <main>
 
   <!-- ============ 0. DELIVERABLE CONTEXT BANNER ============ -->
@@ -893,7 +911,7 @@
     </div>
     <div class="actions-bar no-print">
       <button class="ghost small" onclick="addMaterial()">+ Add material</button>
-      <button class="small" onclick="refreshPrices()">Refresh market prices</button>
+      <button class="small" onclick="refreshLivePrices()">↻ Refresh prices from DB</button>
     </div>
   </section>
 
@@ -1291,10 +1309,8 @@ const HARDWARE_CATALOG = {
 /*  Replace the body with a fetch() when wiring to a real feed.       */
 /* ------------------------------------------------------------------ */
 async function fetchLivePrices() {
-  // TODO: wire to live market feed, e.g.:
-  //   const r = await fetch('https://api.example.com/lumber');
-  //   const data = await r.json();
-  //   merge `data` into PRICE_CATALOG and bump `.updated`
+  // Alias kept for backwards compat — calls the real Supabase loader
+  await loadLivePrices();
   return PRICE_CATALOG;
 }
 
@@ -1764,6 +1780,7 @@ function updateSummary() {
 /* =========================================================================
    TOP-LEVEL RENDER / BINDING
    ========================================================================= */
+let _renderCount = 0;
 function render() {
   renderDoors();
   renderBoxes();
@@ -1771,6 +1788,8 @@ function render() {
   renderHardware();
   renderPackets();
   updateSummary();
+  // Skip auto-save for the first two renders (seed defaults, DB restore)
+  if (++_renderCount > 2) scheduleSave();
 }
 
 /* Bind declarative data-state inputs to the state object. */
@@ -1926,10 +1945,7 @@ async function saveToDatabase() {
    ACTIONS
    ========================================================================= */
 async function refreshPrices() {
-  // Pull latest prices (today = local catalog; future = API).
-  await fetchLivePrices();
-  render();
-  flashToast("Market prices refreshed");
+  await refreshLivePrices();
 }
 function exportJSON() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -2003,11 +2019,186 @@ function flashToast(msg) {
 }
 
 /* =========================================================================
+   SUPABASE — Live pricing + Quote persistence
+   ========================================================================= */
+
+/* ── Price loading ───────────────────────────────────────────────────── */
+async function loadLivePrices() {
+  const db = window.SaundersDB;
+  if (!db) return;
+  try {
+    const { data, error } = await db
+      .from('material_prices')
+      .select('group_name, name, unit, price, updated_at')
+      .order('group_name')
+      .order('name');
+    if (error || !data?.length) return;
+
+    // Merge DB prices into PRICE_CATALOG (DB always wins)
+    for (const row of data) {
+      if (!PRICE_CATALOG[row.group_name]) PRICE_CATALOG[row.group_name] = {};
+      PRICE_CATALOG[row.group_name][row.name] = {
+        unit: row.unit,
+        price: Number(row.price),
+        updated: row.updated_at?.slice(0, 10)
+      };
+    }
+
+    // Timestamp display
+    const latest = data.reduce((m, r) => r.updated_at > m ? r.updated_at : m, '');
+    const ts = document.getElementById('priceTimestamp');
+    if (ts && latest) {
+      const d = new Date(latest);
+      ts.textContent = `Prices synced · ${d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}`;
+      ts.style.color = 'var(--gold-dk)';
+    }
+    render();
+  } catch (e) {
+    console.warn('[SaundersDB] price load failed:', e);
+  }
+}
+
+async function refreshLivePrices() {
+  const ts = document.getElementById('priceTimestamp');
+  if (ts) ts.textContent = 'Refreshing prices…';
+  await loadLivePrices();
+  flashToast('Prices refreshed from database');
+}
+
+/* ── Quote slug ──────────────────────────────────────────────────────── */
+function getOrCreateSlug() {
+  const params = new URLSearchParams(location.search);
+  let slug = params.get('quote') || localStorage.getItem('sw_quote_slug');
+  if (!slug) {
+    const yy = new Date().getFullYear().toString().slice(-2);
+    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+    slug = `SWW-${yy}-${rand}`;
+  }
+  localStorage.setItem('sw_quote_slug', slug);
+  const url = new URL(location.href);
+  url.searchParams.set('quote', slug);
+  history.replaceState({}, '', url);
+  return slug;
+}
+
+let QUOTE_SLUG = '';
+
+function copyQuoteLink() {
+  navigator.clipboard.writeText(location.href).then(() => flashToast('Link copied!'));
+}
+
+function newQuote() {
+  if (!confirm('Start a fresh quote? Current quote will remain saved under its ID.')) return;
+  localStorage.removeItem('sw_quote_slug');
+  const url = new URL(location.href);
+  url.searchParams.delete('quote');
+  location.href = url.toString();
+}
+
+/* ── Save status ─────────────────────────────────────────────────────── */
+let _saveTimer = null;
+function setSaveStatus(status, msg) {
+  const el = document.getElementById('saveStatus');
+  if (!el) return;
+  const map = {
+    idle:    { icon: '',   text: '',                   color: 'var(--ink-soft)' },
+    saving:  { icon: '⏳', text: 'Saving…',            color: 'var(--gold-dk)' },
+    saved:   { icon: '✓',  text: 'Saved',              color: '#4caf50' },
+    error:   { icon: '⚠',  text: 'Save failed',        color: 'var(--red)' },
+  };
+  const s = map[status] || map.idle;
+  el.textContent = (s.icon ? s.icon + ' ' : '') + (msg || s.text);
+  el.style.color = s.color;
+}
+
+async function saveQuote() {
+  const db = window.SaundersDB;
+  if (!db || !QUOTE_SLUG) return;
+  try {
+    const { error } = await db.from('quotes').upsert({
+      slug:         QUOTE_SLUG,
+      client_name:  state.basics.name  || '',
+      project_name: state.basics.projectType || '',
+      state_json:   state
+    }, { onConflict: 'slug' });
+    if (error) throw error;
+    setSaveStatus('saved');
+    _saveTimer = setTimeout(() => setSaveStatus('idle'), 3000);
+  } catch (e) {
+    setSaveStatus('error');
+    console.error('[SaundersDB] save failed:', e);
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(_saveTimer);
+  setSaveStatus('saving');
+  _saveTimer = setTimeout(saveQuote, 1400);
+}
+
+/* ── State restore ───────────────────────────────────────────────────── */
+function applyRestoredState(saved) {
+  if (!saved || typeof saved !== 'object') return;
+  if (saved.basics)     Object.assign(state.basics,     saved.basics);
+  if (saved.dims)       Object.assign(state.dims,       saved.dims);
+  if (saved.decoreSpec) Object.assign(state.decoreSpec, saved.decoreSpec);
+  if (saved.budget)     Object.assign(state.budget,     saved.budget);
+  if (Array.isArray(saved.components))  state.components  = saved.components.map(c => ({ ...c, id: c.id || uid() }));
+  if (Array.isArray(saved.materials))   state.materials   = saved.materials.map(m => ({ ...m, id: m.id || uid() }));
+  if (Array.isArray(saved.hardware))    state.hardware    = saved.hardware.map(h => ({ ...h, id: h.id || uid() }));
+  if (Array.isArray(saved.doors))       state.doors       = saved.doors.map(d => ({ ...d, id: d.id || uid() }));
+  if (Array.isArray(saved.drawerBoxes)) state.drawerBoxes = saved.drawerBoxes.map(b => ({ ...b, id: b.id || uid() }));
+  bindStateInputs();
+}
+
+/* ── Boot ────────────────────────────────────────────────────────────── */
+async function initSupabase() {
+  const db = window.SaundersDB;
+  const bar = document.getElementById('quotePersistBar');
+  if (bar) bar.style.display = 'flex';
+
+  QUOTE_SLUG = getOrCreateSlug();
+  const slugEl = document.getElementById('quoteSlug');
+  const slugWrap = document.getElementById('quoteSlugWrap');
+  if (slugEl)   slugEl.textContent = QUOTE_SLUG;
+  if (slugWrap) slugWrap.style.display = 'flex';
+
+  if (!db) {
+    setSaveStatus('error', 'DB offline — changes not saved');
+    return;
+  }
+
+  setSaveStatus('saving', 'Connecting…');
+
+  // Load prices first so material dropdowns are up-to-date before state restore
+  await loadLivePrices();
+
+  // Load existing quote
+  const { data, error } = await db
+    .from('quotes')
+    .select('state_json')
+    .eq('slug', QUOTE_SLUG)
+    .maybeSingle();
+
+  if (data?.state_json && !error) {
+    applyRestoredState(data.state_json);
+    setSaveStatus('saved', '✓ Restored from database');
+    setTimeout(() => setSaveStatus('idle'), 3000);
+    render();
+  } else {
+    // Seed empty quote row
+    await db.from('quotes').upsert(
+      { slug: QUOTE_SLUG, client_name: '', project_name: '', state_json: state },
+      { onConflict: 'slug', ignoreDuplicates: true }
+    );
+    setSaveStatus('idle', '');
+  }
+}
+
+/* =========================================================================
    INIT
    ========================================================================= */
 bindStateInputs();
-// Seed components — each represents a distinct piece or cabinet run in the project.
-// The client fills in actual dimensions; these are just labels to start.
 addComponent({ label: "Island" });
 addComponent({ label: "Lower Cabinets" });
 addComponent({ label: "Upper Cabinets" });
@@ -2016,6 +2207,9 @@ addBox();
 addMaterial();
 addHardware({ category: "Drawer glides (Salice)" });
 render();
+
+// Boot Supabase (runs after page is ready; overwrites seeds if saved data exists)
+initSupabase();
 </script>
 
 </body>
