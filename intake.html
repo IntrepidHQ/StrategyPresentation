@@ -277,10 +277,24 @@
     padding: 8px 10px;
     font-size: 13.5px;
     border-radius: var(--r-xs);
+    color: var(--ink) !important;
+    background: #fff !important;
+    border: 1px solid var(--line-strong);
+  }
+  table.estimator input:focus, table.estimator select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,164,76,0.14);
+  }
+  table.estimator input[type="number"] {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    text-align: right;
   }
   table.estimator select {
     background-position: right 10px center;
     padding-right: 30px;
+    text-align: left;
   }
   table.estimator .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
 
@@ -1058,7 +1072,7 @@
    for a future supplier integration.
    ========================================================================= */
 const PRICE_CATALOG = {
-  "Hardwood lumber": {
+  "Hardwood lumber (bd-ft)": {
     "Maple Select, S4S":                 { unit: "bd-ft", price:  9.75, updated: "2026-04-17" },
     "White Oak Select, S4S":             { unit: "bd-ft", price: 12.50, updated: "2026-04-17" },
     "Rift White Oak, S4S":               { unit: "bd-ft", price: 16.80, updated: "2026-04-17" },
@@ -1069,27 +1083,54 @@ const PRICE_CATALOG = {
     "Hardwood paint grade (Poplar)":     { unit: "bd-ft", price:  4.80, updated: "2026-04-17" },
     "Aspen, S4S":                        { unit: "bd-ft", price:  5.60, updated: "2026-04-17" }
   },
-  "Sheet goods": {
+  "Hardwood flooring (sqft)": {
+    "Maple flooring, 3/4\" T&G":         { unit: "sqft",  price:  7.50, updated: "2026-04-17" },
+    "White Oak flooring, 3/4\" T&G":     { unit: "sqft",  price: 10.25, updated: "2026-04-17" },
+    "Rift White Oak flooring, 3/4\" T&G":{ unit: "sqft",  price: 14.00, updated: "2026-04-17" },
+    "Walnut flooring, 3/4\" T&G":        { unit: "sqft",  price: 14.75, updated: "2026-04-17" },
+    "Cherry flooring, 3/4\" T&G":        { unit: "sqft",  price:  9.50, updated: "2026-04-17" },
+    "Ipe decking, 1x4 T&G":              { unit: "sqft",  price:  8.20, updated: "2026-04-17" },
+    "Cedar decking, 5/4 T&G":            { unit: "sqft",  price:  3.90, updated: "2026-04-17" }
+  },
+  "Sheet goods (per sheet)": {
     "White Oak veneer ply, 3/4\"":       { unit: "sheet", price: 165, updated: "2026-04-17" },
     "Rift White Oak veneer ply, 3/4\"":  { unit: "sheet", price: 210, updated: "2026-04-17" },
     "Walnut veneer ply, 3/4\"":          { unit: "sheet", price: 210, updated: "2026-04-17" },
     "Maple veneer ply, 3/4\"":           { unit: "sheet", price: 125, updated: "2026-04-17" },
     "Baltic birch ply, 3/4\"":           { unit: "sheet", price:  95, updated: "2026-04-17" },
     "Baltic birch ply, 1/2\"":           { unit: "sheet", price:  72, updated: "2026-04-17" },
-    "MDF, 3/4\"":                         { unit: "sheet", price:  48, updated: "2026-04-17" },
-    "Melamine white, 3/4\"":              { unit: "sheet", price:  62, updated: "2026-04-17" }
+    "MDF, 3/4\"":                        { unit: "sheet", price:  48, updated: "2026-04-17" },
+    "Melamine white, 3/4\"":             { unit: "sheet", price:  62, updated: "2026-04-17" }
   },
-  "Deck & outdoor": {
+  "Sheet goods (per sqft)": {
+    "White Oak veneer ply, 3/4\"":       { unit: "sqft",  price: 5.16, updated: "2026-04-17" },
+    "Rift White Oak veneer ply, 3/4\"":  { unit: "sqft",  price: 6.56, updated: "2026-04-17" },
+    "Walnut veneer ply, 3/4\"":          { unit: "sqft",  price: 6.56, updated: "2026-04-17" },
+    "Maple veneer ply, 3/4\"":           { unit: "sqft",  price: 3.91, updated: "2026-04-17" },
+    "Baltic birch ply, 3/4\"":           { unit: "sqft",  price: 2.97, updated: "2026-04-17" },
+    "Baltic birch ply, 1/2\"":           { unit: "sqft",  price: 2.25, updated: "2026-04-17" },
+    "MDF, 3/4\"":                        { unit: "sqft",  price: 1.50, updated: "2026-04-17" },
+    "Melamine white, 3/4\"":             { unit: "sqft",  price: 1.94, updated: "2026-04-17" }
+  },
+  "Countertops & surfaces (sqft)": {
+    "Quartz slab (installed)":           { unit: "sqft",  price: 85.00, updated: "2026-04-17" },
+    "Granite slab (installed)":          { unit: "sqft",  price: 75.00, updated: "2026-04-17" },
+    "Butcher block, maple 1.5\"":        { unit: "sqft",  price: 28.00, updated: "2026-04-17" },
+    "Butcher block, walnut 1.5\"":       { unit: "sqft",  price: 48.00, updated: "2026-04-17" },
+    "Solid surface (Corian-type)":       { unit: "sqft",  price: 55.00, updated: "2026-04-17" },
+    "Porcelain tile":                    { unit: "sqft",  price: 12.00, updated: "2026-04-17" }
+  },
+  "Deck & outdoor (ln-ft)": {
     "PT southern pine 2x6":              { unit: "ln-ft", price: 2.15, updated: "2026-04-17" },
     "Ipe decking, 1x6":                  { unit: "ln-ft", price: 7.50, updated: "2026-04-17" },
     "Cedar decking, 5/4x6":              { unit: "ln-ft", price: 3.40, updated: "2026-04-17" },
     "PT 6x6 post (dock)":                { unit: "ln-ft", price: 6.20, updated: "2026-04-17" }
   },
   "Shop finishes": {
-    "Conversion varnish (gal)":          { unit: "gal", price:  88, updated: "2026-04-17" },
-    "Pre-cat lacquer (gal)":             { unit: "gal", price:  74, updated: "2026-04-17" },
-    "Rubio Monocoat (L)":                { unit: "L",   price: 110, updated: "2026-04-17" },
-    "Penofin marine oil (gal)":          { unit: "gal", price:  95, updated: "2026-04-17" }
+    "Conversion varnish (gal)":          { unit: "gal",   price:  88, updated: "2026-04-17" },
+    "Pre-cat lacquer (gal)":             { unit: "gal",   price:  74, updated: "2026-04-17" },
+    "Rubio Monocoat (L)":                { unit: "L",     price: 110, updated: "2026-04-17" },
+    "Penofin marine oil (gal)":          { unit: "gal",   price:  95, updated: "2026-04-17" }
   }
 };
 
@@ -1380,25 +1421,51 @@ function renderMaterials() {
       matOpts += "</optgroup>";
     }
 
+    const isSqft = mat?.unit === "sqft";
+    // For sqft: auto-derive qty from L×W (inches → sqft = L*W/144)
+    const autoQty = isSqft && m.L && m.W ? (Number(m.L) * Number(m.W) / 144) : null;
+    const displayQty = autoQty !== null ? parseFloat(autoQty.toFixed(3)) : m.qty;
+    if (autoQty !== null && Math.abs((Number(m.qty) || 0) - autoQty) > 0.001) {
+      state.materials[idx].qty = autoQty;
+    }
+    const lineTotalCalc = market * (Number(displayQty) || 0);
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><select onchange="state.materials[${idx}].componentId=this.value; render();">${compOpts}</select></td>
       <td><select onchange="pickMaterial(${idx}, this.value)">${matOpts}</select></td>
-      <td><input type="number" min="0" step="0.25" value="${m.qty}" oninput="state.materials[${idx}].qty=numOrZero(this.value); render();"></td>
-      <td><input type="number" min="0" step="0.125" value="${m.L}" oninput="state.materials[${idx}].L=numOrBlank(this.value);"></td>
-      <td><input type="number" min="0" step="0.125" value="${m.W}" oninput="state.materials[${idx}].W=numOrBlank(this.value);"></td>
-      <td><input type="number" min="0" step="0.125" value="${m.H}" oninput="state.materials[${idx}].H=numOrBlank(this.value);"></td>
-      <td style="font-size:11px; color:#666;">${mat ? mat.unit : "—"}</td>
+      <td style="position:relative;">
+        <input type="number" min="0" step="0.001" value="${displayQty}"
+          ${isSqft && m.L && m.W ? 'readonly title="Auto-calculated from L × W ÷ 144" style="background:#f8f5ee!important;color:var(--gold-dk)!important;font-weight:600;text-align:right;cursor:default;"' : 'oninput="state.materials[' + idx + '].qty=numOrZero(this.value); render();" style="text-align:right;"'}
+        >
+        ${isSqft && m.L && m.W ? '<span style="position:absolute;bottom:2px;right:6px;font-size:9px;color:var(--gold-dk);letter-spacing:.05em;pointer-events:none;">AUTO</span>' : ''}
+      </td>
+      <td><input type="number" min="0" step="0.125" value="${m.L}"
+          oninput="state.materials[${idx}].L=numOrBlank(this.value); ${isSqft ? 'recalcSqftQty(' + idx + ',this.closest(\'tr\'));' : ''} render();"></td>
+      <td><input type="number" min="0" step="0.125" value="${m.W}"
+          oninput="state.materials[${idx}].W=numOrBlank(this.value); ${isSqft ? 'recalcSqftQty(' + idx + ',this.closest(\'tr\'));' : ''} render();"></td>
+      <td><input type="number" min="0" step="0.125" value="${m.H}"
+          oninput="state.materials[${idx}].H=numOrBlank(this.value);"></td>
+      <td style="font-size:11px; color:var(--ink-soft); font-weight:600; white-space:nowrap;">${mat ? mat.unit : "—"}</td>
       <td class="num"><input type="number" min="0" step="0.01" value="${quoted.toFixed(2)}" oninput="state.materials[${idx}].quotedPrice=numOrZero(this.value); render();" style="text-align:right;"></td>
       <td class="num">${money(market)}</td>
-      <td class="num" style="color:${flag==='red'?'var(--red)':flag==='blue'?'var(--blue)':'#444'}">${quoted>0 ? (delta>=0?"+":"") + delta.toFixed(1) + "%" : "—"}</td>
-      <td class="num">${money(lineTotal)}</td>
+      <td class="num" style="color:${flag==='red'?'var(--red)':flag==='blue'?'var(--blue)':'var(--ink-soft)'}">${quoted>0 ? (delta>=0?"+":"") + delta.toFixed(1) + "%" : "—"}</td>
+      <td class="num">${money(lineTotalCalc)}</td>
       <td><span class="flag ${flag}">${flag==='red'?'▲ OVER': flag==='blue'?'▼ UNDER':'✓ OK'}</span></td>
       <td class="no-print"><button class="danger small" onclick="removeMaterial('${m.id}')">✕</button></td>
     `;
     tbody.appendChild(tr);
   });
 }
+/* When a sqft material's L or W changes, update the stored qty immediately
+   so the line total refreshes correctly before the next full render(). */
+function recalcSqftQty(idx) {
+  const m = state.materials[idx];
+  if (m.L && m.W) {
+    m.qty = Number(m.L) * Number(m.W) / 144;
+  }
+}
+
 function pickMaterial(idx, key) {
   state.materials[idx].materialKey = key;
   // reset quoted price to current market when material changes
@@ -1627,7 +1694,11 @@ function materialsSubtotal() {
   return state.materials.reduce((s, m) => {
     const mat = resolveMaterial(m.materialKey);
     if (!mat) return s;
-    return s + mat.price * (Number(m.qty)||0);
+    const isSqft = mat.unit === "sqft";
+    const effectiveQty = isSqft && m.L && m.W
+      ? (Number(m.L) * Number(m.W) / 144)
+      : (Number(m.qty) || 0);
+    return s + mat.price * effectiveQty;
   }, 0);
 }
 function hardwareSubtotal() {
