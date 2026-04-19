@@ -44,6 +44,9 @@
   /* ── CSS ─────────────────────────────────────────────────────────────── */
   const styleEl = document.createElement('style');
   styleEl.textContent = `
+  html {
+    overflow-x: hidden;
+  }
   #site-header {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     box-sizing: border-box;
