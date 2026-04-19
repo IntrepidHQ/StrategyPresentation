@@ -2,6 +2,13 @@
 
 Every material change to the `brain/` folder gets a line here. Date in ISO, author initial or agent name, and a one-line summary.
 
+## 2026-04-19 · site plumbing & appliances references
+
+- Added **`docs/combined-plumbing.pdf`** and **`docs/combined-appliances.pdf`** to the repo and **Agent Brain** (`brain.html` index + Source Documents).
+- New brain entries **`10-site-plumbing.md`** and **`11-site-appliances.md`**; **`brain-index.json`** relationships and `relatedFiles` updated (`00-project`, `06-intake-form`, `08-agent-playbook`).
+- **`06-intake-form.md`**, **`08-agent-playbook.md`**, and **`README.md`** updated so agents tie PDFs to intake sections (site notes, dimensions, Appliance Packets).
+- **`scripts/sync-brain-html.mjs`** — rebuilds embedded `BRAIN_INDEX` / `BRAIN_CONTENT` from `brain-index.json` + `brain/*.md` + `products.json`.
+
 ## 2026-04-17 · brain audit + cleanup
 
 - **README** rewritten — cleaner index table, expanded agent protocol with question-type routing, PDF source table.

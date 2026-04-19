@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-17",
+  "lastUpdated": "2026-04-19",
   "files": [
     {
       "id": "00-project",
@@ -11,7 +11,9 @@
       "relatedFiles": [
         "01-suppliers",
         "08-agent-playbook",
-        "06-intake-form"
+        "06-intake-form",
+        "10-site-plumbing",
+        "11-site-appliances"
       ],
       "importance": 5,
       "lastUpdated": "2026-04-17",
@@ -112,7 +114,9 @@
         "00-project",
         "05-decore-order-form",
         "07-proposal-site",
-        "09-database"
+        "09-database",
+        "10-site-plumbing",
+        "11-site-appliances"
       ],
       "importance": 5,
       "lastUpdated": "2026-04-17",
@@ -141,7 +145,8 @@
       "relatedFiles": [
         "02-decore-doors",
         "03-decore-finishes",
-        "04-decore-hardware"
+        "04-decore-hardware",
+        "11-site-appliances"
       ],
       "importance": 5,
       "lastUpdated": "2026-04-17",
@@ -202,6 +207,42 @@
       "importance": 4,
       "lastUpdated": "2026-04-17",
       "wordCount": 380
+    },
+    {
+      "id": "10-site-plumbing",
+      "name": "Site Plumbing Reference",
+      "path": "10-site-plumbing.md",
+      "category": "processes",
+      "description": "Combined plumbing PDF (`docs/combined-plumbing.pdf`): rough-in, drains, and cabinet-adjacent coordination; maps to intake site notes and dimensions.",
+      "relatedFiles": [
+        "06-intake-form",
+        "00-project",
+        "05-decore-order-form"
+      ],
+      "sources": [
+        "combined-plumbing.pdf"
+      ],
+      "importance": 4,
+      "lastUpdated": "2026-04-19",
+      "wordCount": 340
+    },
+    {
+      "id": "11-site-appliances",
+      "name": "Site Appliances Reference",
+      "path": "11-site-appliances.md",
+      "category": "processes",
+      "description": "Combined appliances PDF (`docs/combined-appliances.pdf`): clearances and rough-in orientation; intake Appliance Packets and manufacturer PDFs remain authoritative per model.",
+      "relatedFiles": [
+        "06-intake-form",
+        "08-agent-playbook",
+        "00-project"
+      ],
+      "sources": [
+        "combined-appliances.pdf"
+      ],
+      "importance": 5,
+      "lastUpdated": "2026-04-19",
+      "wordCount": 280
     }
   ],
   "pdfs": [
@@ -650,6 +691,39 @@
       "uploadedAt": "2026-04-17",
       "size": "71 KB",
       "sourceUrl": "https://decore.com"
+    },
+    {
+      "id": "combined-plumbing",
+      "name": "COMBINED — Plumbing",
+      "filename": "combined-plumbing.pdf",
+      "localPath": "docs/combined-plumbing.pdf",
+      "category": "reference",
+      "relatedTo": [
+        "06-intake-form",
+        "00-project",
+        "10-site-plumbing"
+      ],
+      "description": "Internal combined plumbing reference for site readiness, sink bases, wet bars, laundry, and bath vanities adjacent to Saunders casework.",
+      "uploadedAt": "2026-04-19",
+      "size": "9.5 MB",
+      "sourceUrl": ""
+    },
+    {
+      "id": "combined-appliances",
+      "name": "COMBINED — Appliances",
+      "filename": "combined-appliances.pdf",
+      "localPath": "docs/combined-appliances.pdf",
+      "category": "reference",
+      "relatedTo": [
+        "06-intake-form",
+        "08-agent-playbook",
+        "00-project",
+        "11-site-appliances"
+      ],
+      "description": "Internal combined appliance reference for rough-in, ventilation, and clearances; use with per-model manufacturer PDFs from intake Appliance Packets.",
+      "uploadedAt": "2026-04-19",
+      "size": "4.7 MB",
+      "sourceUrl": ""
     }
   ],
   "relationships": [
@@ -742,6 +816,24 @@
       "to": "08-agent-playbook",
       "label": "enables",
       "type": "references"
+    },
+    {
+      "from": "06-intake-form",
+      "to": "10-site-plumbing",
+      "label": "site readiness ties to",
+      "type": "references"
+    },
+    {
+      "from": "06-intake-form",
+      "to": "11-site-appliances",
+      "label": "appliance packets tie to",
+      "type": "references"
+    },
+    {
+      "from": "08-agent-playbook",
+      "to": "11-site-appliances",
+      "label": "verifies specs via",
+      "type": "uses"
     }
   ],
   "categories": [

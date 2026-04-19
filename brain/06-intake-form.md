@@ -10,6 +10,8 @@ Version 1 of Matt's client-intake tool. First deliverable of the Monday Automati
 
 A single, shareable, link-based form that lets Matt collect everything he needs to price a job — project vision, dimensions, Decore door/finish/hardware selection, materials, appliance packets, and budget tolerances — in one sitting, replacing email back-and-forth. Submissions save directly to the Saunders Supabase database.
 
+**Site plumbing & appliances (agent context):** Internal references `docs/combined-plumbing.pdf` and `docs/combined-appliances.pdf` map to **site notes**, **dimensions**, and **Appliance Packets**; see `10-site-plumbing.md` and `11-site-appliances.md` for how agents should use them without replacing per-model manufacturer PDFs.
+
 ---
 
 ## Current section architecture (v1)

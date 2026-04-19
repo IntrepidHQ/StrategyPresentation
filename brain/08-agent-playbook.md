@@ -70,3 +70,16 @@ If you learn a new detail (a new door model, a new color, a new Salice SKU, a ne
 2. Update `products.json` if it's a structured fact.
 3. Append a dated entry to `CHANGELOG.md` with what changed and why.
 4. If the change affects the intake form, update the corresponding in-page catalog in `intake.html`.
+
+## 11. Site plumbing & appliances (internal PDFs)
+
+Saunders keeps two **internal** combined references under `docs/` (also listed in Agent Brain → Source Documents):
+
+| Topic | Brain doc | PDF |
+|---|---|---|
+| Rough-in, drains, supplies adjacent to casework | `10-site-plumbing.md` | `combined-plumbing.pdf` |
+| Appliance families, clearances, ventilation orientation | `11-site-appliances.md` | `combined-appliances.pdf` |
+
+- Use them to **ask better intake questions** and to flag coordination risks early.
+- Do **not** treat them as code authority or as a substitute for the **model-specific** manufacturer install PDFs uploaded in **Appliance Packets** on `intake.html`. When a conflict exists, the uploaded manufacturer PDF wins.
+- If the answer is not in the PDF, the brain doc, or the intake state, say you do not know and recommend licensed trade sign-off where appropriate.

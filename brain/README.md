@@ -32,6 +32,8 @@ If anything drifts out of date, update the relevant file and add a line to `CHAN
 | `07-proposal-site.md` | Process | `index.html` sections, shared scripts, assets | Editing the proposal site. |
 | `08-agent-playbook.md` | Process | How to answer product Q&A conversationally | Any chat-style Q. |
 | `09-database.md` | Infra | Supabase project, tables, storage, migration | Any DB/storage work. |
+| `10-site-plumbing.md` | Process | Plumbing PDF ↔ intake site notes & dimensions | Field coordination, sink runs. |
+| `11-site-appliances.md` | Process | Appliances PDF ↔ intake packets & playbook | Spec checks, missing submittals. |
 | `products.json` | Products | Machine-readable catalog (all Decore doors, finishes, hardware) | LLM lookups / chatbot. |
 | `brain-index.json` | Meta | Structured manifest of all brain files with relationships | Programmatic traversal. |
 | `CHANGELOG.md` | Meta | Dated log of every material change | After any substantive edit. |
@@ -55,6 +57,8 @@ Always read `README.md` (this file), then `00-project.md`. For product questions
 | "What does the intake form do?" | `06-intake-form.md` |
 | "How do uploads work?" | `09-database.md` |
 | "What's on the proposal site?" | `07-proposal-site.md` |
+| "What plumbing context should intake capture?" | `10-site-plumbing.md` + `docs/combined-plumbing.pdf` |
+| "What appliance context should intake capture?" | `11-site-appliances.md` + `docs/combined-appliances.pdf` |
 
 ### Step 3 — Ground rules
 
@@ -79,3 +83,12 @@ The Decore catalog was extracted from five official PDFs provided by the client 
 | `multi-family-housing-brochure.pdf` | `02-decore-doors.md` (cross-ref) + `04-decore-hardware.md` |
 
 When Decore publishes updated brochures: re-extract, update the matching docs, bump `products.json` version, log in `CHANGELOG.md`.
+
+## Source documents (internal — site scope)
+
+| PDF | Linked brain doc |
+|---|---|
+| `combined-plumbing.pdf` | `10-site-plumbing.md` |
+| `combined-appliances.pdf` | `11-site-appliances.md` |
+
+These support **intake** site notes, dimensions, and appliance packets; they are not Decore product literature.
