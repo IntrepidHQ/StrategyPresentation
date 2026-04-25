@@ -4,19 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="description" content="We hand you a working AI automation strategy on a private subdomain — not a PDF. Free site audit, then a build-ready plan you can act on this quarter." />
-  <meta name="theme-color" content="#0a0a08" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#f4f0e8" media="(prefers-color-scheme: light)" />
   <title>Strategy Presentation — AI automation strategies, delivered as live sites</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0a08'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='18' fill='%23C9A44C' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E" />
 
   <script>
     (function () {
       try {
-        var stored = localStorage.getItem("sp-theme");
-        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-        var theme = stored || (prefersDark ? "dark" : "light");
-        if (theme === "dark") document.documentElement.classList.add("dark");
-        document.documentElement.dataset.theme = theme;
+        var s = localStorage.getItem("sp-theme");
+        var d = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var t = s || (d ? "dark" : "light");
+        if (t === "dark") document.documentElement.classList.add("dark");
+        document.documentElement.dataset.theme = t;
       } catch (e) {}
     })();
   </script>
@@ -33,9 +31,8 @@
             mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
           },
           colors: {
-            ink: { 50: "#f4f0e8", 100: "#ede8de", 200: "#dcd3bf", 300: "#c4b491", 400: "#a89066", 500: "#8c7445", 600: "#6e5a34", 700: "#4f4124", 800: "#2e261a", 900: "#15110a" },
-            gold: { 300: "#ecd49a", 400: "#e0bc70", 500: "#C9A44C", 600: "#a8862f", 700: "#7a6321" },
-            forest: { 700: "#3d5040", 800: "#2e3a2f", 900: "#1a221b" }
+            ink: { 50:"#f4f0e8",100:"#ede8de",200:"#dcd3bf",300:"#c4b491",400:"#a89066",500:"#8c7445",600:"#6e5a34",700:"#4f4124",800:"#2e261a",900:"#15110a" },
+            gold: { 300:"#ecd49a",400:"#e0bc70",500:"#C9A44C",600:"#a8862f",700:"#7a6321" }
           }
         }
       }
@@ -44,286 +41,240 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --bg: #f4f0e8;
-      --bg-2: #ede8de;
-      --ink: #15110a;
-      --ink-soft: #4f4124;
-      --rule: rgba(46,38,26,0.12);
-      --gold: #C9A44C;
+      --bg:#f4f0e8; --bg2:#ede8de; --ink:#15110a; --ink-s:#4f4124;
+      --rule:rgba(46,38,26,0.12); --gold:#C9A44C;
     }
     html.dark {
-      --bg: #0a0a08;
-      --bg-2: #111110;
-      --ink: #f0ede6;
-      --ink-soft: #c4b491;
-      --rule: rgba(201,164,76,0.18);
+      --bg:#0a0a08; --bg2:#111110; --ink:#f0ede6; --ink-s:#c4b491;
+      --rule:rgba(201,164,76,0.18);
     }
-    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    html { font-size:16px; -webkit-text-size-adjust:100%; }
     body {
-      font-family: "Inter", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      font-feature-settings: "ss01", "ss02", "cv11";
+      font-family:"Inter",system-ui,sans-serif; background:var(--bg); color:var(--ink);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      font-feature-settings:"ss01","cv11";
     }
-    /* prevent orphans on modern browsers */
-    p, .lead { text-wrap: pretty; }
-    h1, h2, h3, .display-xl, .display-lg, .display-md { text-wrap: balance; }
+    p,.lead { text-wrap:pretty; }
+    h1,h2,h3,.d-xl,.d-lg,.d-md { text-wrap:balance; }
+    ::selection { background:rgba(201,164,76,.35); color:var(--ink); }
 
-    /* TYPOGRAPHY ----------------------------------------------------- */
-    .font-display { font-family: "Fraunces", Georgia, serif; }
-    .display-xl {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 400;
-      font-variation-settings: "opsz" 144;
-      font-size: clamp(2.6rem, 8.5vw, 7.5rem);
-      line-height: 0.98;
-      letter-spacing: -0.035em;
+    /* ── TYPOGRAPHY ── */
+    .d-xl {
+      font-family:"Fraunces",Georgia,serif; font-weight:400;
+      font-variation-settings:"opsz" 144;
+      font-size:clamp(2rem,5vw,4rem);
+      line-height:1.02; letter-spacing:-0.03em;
     }
-    .display-lg {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 400;
-      font-variation-settings: "opsz" 96;
-      font-size: clamp(2.1rem, 5vw, 4.25rem);
-      line-height: 1.04;
-      letter-spacing: -0.025em;
+    .d-lg {
+      font-family:"Fraunces",Georgia,serif; font-weight:400;
+      font-variation-settings:"opsz" 96;
+      font-size:clamp(2rem,4.5vw,3.75rem);
+      line-height:1.05; letter-spacing:-0.025em;
     }
-    .display-md {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 500;
-      font-variation-settings: "opsz" 48;
-      font-size: clamp(1.4rem, 2.4vw, 2rem);
-      line-height: 1.18;
-      letter-spacing: -0.015em;
+    .d-md {
+      font-family:"Fraunces",Georgia,serif; font-weight:500;
+      font-variation-settings:"opsz" 48;
+      font-size:clamp(1.3rem,2.2vw,1.85rem);
+      line-height:1.2; letter-spacing:-0.015em;
     }
-    .italic-display {
-      font-style: italic;
-      font-weight: 400;
-      font-variation-settings: "opsz" 144;
-      color: var(--gold);
-    }
+    .italic-gold { font-style:italic; color:var(--gold); }
     .lead {
-      font-size: clamp(1.125rem, 1.4vw, 1.32rem);
-      line-height: 1.55;
-      color: var(--ink-soft);
-      font-weight: 400;
+      font-size:clamp(1.05rem,1.3vw,1.25rem);
+      line-height:1.6; color:var(--ink-s);
     }
     .eyebrow {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gold);
-      font-weight: 500;
+      font-family:"JetBrains Mono",monospace;
+      font-size:.7rem; letter-spacing:.18em; text-transform:uppercase;
+      color:var(--gold); font-weight:500; white-space:nowrap;
     }
     .num-tag {
-      font-family: "Fraunces", serif;
-      font-variation-settings: "opsz" 96;
-      font-style: italic;
-      color: var(--gold);
+      font-family:"Fraunces",serif; font-style:italic;
+      font-variation-settings:"opsz" 96; color:var(--gold);
     }
 
-    /* BACKGROUNDS / TEXTURES --------------------------------------- */
+    /* ── BACKGROUNDS ── */
     .grain {
-      position: absolute; inset: 0; pointer-events: none; opacity: .55;
+      position:absolute; inset:0; pointer-events:none; opacity:.5;
       background-image:
-        radial-gradient(rgba(201,164,76,0.08) 1px, transparent 1px),
-        radial-gradient(rgba(46,38,26,0.04) 1px, transparent 1px);
-      background-size: 28px 28px, 17px 17px;
-      background-position: 0 0, 14px 9px;
+        radial-gradient(rgba(201,164,76,.08) 1px, transparent 1px),
+        radial-gradient(rgba(46,38,26,.04) 1px, transparent 1px);
+      background-size:28px 28px,17px 17px;
+      background-position:0 0,14px 9px;
     }
     html.dark .grain {
       background-image:
-        radial-gradient(rgba(201,164,76,0.07) 1px, transparent 1px),
-        radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+        radial-gradient(rgba(201,164,76,.07) 1px, transparent 1px),
+        radial-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
     }
     .mesh {
-      position: absolute; inset: -20% -10%; pointer-events: none; z-index: 0;
+      position:absolute; inset:-20% -10%; pointer-events:none; z-index:0;
       background:
-        radial-gradient(40% 50% at 12% 18%, rgba(201,164,76,0.18), transparent 60%),
-        radial-gradient(45% 55% at 88% 28%, rgba(61,80,64,0.18), transparent 60%),
-        radial-gradient(60% 40% at 50% 95%, rgba(168,134,47,0.10), transparent 60%);
-      filter: blur(20px);
-      animation: mesh-drift 22s ease-in-out infinite alternate;
+        radial-gradient(40% 50% at 12% 18%,rgba(201,164,76,.18),transparent 60%),
+        radial-gradient(45% 55% at 88% 28%,rgba(61,80,64,.18),transparent 60%),
+        radial-gradient(60% 40% at 50% 95%,rgba(168,134,47,.1),transparent 60%);
+      filter:blur(20px);
+      animation:mesh-drift 22s ease-in-out infinite alternate;
     }
     @keyframes mesh-drift {
-      0%   { transform: translate(0,0) scale(1); }
-      50%  { transform: translate(2%, -1%) scale(1.04); }
-      100% { transform: translate(-1%, 1%) scale(1.02); }
+      0%  { transform:translate(0,0) scale(1); }
+      50% { transform:translate(2%,-1%) scale(1.04); }
+      100%{ transform:translate(-1%,1%) scale(1.02); }
     }
-    .gold-rule { height: 1px; background: linear-gradient(to right, transparent, rgba(201,164,76,0.42), transparent); }
+    .gold-rule { height:1px; background:linear-gradient(to right,transparent,rgba(201,164,76,.42),transparent); }
 
-    /* COMPONENTS --------------------------------------------------- */
+    /* ── PILLS / BUTTONS ── */
     .pill {
-      display: inline-flex; align-items: center; gap: .5rem;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
-      color: var(--gold); padding: .42rem .75rem;
-      border: 1px solid rgba(201,164,76,0.35); border-radius: 999px;
-      background: rgba(201,164,76,0.04);
-      white-space: nowrap;
+      display:inline-flex; align-items:center; gap:.45rem;
+      font-family:"JetBrains Mono",monospace;
+      font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+      color:var(--gold); padding:.4rem .72rem;
+      border:1px solid rgba(201,164,76,.35); border-radius:999px;
+      background:rgba(201,164,76,.04); white-space:nowrap;
     }
-    .eyebrow, .btn-primary, .btn-ghost { white-space: nowrap; }
-    .pill .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--gold); box-shadow: 0 0 10px var(--gold); animation: pulse 2.4s ease-in-out infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.85); } }
-
-    .btn-primary {
-      position: relative; overflow: hidden;
-      background: var(--ink); color: var(--bg);
-      transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
-      box-shadow: 0 1px 0 rgba(0,0,0,0.05), 0 8px 24px -10px rgba(0,0,0,0.25);
+    .pill .dot {
+      width:6px; height:6px; border-radius:999px;
+      background:var(--gold); box-shadow:0 0 10px var(--gold);
+      animation:pulse 2.4s ease-in-out infinite;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 1px 0 rgba(0,0,0,0.05), 0 16px 36px -12px rgba(0,0,0,0.35); }
-    html.dark .btn-primary { background: var(--gold); color: #15110a; }
-    html.dark .btn-primary:hover { background: #e0bc70; }
-    .btn-primary .arr { transition: transform .25s cubic-bezier(.2,.8,.2,1); display: inline-block; }
-    .btn-primary:hover .arr { transform: translateX(4px); }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(.85)} }
 
-    .btn-ghost {
-      border: 1px solid rgba(46,38,26,0.22);
-      transition: border-color .25s, background .25s, transform .25s;
+    .btn-p {
+      display:inline-flex; align-items:center; gap:.5rem;
+      background:var(--ink); color:var(--bg);
+      font-weight:500; white-space:nowrap;
+      transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;
+      box-shadow:0 8px 24px -10px rgba(0,0,0,.25);
     }
-    html.dark .btn-ghost { border-color: rgba(201,164,76,0.28); }
-    .btn-ghost:hover { border-color: var(--gold); background: rgba(201,164,76,0.06); transform: translateY(-2px); }
+    .btn-p:hover { transform:translateY(-2px); box-shadow:0 16px 36px -12px rgba(0,0,0,.35); }
+    html.dark .btn-p { background:var(--gold); color:#15110a; }
+    html.dark .btn-p:hover { background:#e0bc70; }
+    .btn-p .arr,.btn-g .arr { transition:transform .25s cubic-bezier(.2,.8,.2,1); }
+    .btn-p:hover .arr,.btn-g:hover .arr { transform:translateX(4px); }
 
+    .btn-g {
+      display:inline-flex; align-items:center; gap:.5rem;
+      border:1px solid rgba(46,38,26,.22); white-space:nowrap;
+      transition:border-color .25s,background .25s,transform .25s;
+    }
+    html.dark .btn-g { border-color:rgba(201,164,76,.28); }
+    .btn-g:hover { border-color:var(--gold); background:rgba(201,164,76,.06); transform:translateY(-2px); }
+
+    /* ── CARDS ── */
     .card {
-      background: rgba(255,255,255,0.55);
-      border: 1px solid var(--rule);
-      backdrop-filter: blur(6px);
-      transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, box-shadow .35s;
+      background:rgba(255,255,255,.55); border:1px solid var(--rule);
+      backdrop-filter:blur(6px);
+      transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s;
     }
-    html.dark .card { background: rgba(255,255,255,0.025); }
-    .card:hover { transform: translateY(-4px); border-color: rgba(201,164,76,0.45); box-shadow: 0 24px 40px -28px rgba(0,0,0,0.3); }
+    html.dark .card { background:rgba(255,255,255,.025); }
+    .card:hover { transform:translateY(-4px); border-color:rgba(201,164,76,.45); box-shadow:0 24px 40px -28px rgba(0,0,0,.3); }
+    .card-static { background:rgba(255,255,255,.55); border:1px solid var(--rule); backdrop-filter:blur(6px); }
+    html.dark .card-static { background:rgba(255,255,255,.025); }
 
-    /* ANIMATED RULE / SVG STROKES ---------------------------------- */
-    .draw-on-view path { stroke-dasharray: var(--len, 1000); stroke-dashoffset: var(--len, 1000); transition: stroke-dashoffset 1.6s cubic-bezier(.6,.05,.3,1); }
-    .draw-on-view.in path { stroke-dashoffset: 0; }
-
-    /* REVEAL ON SCROLL --------------------------------------------- */
-    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
-    .reveal.in { opacity: 1; transform: none; }
-    .reveal.delay-1 { transition-delay: .08s; }
-    .reveal.delay-2 { transition-delay: .16s; }
-    .reveal.delay-3 { transition-delay: .24s; }
-    .reveal.delay-4 { transition-delay: .32s; }
-    @media (prefers-reduced-motion: reduce) {
-      .reveal, .draw-on-view path, .mesh, .pill .dot, .marquee-track { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; }
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity:0; transform:translateY(18px); transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1); }
+    .reveal.in { opacity:1; transform:none; }
+    .d1{transition-delay:.08s} .d2{transition-delay:.16s} .d3{transition-delay:.24s} .d4{transition-delay:.32s}
+    @media(prefers-reduced-motion:reduce){
+      .reveal,.mesh,.pill .dot,.marquee-track,.bar-fill { animation:none!important; transition:none!important; opacity:1!important; transform:none!important; }
+      .reveal { opacity:1!important; transform:none!important; }
     }
 
-    /* MARQUEE ------------------------------------------------------ */
-    .marquee { overflow: hidden; mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); }
-    .marquee-track { display: inline-flex; gap: 3.5rem; padding: 0 1.75rem; white-space: nowrap; animation: marquee 40s linear infinite; }
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .marquee:hover .marquee-track { animation-play-state: paused; }
+    /* ── MARQUEE ── */
+    .marquee { overflow:hidden; mask-image:linear-gradient(to right,transparent,black 6%,black 94%,transparent); }
+    .marquee-track { display:inline-flex; align-items:center; gap:0; padding:0; white-space:nowrap; animation:ticker 52s linear infinite; }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .marquee:hover .marquee-track { animation-play-state:paused; }
+    .logo-chip {
+      display:inline-flex; align-items:center; gap:.55rem;
+      padding:.45rem 1.1rem; margin:0 .5rem;
+      border:1px solid var(--rule); border-radius:999px;
+      background:rgba(255,255,255,.4);
+      font-size:.78rem; font-weight:500; color:var(--ink-s);
+      white-space:nowrap; transition:border-color .2s;
+    }
+    html.dark .logo-chip { background:rgba(255,255,255,.04); }
+    .logo-chip:hover { border-color:rgba(201,164,76,.5); }
+    .logo-chip svg,.logo-chip img { flex-shrink:0; }
 
-    /* HERO SVG WAVES ----------------------------------------------- */
+    /* ── HERO WAVES / COMPANY TAGS ── */
     .hero-svg-wrap {
-      position: absolute; inset: 0;
-      pointer-events: none;
-      mask-image: radial-gradient(80% 80% at 70% 40%, #000 50%, transparent 100%);
+      position:absolute; inset:0; pointer-events:none;
+      mask-image:radial-gradient(ellipse 85% 90% at 75% 45%,#000 40%,transparent 100%);
     }
+    .co-tag-bg { fill:rgba(10,10,8,.7); stroke:rgba(201,164,76,.45); stroke-width:.8; }
+    html.dark .co-tag-bg { fill:rgba(10,10,8,.82); }
 
-    /* PROOF CARD CUSTOM -------------------------------------------- */
-    .proof-thumb {
-      aspect-ratio: 16/10;
-      position: relative;
-      overflow: hidden;
-      border-bottom: 1px solid var(--rule);
-    }
-    .proof-thumb::after {
-      content: ""; position: absolute; inset: 0;
-      background: radial-gradient(60% 70% at 80% 100%, rgba(201,164,76,0.18), transparent 60%);
-      pointer-events: none;
-    }
-    .proof-card .arr { transition: transform .3s cubic-bezier(.2,.8,.2,1); }
-    .proof-card:hover .arr { transform: translateX(6px); }
+    /* ── PROOF CARDS ── */
+    .proof-thumb { aspect-ratio:16/10; position:relative; overflow:hidden; border-bottom:1px solid var(--rule); }
+    .proof-thumb::after { content:""; position:absolute; inset:0; background:radial-gradient(60% 70% at 80% 100%,rgba(201,164,76,.18),transparent 60%); pointer-events:none; }
+    .proof-card .arr { transition:transform .3s cubic-bezier(.2,.8,.2,1); }
+    .proof-card:hover .arr { transform:translateX(6px); }
 
-    /* FUNNEL VIS ---------------------------------------------------- */
-    .funnel-anim circle.flow {
-      animation: flow 5.5s linear infinite;
-      transform-origin: 0 0;
-    }
-    @keyframes flow {
-      0% { offset-distance: 0%; opacity: 0; }
-      8% { opacity: 1; }
-      92% { opacity: 1; }
-      100% { offset-distance: 100%; opacity: 0; }
-    }
+    /* ── FUNNEL VIS ── */
+    .funnel-anim circle.flow { animation:flow 5.5s linear infinite; }
+    @keyframes flow { 0%{offset-distance:0%;opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{offset-distance:100%;opacity:0} }
 
-    /* ICON STYLES --------------------------------------------------- */
+    /* ── ICON TILES ── */
     .icon-tile {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 3.25rem; height: 3.25rem; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(201,164,76,0.18), rgba(201,164,76,0.04));
-      border: 1px solid rgba(201,164,76,0.3);
-      color: var(--gold);
-      transition: transform .3s ease, box-shadow .3s ease;
+      display:inline-flex; align-items:center; justify-content:center;
+      width:3.25rem; height:3.25rem; border-radius:14px;
+      background:linear-gradient(135deg,rgba(201,164,76,.18),rgba(201,164,76,.04));
+      border:1px solid rgba(201,164,76,.3); color:var(--gold);
+      transition:transform .3s ease,box-shadow .3s ease;
     }
-    .card:hover .icon-tile { transform: rotate(-4deg) scale(1.06); box-shadow: 0 10px 24px -10px rgba(201,164,76,0.4); }
+    .card:hover .icon-tile { transform:rotate(-4deg) scale(1.06); box-shadow:0 10px 24px -10px rgba(201,164,76,.4); }
 
-    /* FAQ ---------------------------------------------------------- */
-    .faq summary { cursor: pointer; list-style: none; }
-    .faq summary::-webkit-details-marker { display: none; }
-    .faq summary .chev { transition: transform .25s ease; transform-origin: center; }
-    .faq[open] summary .chev { transform: rotate(45deg); }
-    .faq[open] { background: rgba(201,164,76,0.04); }
+    /* ── FAQ ── */
+    .faq summary { cursor:pointer; list-style:none; }
+    .faq summary::-webkit-details-marker { display:none; }
+    .faq summary .chev { transition:transform .25s ease; }
+    .faq[open] summary .chev { transform:rotate(45deg); }
+    .faq[open] { background:rgba(201,164,76,.04); }
 
-    /* PRICING CARD -------------------------------------------------- */
-    .price-glow {
-      position: absolute; inset: -1px;
-      border-radius: 1.05rem;
-      background: linear-gradient(135deg, rgba(201,164,76,0.7), rgba(201,164,76,0.05) 40%, rgba(201,164,76,0.4));
-      filter: blur(14px); opacity: .5; z-index: -1;
+    /* ── WCS SCORE ── */
+    .score-ring { transform:rotate(-90deg); transform-origin:center; }
+    .score-ring circle.track { fill:none; stroke:rgba(201,164,76,.15); }
+    .score-ring circle.fill {
+      fill:none; stroke:#22c55e; stroke-linecap:round;
+      stroke-dasharray:326; stroke-dashoffset:326;
+      transition:stroke-dashoffset 1.8s cubic-bezier(.4,0,.2,1);
     }
+    .score-ring.in circle.fill { stroke-dashoffset:13; }
+    .bar-fill {
+      height:100%; border-radius:999px;
+      background:linear-gradient(to right,var(--bar-color),color-mix(in srgb,var(--bar-color) 80%,white));
+      width:0; transition:width 1.4s cubic-bezier(.4,0,.2,1);
+    }
+    .bar-wrap.in .bar-fill { width:var(--bar-w); }
 
-    /* CURSOR DOT (decorative) -------------------------------------- */
+    /* ── SPIN ── */
+    .spin-slow { animation:spin 24s linear infinite; transform-origin:center; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── FOOTER ── */
+    footer.dark-footer { background:#0a0a08; color:#c4b491; }
+
+    /* ── CURSOR ── */
     .cursor-orb {
-      position: fixed; top: 0; left: 0; width: 18px; height: 18px;
-      border-radius: 999px; background: var(--gold);
-      mix-blend-mode: difference; opacity: .65;
-      pointer-events: none; z-index: 60;
-      transition: transform .15s ease-out, width .25s, height .25s;
-      transform: translate(-50%, -50%);
+      position:fixed; top:0; left:0; width:18px; height:18px; border-radius:999px;
+      background:var(--gold); mix-blend-mode:difference; opacity:.65;
+      pointer-events:none; z-index:60;
+      transition:width .25s,height .25s;
+      transform:translate(-50%,-50%);
     }
-    @media (max-width: 900px) { .cursor-orb { display: none; } }
+    @media(max-width:900px){.cursor-orb{display:none}}
 
-    /* CIRCULAR TEXT -------------------------------------------------- */
-    .spin-slow { animation: spin 24s linear infinite; transform-origin: center; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* FOOTER -------------------------------------------------------- */
-    footer.dark-footer { background: #0a0a08; color: #c4b491; }
-
-    /* MISC ---------------------------------------------------------- */
-    a { -webkit-tap-highlight-color: transparent; }
-    .text-gold { color: var(--gold); }
-    .border-rule { border-color: var(--rule); }
-    .bg-soft { background: var(--bg-2); }
-    ::selection { background: rgba(201,164,76,0.35); color: var(--ink); }
-
-    /* MOBILE / TABLET REFINEMENTS ----------------------------------- */
-    @media (max-width: 1024px) {
-      .funnel-anim { display: none; }
-    }
-    @media (max-width: 640px) {
-      header nav + a { padding: .55rem .9rem; font-size: .8rem; }
-      .pill { font-size: 0.62rem; padding: .35rem .6rem; letter-spacing: .14em; }
-      .num-tag { font-size: 2.4rem !important; }
-      .icon-tile { width: 2.75rem; height: 2.75rem; }
-      .card { padding: 1.5rem !important; }
-      .lead { font-size: 1.02rem; line-height: 1.5; }
-      .btn-primary, .btn-ghost { padding: .85rem 1.4rem !important; font-size: .92rem; }
-      section { padding-top: 4rem !important; padding-bottom: 4rem !important; }
-      .hero-svg-wrap { display: none; }
-    }
-    /* keep the inline trust bullets readable but wrap as chips */
-    @media (max-width: 720px) {
-      .trust-row > span { font-size: .82rem; }
+    /* ── MOBILE ── */
+    @media(max-width:1023px){ .funnel-anim{display:none} }
+    @media(max-width:639px){
+      .pill{font-size:.6rem;padding:.32rem .55rem;letter-spacing:.13em}
+      .icon-tile{width:2.75rem;height:2.75rem}
+      .lead{font-size:1rem;line-height:1.5}
+      .btn-p,.btn-g{padding:.8rem 1.3rem!important;font-size:.88rem}
     }
   </style>
 </head>
@@ -331,371 +282,486 @@
 
 <div class="cursor-orb" id="orb" aria-hidden="true"></div>
 
-<!-- ============== HEADER ============== -->
-<header class="sticky top-0 z-40 backdrop-blur-md bg-[var(--bg)]/75 border-b border-rule">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2.5 group">
-      <span class="relative w-7 h-7 inline-flex items-center justify-center">
-        <svg viewBox="0 0 28 28" class="w-7 h-7"><defs><linearGradient id="lgM" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C9A44C"/><stop offset="100%" stop-color="#7a6321"/></linearGradient></defs>
-          <rect x="1.5" y="1.5" width="25" height="25" rx="6" fill="none" stroke="url(#lgM)" stroke-width="1.4"/>
-          <path d="M8 18 L14 8 L20 18" fill="none" stroke="url(#lgM)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="14" cy="20" r="1.4" fill="#C9A44C"/>
-        </svg>
-      </span>
-      <span class="font-display text-lg tracking-tight">Strategy<span class="text-gold">Presentation</span></span>
+<!-- ══════════════ HEADER ══════════════ -->
+<header class="sticky top-0 z-40 backdrop-blur-md bg-[var(--bg)]/80 border-b border-[var(--rule)]">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between gap-6">
+    <a href="/" class="flex items-center gap-2.5 shrink-0">
+      <svg viewBox="0 0 28 28" class="w-7 h-7">
+        <defs><linearGradient id="lgM" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C9A44C"/><stop offset="100%" stop-color="#7a6321"/></linearGradient></defs>
+        <rect x="1.5" y="1.5" width="25" height="25" rx="6" fill="none" stroke="url(#lgM)" stroke-width="1.4"/>
+        <path d="M8 18L14 8l6 10" fill="none" stroke="url(#lgM)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="14" cy="20" r="1.4" fill="#C9A44C"/>
+      </svg>
+      <span style="font-family:'Fraunces',Georgia,serif" class="text-lg tracking-tight">Strategy<span class="text-gold-500">Presentation</span></span>
     </a>
-    <nav class="hidden md:flex items-center gap-8 text-sm text-[var(--ink-soft)]">
-      <a href="#proof" class="hover:text-gold transition">Examples</a>
-      <a href="#how" class="hover:text-gold transition">How it works</a>
-      <a href="#pricing" class="hover:text-gold transition">Pricing</a>
-      <a href="#faq" class="hover:text-gold transition">FAQ</a>
+    <nav class="hidden md:flex items-center gap-7 text-sm text-[var(--ink-s)]">
+      <a href="#proof" class="hover:text-gold-500 transition">Examples</a>
+      <a href="#how" class="hover:text-gold-500 transition">How it works</a>
+      <a href="#pricing" class="hover:text-gold-500 transition">Pricing</a>
+      <a href="#faq" class="hover:text-gold-500 transition">FAQ</a>
     </nav>
-    <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=header&utm_campaign=apex" class="btn-primary px-4 py-2 rounded-full text-sm font-medium inline-flex items-center gap-1.5">
+    <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=header&utm_campaign=apex" class="btn-p px-4 py-2 rounded-full text-sm shrink-0">
       Free audit <span class="arr">→</span>
     </a>
   </div>
 </header>
 
-<!-- ============== HERO ============== -->
-<section class="relative overflow-hidden">
+<!-- ══════════════ HERO ══════════════ -->
+<section class="relative overflow-hidden min-h-[82vh] flex flex-col justify-center">
   <div class="grain"></div>
   <div class="mesh"></div>
 
-  <!-- Decorative SVG: animated funnel/flow -->
+  <!-- Animated wave background with company tags (desktop only) -->
   <div class="hero-svg-wrap hidden lg:block">
-    <svg viewBox="0 0 1200 800" class="w-full h-full">
+    <svg viewBox="0 0 1400 900" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="lineG" x1="0" y1="0" x2="1" y2="0">
+        <linearGradient id="wG" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stop-color="#C9A44C" stop-opacity="0"/>
-          <stop offset="50%" stop-color="#C9A44C" stop-opacity=".55"/>
-          <stop offset="100%" stop-color="#C9A44C" stop-opacity="0"/>
+          <stop offset="45%" stop-color="#C9A44C" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#C9A44C" stop-opacity=".1"/>
         </linearGradient>
-        <radialGradient id="orbG" cx=".5" cy=".5">
-          <stop offset="0%" stop-color="#e0bc70"/>
-          <stop offset="100%" stop-color="#C9A44C" stop-opacity="0"/>
-        </radialGradient>
+        <radialGradient id="orbG" cx=".5" cy=".5"><stop offset="0%" stop-color="#e0bc70"/><stop offset="100%" stop-color="#C9A44C" stop-opacity="0"/></radialGradient>
+        <!-- Wave paths referenced by animateMotion -->
+        <path id="w1" d="M1450 180 C 1150 220, 900 580, 650 480 S 250 260, -50 310"/>
+        <path id="w2" d="M1450 380 C 1100 440, 850 740, 600 620 S 220 420, -50 480"/>
+        <path id="w3" d="M1450 580 C 1180 620, 920 860, 670 760 S 280 600, -50 650"/>
       </defs>
-      <g class="draw-on-view" id="heroLines" stroke="url(#lineG)" stroke-width="1" fill="none">
-        <path style="--len:2400" d="M -50 200 C 250 250, 450 600, 800 500 S 1200 300, 1300 350" />
-        <path style="--len:2400" d="M -50 320 C 200 380, 480 700, 820 580 S 1200 420, 1300 470" opacity=".6"/>
-        <path style="--len:2400" d="M -50 440 C 220 500, 470 800, 810 660 S 1200 540, 1300 590" opacity=".4"/>
+
+      <!-- Wave lines -->
+      <use href="#w1" stroke="url(#wG)" stroke-width="1.2" fill="none" opacity=".7"/>
+      <use href="#w2" stroke="url(#wG)" stroke-width="1" fill="none" opacity=".5"/>
+      <use href="#w3" stroke="url(#wG)" stroke-width=".8" fill="none" opacity=".35"/>
+
+      <!-- Glow orbs -->
+      <circle cx="1100" cy="200" r="180" fill="url(#orbG)" opacity=".45"/>
+      <circle cx="900" cy="620" r="100" fill="url(#orbG)" opacity=".3"/>
+
+      <!-- ── COMPANY TAGS moving right→left along waves ── -->
+      <!-- Wave 1: Monday.com (offset 0s), HubSpot (offset -10s) -->
+      <g opacity=".92">
+        <animateMotion dur="24s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" begin="0s"><mpath href="#w1"/></animateMotion>
+        <rect x="-52" y="-13" width="104" height="26" rx="13" class="co-tag-bg"/>
+        <!-- Monday 3-dot logo -->
+        <circle cx="-40" cy="0" r="4" fill="#f53b57"/><circle cx="-30" cy="0" r="4" fill="#ffc312"/><circle cx="-20" cy="0" r="4" fill="#0652dd"/>
+        <text x="-10" y="4" font-family="Inter,sans-serif" font-size="9.5" font-weight="500" fill="#f0ede6">Monday.com</text>
       </g>
-      <circle cx="900" cy="220" r="160" fill="url(#orbG)" opacity=".5"/>
-      <circle cx="1050" cy="540" r="90" fill="url(#orbG)" opacity=".35"/>
+      <g opacity=".88">
+        <animateMotion dur="28s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" begin="-12s"><mpath href="#w1"/></animateMotion>
+        <rect x="-46" y="-13" width="92" height="26" rx="13" class="co-tag-bg"/>
+        <!-- HubSpot sprocket (simplified) -->
+        <g transform="translate(-35,-8)">
+          <circle cx="7" cy="7" r="7" fill="#ff7a59"/>
+          <circle cx="7" cy="7" r="2.8" fill="white"/>
+          <circle cx="7" cy="1.2" r="1.8" fill="white"/>
+          <circle cx="11.8" cy="9.8" r="1.8" fill="white"/>
+          <circle cx="2.2" cy="9.8" r="1.8" fill="white"/>
+        </g>
+        <text x="-18" y="4" font-family="Inter,sans-serif" font-size="9.5" font-weight="500" fill="#f0ede6">HubSpot</text>
+      </g>
+
+      <!-- Wave 2: Stripe (offset 0s), Airtable (offset -13s) -->
+      <g opacity=".9">
+        <animateMotion dur="30s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" begin="-4s"><mpath href="#w2"/></animateMotion>
+        <rect x="-40" y="-13" width="80" height="26" rx="13" class="co-tag-bg"/>
+        <!-- Stripe -->
+        <rect x="-34" y="-8" width="16" height="16" rx="4" fill="#635bff"/>
+        <path d="M-28 -1c0-1.5 1.2-2 2.5-2 1 0 2 .3 2.8.8l.7-2.2C-22.8-5-24-5.5-25.5-5.5c-2.5 0-4.5 1.2-4.5 3.8 0 3.8 5 3 5 5.2 0 1.2-1 1.8-2.5 1.8-1.2 0-2.3-.4-3.2-1l-.8 2.2c1 .7 2.5 1.2 4 1.2 2.8 0 5-1.2 5-4.2 0-3.8-5-2.8-5-5" fill="white" transform="translate(0,1)"/>
+        <text x="-13" y="4" font-family="Inter,sans-serif" font-size="9.5" font-weight="500" fill="#f0ede6">Stripe</text>
+      </g>
+      <g opacity=".86">
+        <animateMotion dur="26s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" begin="-18s"><mpath href="#w2"/></animateMotion>
+        <rect x="-44" y="-13" width="88" height="26" rx="13" class="co-tag-bg"/>
+        <!-- Airtable -->
+        <rect x="-38" y="-8" width="16" height="16" rx="4" fill="#18bfff"/>
+        <text x="-37" y="5" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="white">A</text>
+        <text x="-17" y="4" font-family="Inter,sans-serif" font-size="9.5" font-weight="500" fill="#f0ede6">Airtable</text>
+      </g>
+
+      <!-- Wave 3: Slack (offset 0s), Notion (offset -15s) -->
+      <g opacity=".88">
+        <animateMotion dur="32s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" begin="-7s"><mpath href="#w3"/></animateMotion>
+        <rect x="-38" y="-13" width="76" height="26" rx="13" class="co-tag-bg"/>
+        <!-- Slack hash -->
+        <rect x="-32" y="-8" width="16" height="16" rx="4" fill="#4a154b"/>
+        <path d="M-28 -3v3m-3-3v3m6 0v3m-3-3v3m-3-3h3m0 3h3m-3-3h3m0 3h3" stroke="white" stroke-width="1.3" fill="none" transform="translate(0,1)" stroke-linecap="round"/>
+        <text x="-11" y="4" font-family="Inter,sans-serif" font-size="9.5" font-weight="500" fill="#f0ede6">Slack</text>
+      </g>
+      <g opacity=".84">
+        <animateMotion dur="22s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" begin="-20s"><mpath href="#w3"/></animateMotion>
+        <rect x="-40" y="-13" width="80" height="26" rx="13" class="co-tag-bg"/>
+        <!-- Notion N -->
+        <rect x="-34" y="-8" width="16" height="16" rx="4" fill="#ffffff" opacity=".95"/>
+        <path d="M-31.5 0l5.5-7 5.5 7" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,2)"/>
+        <path d="-28.5,-6.5 V 6.5 M-23.5,-6.5 V 6.5" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <text x="-13" y="4" font-family="Inter,sans-serif" font-size="9.5" font-weight="500" fill="#f0ede6">Notion</text>
+      </g>
     </svg>
   </div>
 
-  <div class="relative max-w-7xl mx-auto px-6 pt-20 md:pt-28 pb-24 md:pb-36">
-    <div class="reveal flex items-center gap-3">
+  <!-- Hero content -->
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-16 md:pt-24 pb-20 md:pb-32">
+    <div class="reveal flex items-center gap-3 flex-wrap">
       <span class="pill"><span class="dot"></span> Now booking · 1 slot/wk</span>
-      <span class="hidden sm:inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)]">
-        <span class="w-6 h-px bg-[var(--ink-soft)]/40"></span> Phase 1 · 5 day turnaround
-      </span>
     </div>
 
-    <h1 class="display-xl mt-8 max-w-5xl reveal delay-1">
-      We hand you a working<br>
-      AI&nbsp;automation strategy on a<br>
-      <span class="italic-display">private subdomain</span> &mdash; not a PDF.
+    <h1 class="d-xl mt-7 max-w-3xl reveal d1">
+      We hand you a working AI automation strategy on a
+      <span class="italic-gold">private&nbsp;subdomain</span> — not a PDF.
     </h1>
 
-    <div class="mt-10 grid lg:grid-cols-12 gap-10 items-end">
-      <p class="lead max-w-2xl lg:col-span-7 reveal delay-2">
+    <div class="mt-9 grid lg:grid-cols-12 gap-8 items-end">
+      <p class="lead lg:col-span-7 reveal d2">
         Run a free audit on your site. We score where you're leaking revenue, then ship a
-        personalized strategy site you can walk a partner, lender, or board through in fifteen
-        minutes. Approve it &mdash; we build the automations behind it.
+        personalized strategy site you can walk a partner, lender, or board through in fifteen minutes.
+        Approve it — we build the automations behind it.
       </p>
-
-      <!-- Mini stats column -->
-      <div class="lg:col-span-5 grid grid-cols-3 gap-4 reveal delay-3">
+      <!-- Stats -->
+      <div class="lg:col-span-5 grid grid-cols-3 gap-4 reveal d3">
         <div>
-          <div class="display-md text-gold">5d</div>
-          <div class="text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)] mt-1">to live site</div>
+          <div class="d-md" style="color:var(--gold)">Free</div>
+          <div class="eyebrow mt-1">audit</div>
         </div>
         <div>
-          <div class="display-md text-gold">2</div>
-          <div class="text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)] mt-1">live builds</div>
+          <div class="d-md" style="color:var(--gold)">2</div>
+          <div class="eyebrow mt-1">live builds</div>
         </div>
         <div>
-          <div class="display-md text-gold">50<span class="text-2xl">%</span></div>
-          <div class="text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)] mt-1">to start</div>
+          <div class="d-md" style="color:var(--gold)">50%</div>
+          <div class="eyebrow mt-1">to start</div>
         </div>
       </div>
     </div>
 
-    <div class="mt-12 flex flex-wrap gap-3 reveal delay-3">
-      <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=hero&utm_campaign=apex" class="btn-primary px-7 py-4 rounded-full font-medium inline-flex items-center gap-2">
+    <div class="mt-10 flex flex-wrap gap-3 reveal d3">
+      <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=hero&utm_campaign=apex" class="btn-p px-7 py-4 rounded-full">
         Run my free audit <span class="arr">→</span>
       </a>
-      <a href="#proof" class="btn-ghost px-7 py-4 rounded-full font-medium inline-flex items-center gap-2">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M6.5 5.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>
+      <a href="#proof" class="btn-g px-7 py-4 rounded-full">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M6.5 5.5l4 2.5-4 2.5z" fill="currentColor" stroke="none"/></svg>
         See a sample strategy
       </a>
     </div>
 
-    <!-- Inline proof bullets -->
-    <div class="mt-16 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-[var(--ink-soft)] reveal delay-4">
-      <span class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#C9A44C" stroke-width="2"><path d="M2 7l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg> No deck. No slideware.</span>
-      <span class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#C9A44C" stroke-width="2"><path d="M2 7l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg> Stack-agnostic — Monday, n8n, HubSpot, custom.</span>
-      <span class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#C9A44C" stroke-width="2"><path d="M2 7l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg> 50% deposit, 50% on delivery, Net-15.</span>
-    </div>
-
-    <!-- Scroll indicator -->
-    <div class="mt-20 hidden md:flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)] reveal delay-4">
-      <span>Scroll</span>
-      <span class="relative w-12 h-px bg-[var(--ink-soft)]/30 overflow-hidden">
-        <span class="absolute inset-y-0 left-0 w-3 bg-gold animate-[scroll-line_2.4s_ease-in-out_infinite]"></span>
-      </span>
+    <div class="mt-12 flex flex-wrap gap-x-7 gap-y-3 text-sm text-[var(--ink-s)] reveal d4">
+      <span class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#C9A44C" stroke-width="2"><path d="M2 7l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>No deck. No slideware.</span>
+      <span class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#C9A44C" stroke-width="2"><path d="M2 7l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>Stack-agnostic — Monday, n8n, HubSpot, custom.</span>
+      <span class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#C9A44C" stroke-width="2"><path d="M2 7l3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>50% deposit, 50% on delivery, Net-15.</span>
     </div>
   </div>
   <div class="gold-rule"></div>
 </section>
 
-<!-- ============== MARQUEE ============== -->
-<section class="bg-soft border-b border-rule overflow-hidden py-5">
-  <div class="marquee text-[var(--ink-soft)]">
-    <div class="marquee-track font-mono text-sm uppercase tracking-widest">
-      <span class="flex items-center gap-3">Monday.com <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">n8n <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Supabase <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">HubSpot <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Airtable <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Anthropic Claude <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">OpenAI <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Vercel <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Stripe <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <!-- duplicate for seamless loop -->
-      <span class="flex items-center gap-3">Monday.com <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">n8n <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Supabase <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">HubSpot <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Airtable <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Anthropic Claude <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">OpenAI <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Vercel <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
-      <span class="flex items-center gap-3">Stripe <svg width="14" height="14" viewBox="0 0 14 14" fill="#C9A44C"><circle cx="7" cy="7" r="2.5"/></svg></span>
+<!-- ══════════════ MARQUEE ══════════════ -->
+<section class="overflow-hidden py-4 border-b border-[var(--rule)]" style="background:var(--bg2)">
+  <div class="marquee">
+    <div class="marquee-track">
+      <!-- set A -->
+      <span class="logo-chip">
+        <svg width="18" height="12" viewBox="0 0 24 12"><circle cx="4" cy="6" r="4" fill="#f53b57"/><circle cx="12" cy="6" r="4" fill="#ffc312"/><circle cx="20" cy="6" r="4" fill="#0652dd"/></svg>
+        Monday.com
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#ff7a59"/><circle cx="12" cy="12" r="5" fill="white"/><circle cx="12" cy="3.5" r="3" fill="white"/><circle cx="19.7" cy="16.5" r="3" fill="white"/><circle cx="4.3" cy="16.5" r="3" fill="white"/></svg>
+        HubSpot
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#635bff"/><path d="M12 5c-2 0-4 1-4 3.5 0 1.8 1 3 3.2 3.5C13 12.5 14 13 14 14.5S12.8 17 11 17c-1.2 0-2.4-.5-3.2-1.2l-.8 2C8.2 18.5 9.8 19 12 19c2.8 0 5-1.5 5-4.5 0-3.5-4.5-3-4.5-5.5 0-1.2 1-2 2.5-2 1 0 2 .4 2.7 1l.8-2C17.5 5.5 15.8 5 14 5z" fill="white"/></svg>
+        Stripe
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#ea4b71"/><text x="5" y="17" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="white">n8n</text></svg>
+        n8n
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#18bfff"/><text x="5.5" y="17" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="white">A</text></svg>
+        Airtable
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#4a154b"/><path d="M8 9h8M8 15h8M10 6v12M14 6v12" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        Slack
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#000"/><path d="M6 18L12 4l6 14" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Vercel
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fff" stroke="rgba(0,0,0,0.12)" stroke-width="1"/><text x="4.5" y="17" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#000">N</text></svg>
+        Notion
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#3ecf8e"/><path d="M7 17L17 7M7 7h10v10" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Supabase
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#d97706"/><text x="5" y="17" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="white">AI</text></svg>
+        Anthropic
+      </span>
+      <!-- set B (duplicate for loop) -->
+      <span class="logo-chip">
+        <svg width="18" height="12" viewBox="0 0 24 12"><circle cx="4" cy="6" r="4" fill="#f53b57"/><circle cx="12" cy="6" r="4" fill="#ffc312"/><circle cx="20" cy="6" r="4" fill="#0652dd"/></svg>
+        Monday.com
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#ff7a59"/><circle cx="12" cy="12" r="5" fill="white"/><circle cx="12" cy="3.5" r="3" fill="white"/><circle cx="19.7" cy="16.5" r="3" fill="white"/><circle cx="4.3" cy="16.5" r="3" fill="white"/></svg>
+        HubSpot
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#635bff"/><path d="M12 5c-2 0-4 1-4 3.5 0 1.8 1 3 3.2 3.5C13 12.5 14 13 14 14.5S12.8 17 11 17c-1.2 0-2.4-.5-3.2-1.2l-.8 2C8.2 18.5 9.8 19 12 19c2.8 0 5-1.5 5-4.5 0-3.5-4.5-3-4.5-5.5 0-1.2 1-2 2.5-2 1 0 2 .4 2.7 1l.8-2C17.5 5.5 15.8 5 14 5z" fill="white"/></svg>
+        Stripe
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#ea4b71"/><text x="5" y="17" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="white">n8n</text></svg>
+        n8n
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#18bfff"/><text x="5.5" y="17" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="white">A</text></svg>
+        Airtable
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#4a154b"/><path d="M8 9h8M8 15h8M10 6v12M14 6v12" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        Slack
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#000"/><path d="M6 18L12 4l6 14" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Vercel
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#fff" stroke="rgba(0,0,0,0.12)" stroke-width="1"/><text x="4.5" y="17" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#000">N</text></svg>
+        Notion
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#3ecf8e"/><path d="M7 17L17 7M7 7h10v10" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Supabase
+      </span>
+      <span class="logo-chip">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#d97706"/><text x="5" y="17" font-family="Inter,sans-serif" font-size="13" font-weight="700" fill="white">AI</text></svg>
+        Anthropic
+      </span>
     </div>
   </div>
 </section>
 
-<!-- ============== PROOF ============== -->
-<section id="proof" class="relative max-w-7xl mx-auto px-6 py-24 md:py-36">
-  <div class="grid lg:grid-cols-12 gap-10 items-end mb-14">
+<!-- ══════════════ WCS SCORE SHOWCASE ══════════════ -->
+<section class="relative overflow-hidden">
+  <div class="grain"></div>
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-20 md:py-28">
+    <div class="grid lg:grid-cols-12 gap-10 items-center mb-12">
+      <div class="lg:col-span-6 reveal">
+        <span class="pill"><span class="dot"></span> Step 1</span>
+        <h2 class="d-lg mt-5">Your audit score, in <span class="italic-gold">two minutes.</span></h2>
+        <p class="lead mt-5">
+          WebsiteCreditScore grades your site across four dimensions — Visual Design, UX &amp; Conversion,
+          Mobile Experience, and Trust. Most businesses we work with score between 4 and 7.
+          The brief tells you why.
+        </p>
+        <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=wcs&utm_campaign=apex" class="btn-p inline-flex mt-8 px-7 py-4 rounded-full">
+          Run my audit <span class="arr">→</span>
+        </a>
+      </div>
+      <!-- Score card mock -->
+      <div class="lg:col-span-6 reveal d1">
+        <div class="card-static rounded-2xl overflow-hidden" style="background:#131a10; border:1px solid rgba(201,164,76,.18);">
+          <!-- Score header -->
+          <div class="p-6 pb-5 grid grid-cols-2 gap-5 items-center border-b" style="border-color:rgba(255,255,255,.07)">
+            <!-- Ring -->
+            <div class="flex flex-col items-center">
+              <div class="text-xs font-mono uppercase tracking-widest text-[#8a9e85] mb-3">Current Score</div>
+              <div class="relative w-36 h-36">
+                <svg viewBox="0 0 120 120" class="w-full h-full score-ring" id="scoreRing">
+                  <circle class="track" cx="60" cy="60" r="52" stroke-width="9"/>
+                  <circle class="fill" cx="60" cy="60" r="52" stroke-width="9"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <div style="font-family:'Fraunces',serif;font-size:2.4rem;font-weight:400;color:#fff;line-height:1">9.6</div>
+                  <div class="text-xs font-mono uppercase tracking-widest text-[#8a9e85]">Score</div>
+                </div>
+              </div>
+              <div class="mt-3 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest" style="background:#16401e;color:#22c55e;border:1px solid rgba(34,197,94,.3)">Excellent</div>
+              <div class="mt-3 text-xs text-center text-[#8a9e85]">Benchmark-ready work generally clears 8.</div>
+            </div>
+            <!-- Bars -->
+            <div class="space-y-3">
+              <div class="rounded-xl p-3" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06)">
+                <div class="flex justify-between items-baseline mb-1.5">
+                  <span class="text-xs text-white font-medium">Visual Design</span>
+                  <span class="text-sm font-semibold text-white">9.6<span class="text-[#8a9e85] text-xs">/10</span></span>
+                </div>
+                <div class="h-2 rounded-full" style="background:rgba(255,255,255,.07)">
+                  <div class="bar-fill bar-wrap h-2 rounded-full" style="--bar-color:#7c8fdb;--bar-w:96%" id="b1"></div>
+                </div>
+              </div>
+              <div class="rounded-xl p-3" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06)">
+                <div class="flex justify-between items-baseline mb-1.5">
+                  <span class="text-xs text-white font-medium">UX / Conversion</span>
+                  <span class="text-sm font-semibold text-white">9.5<span class="text-[#8a9e85] text-xs">/10</span></span>
+                </div>
+                <div class="h-2 rounded-full" style="background:rgba(255,255,255,.07)">
+                  <div class="bar-fill bar-wrap h-2 rounded-full" style="--bar-color:#c9a44c;--bar-w:95%" id="b2"></div>
+                </div>
+              </div>
+              <div class="rounded-xl p-3" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06)">
+                <div class="flex justify-between items-baseline mb-1.5">
+                  <span class="text-xs text-white font-medium">Mobile Experience</span>
+                  <span class="text-sm font-semibold text-white">9.6<span class="text-[#8a9e85] text-xs">/10</span></span>
+                </div>
+                <div class="h-2 rounded-full" style="background:rgba(255,255,255,.07)">
+                  <div class="bar-fill bar-wrap h-2 rounded-full" style="--bar-color:#4ade80;--bar-w:96%" id="b3"></div>
+                </div>
+              </div>
+              <div class="rounded-xl p-3" style="background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06)">
+                <div class="flex justify-between items-baseline mb-1.5">
+                  <span class="text-xs text-white font-medium">Trust / Credibility</span>
+                  <span class="text-sm font-semibold text-white">9.6<span class="text-[#8a9e85] text-xs">/10</span></span>
+                </div>
+                <div class="h-2 rounded-full" style="background:rgba(255,255,255,.07)">
+                  <div class="bar-fill bar-wrap h-2 rounded-full" style="--bar-color:#38bdf8;--bar-w:96%" id="b4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="px-6 py-4 flex items-center justify-between">
+            <span class="text-xs text-[#8a9e85] font-mono">websitecreditscore.com</span>
+            <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=wcs-card&utm_campaign=apex" class="text-xs font-medium text-gold-500 hover:text-gold-400 transition inline-flex items-center gap-1">Score my site →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="gold-rule"></div>
+</section>
+
+<!-- ══════════════ PROOF ══════════════ -->
+<section id="proof" class="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 md:py-28">
+  <div class="grid lg:grid-cols-12 gap-10 items-end mb-12">
     <div class="lg:col-span-7 reveal">
       <span class="pill"><span class="dot"></span> Live portfolio</span>
-      <h2 class="display-lg mt-5">Two real strategies. <span class="italic-display">Two live sites.</span></h2>
+      <h2 class="d-lg mt-5">Two real strategies. <span class="italic-gold">Two live sites.</span></h2>
     </div>
-    <p class="lg:col-span-5 lead reveal delay-1">
-      Every engagement ships as its own subdomain. Password-gated, designed for the client,
-      walked through on a single Zoom. Click any of these to see the format.
+    <p class="lg:col-span-5 lead reveal d1">
+      Every engagement ships as its own subdomain — password-gated, designed for the client,
+      walked through on a single Zoom. Click either to see the format.
     </p>
   </div>
 
   <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
-    <!-- Saunders -->
     <a href="https://saunders.strategypresentation.com" class="proof-card card rounded-2xl overflow-hidden block reveal">
-      <div class="proof-thumb" style="background: linear-gradient(135deg,#3d5040 0%, #1a221b 60%, #0a0a08 100%);">
-        <!-- decorative wood-grain svg -->
+      <div class="proof-thumb" style="background:linear-gradient(135deg,#3d5040 0%,#1a221b 60%,#0a0a08 100%);">
         <svg class="absolute inset-0 w-full h-full opacity-50" viewBox="0 0 320 200" preserveAspectRatio="none">
-          <defs>
-            <pattern id="wood" width="320" height="200" patternUnits="userSpaceOnUse">
-              <path d="M0 40 Q 80 30 160 45 T 320 38" stroke="#C9A44C" stroke-opacity=".25" fill="none" stroke-width=".7"/>
-              <path d="M0 80 Q 80 72 160 88 T 320 80" stroke="#C9A44C" stroke-opacity=".18" fill="none" stroke-width=".7"/>
-              <path d="M0 120 Q 80 110 160 130 T 320 122" stroke="#C9A44C" stroke-opacity=".22" fill="none" stroke-width=".7"/>
-              <path d="M0 160 Q 80 152 160 168 T 320 160" stroke="#C9A44C" stroke-opacity=".15" fill="none" stroke-width=".7"/>
-            </pattern>
-          </defs>
+          <defs><pattern id="wood" width="320" height="200" patternUnits="userSpaceOnUse">
+            <path d="M0 40 Q 80 30 160 45 T 320 38" stroke="#C9A44C" stroke-opacity=".25" fill="none" stroke-width=".7"/>
+            <path d="M0 80 Q 80 72 160 88 T 320 80" stroke="#C9A44C" stroke-opacity=".18" fill="none" stroke-width=".7"/>
+            <path d="M0 120 Q 80 110 160 130 T 320 122" stroke="#C9A44C" stroke-opacity=".22" fill="none" stroke-width=".7"/>
+            <path d="M0 160 Q 80 152 160 168 T 320 160" stroke="#C9A44C" stroke-opacity=".15" fill="none" stroke-width=".7"/>
+          </pattern></defs>
           <rect width="320" height="200" fill="url(#wood)"/>
         </svg>
         <div class="absolute inset-0 flex items-end p-5">
-          <span class="font-display text-2xl text-gold-300">Saunders Wood Works</span>
+          <span style="font-family:'Fraunces',serif" class="text-2xl text-gold-300">Saunders Wood Works</span>
         </div>
       </div>
       <div class="p-6">
-        <div class="text-xs font-mono uppercase tracking-widest text-gold">Custom millwork · SC</div>
-        <h3 class="font-display text-xl font-medium mt-2">Monday + n8n quote-to-cash</h3>
-        <p class="text-sm text-[var(--ink-soft)] mt-2">A full intake → quote → install pipeline replacing a paper-driven shop. $6K Phase 1.</p>
-        <div class="mt-5 text-sm font-medium text-gold inline-flex items-center gap-1.5">saunders.strategypresentation.com <span class="arr">→</span></div>
+        <div class="eyebrow">Custom millwork · SC</div>
+        <h3 class="d-md mt-2">Monday + n8n quote-to-cash</h3>
+        <p class="text-sm text-[var(--ink-s)] mt-2">A full intake → quote → install pipeline replacing a paper-driven shop. $6K Phase 1.</p>
+        <div class="mt-5 text-sm font-medium text-gold-500 inline-flex items-center gap-1.5">saunders.strategypresentation.com <span class="arr">→</span></div>
       </div>
     </a>
 
-    <!-- AbilitySC -->
-    <a href="https://abilitysc.strategypresentation.com" class="proof-card card rounded-2xl overflow-hidden block reveal delay-1">
-      <div class="proof-thumb" style="background: linear-gradient(135deg,#3a641d 0%, #2b4c14 55%, #15110a 100%);">
+    <a href="https://abilitysc.strategypresentation.com" class="proof-card card rounded-2xl overflow-hidden block reveal d1">
+      <div class="proof-thumb" style="background:linear-gradient(135deg,#3a641d 0%,#2b4c14 55%,#15110a 100%);">
         <svg class="absolute inset-0 w-full h-full opacity-50" viewBox="0 0 320 200">
           <g stroke="#e7d9b5" stroke-opacity=".3" fill="none" stroke-width=".8">
-            <circle cx="240" cy="60" r="42"/>
-            <circle cx="240" cy="60" r="28"/>
-            <circle cx="240" cy="60" r="14"/>
-            <path d="M40 160 L 90 130 L 140 145 L 200 110 L 260 130"/>
-            <circle cx="40" cy="160" r="3" fill="#e7d9b5"/>
-            <circle cx="90" cy="130" r="3" fill="#e7d9b5"/>
-            <circle cx="140" cy="145" r="3" fill="#e7d9b5"/>
-            <circle cx="200" cy="110" r="3" fill="#e7d9b5"/>
-            <circle cx="260" cy="130" r="3" fill="#e7d9b5"/>
+            <circle cx="240" cy="60" r="42"/><circle cx="240" cy="60" r="28"/><circle cx="240" cy="60" r="14"/>
+            <path d="M40 160L90 130L140 145L200 110L260 130"/>
+            <circle cx="40" cy="160" r="3" fill="#e7d9b5"/><circle cx="90" cy="130" r="3" fill="#e7d9b5"/>
+            <circle cx="140" cy="145" r="3" fill="#e7d9b5"/><circle cx="200" cy="110" r="3" fill="#e7d9b5"/><circle cx="260" cy="130" r="3" fill="#e7d9b5"/>
           </g>
         </svg>
         <div class="absolute inset-0 flex items-end p-5">
-          <span class="font-display text-2xl text-ink-50">AccessAbility SC</span>
+          <span style="font-family:'Fraunces',serif" class="text-2xl text-ink-50">AccessAbility SC</span>
         </div>
       </div>
       <div class="p-6">
-        <div class="text-xs font-mono uppercase tracking-widest text-gold">Nonprofit · 25 yr</div>
-        <h3 class="font-display text-xl font-medium mt-2">30-day donation engine + Ad Grant</h3>
-        <p class="text-sm text-[var(--ink-soft)] mt-2">One site, a real giving flow, a filed Google Ad Grant, and a loaded grant pipeline.</p>
-        <div class="mt-5 text-sm font-medium text-gold inline-flex items-center gap-1.5">abilitysc.strategypresentation.com <span class="arr">→</span></div>
+        <div class="eyebrow">Nonprofit · 25 yr</div>
+        <h3 class="d-md mt-2">30-day donation engine + Ad Grant</h3>
+        <p class="text-sm text-[var(--ink-s)] mt-2">One site, a real giving flow, a filed Google Ad Grant, and a loaded grant pipeline.</p>
+        <div class="mt-5 text-sm font-medium text-gold-500 inline-flex items-center gap-1.5">abilitysc.strategypresentation.com <span class="arr">→</span></div>
       </div>
     </a>
-
   </div>
 </section>
 
 <div class="gold-rule"></div>
 
-<!-- ============== HOW IT WORKS ============== -->
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
 <section id="how" class="relative overflow-hidden">
   <div class="grain"></div>
-  <div class="relative max-w-7xl mx-auto px-6 py-24 md:py-36">
-    <div class="grid lg:grid-cols-12 gap-10 mb-16">
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 md:py-28">
+    <div class="grid lg:grid-cols-12 gap-10 mb-14">
       <div class="lg:col-span-7 reveal">
         <span class="pill"><span class="dot"></span> The funnel</span>
-        <h2 class="display-lg mt-5">From cold visitor to a built<br><span class="italic-display">automation</span> in four steps.</h2>
+        <h2 class="d-lg mt-5">From cold visitor to a built <span class="italic-gold">automation</span> in four steps.</h2>
       </div>
-      <p class="lg:col-span-5 lead self-end reveal delay-1">
+      <p class="lg:col-span-5 lead self-end reveal d1">
         Each step is its own product. You only pay when you've already seen the work.
       </p>
     </div>
 
-    <!-- Animated funnel diagram -->
-    <div class="reveal delay-2 mb-16">
+    <!-- Animated funnel diagram (hidden on mobile/tablet) -->
+    <div class="reveal d2 mb-14 hidden lg:block">
       <svg viewBox="0 0 1200 220" class="w-full h-auto funnel-anim">
         <defs>
-          <linearGradient id="flowG" x1="0" x2="1">
-            <stop offset="0%" stop-color="#C9A44C" stop-opacity="0"/>
-            <stop offset="50%" stop-color="#C9A44C"/>
-            <stop offset="100%" stop-color="#C9A44C" stop-opacity="0"/>
-          </linearGradient>
-          <path id="flowPath" d="M 50 110 C 250 110, 300 60, 450 60 S 700 160, 850 110 S 1100 70, 1150 110" />
+          <linearGradient id="fG" x1="0" x2="1"><stop offset="0%" stop-color="#C9A44C" stop-opacity="0"/><stop offset="50%" stop-color="#C9A44C"/><stop offset="100%" stop-color="#C9A44C" stop-opacity="0"/></linearGradient>
+          <path id="fp" d="M 50 110 C 250 110,300 60,450 60 S 700 160,850 110 S 1100 70,1150 110"/>
         </defs>
-        <use href="#flowPath" stroke="url(#flowG)" stroke-width="1.5" fill="none" opacity=".55"/>
-        <use href="#flowPath" stroke="#C9A44C" stroke-width="1" fill="none" opacity=".15"/>
-        <!-- nodes -->
-        <g font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="2" text-transform="uppercase">
-          <g transform="translate(50,110)">
-            <circle r="9" fill="#C9A44C"/>
-            <circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/>
-            <text y="44" fill="currentColor" text-anchor="middle">AUDIT</text>
-          </g>
-          <g transform="translate(450,60)">
-            <circle r="9" fill="#C9A44C"/>
-            <circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/>
-            <text y="-26" fill="currentColor" text-anchor="middle">DISCOVERY</text>
-          </g>
-          <g transform="translate(850,110)">
-            <circle r="9" fill="#C9A44C"/>
-            <circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/>
-            <text y="44" fill="currentColor" text-anchor="middle">STRATEGY SITE</text>
-          </g>
-          <g transform="translate(1150,110)">
-            <circle r="9" fill="#C9A44C"/>
-            <circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/>
-            <text y="-26" fill="currentColor" text-anchor="middle">BUILD</text>
-          </g>
+        <use href="#fp" stroke="url(#fG)" stroke-width="1.5" fill="none" opacity=".55"/>
+        <use href="#fp" stroke="#C9A44C" stroke-width="1" fill="none" opacity=".15"/>
+        <g font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="2">
+          <g transform="translate(50,110)"><circle r="9" fill="#C9A44C"/><circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/><text y="44" fill="currentColor" text-anchor="middle">AUDIT</text></g>
+          <g transform="translate(450,60)"><circle r="9" fill="#C9A44C"/><circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/><text y="-26" fill="currentColor" text-anchor="middle">DISCOVERY</text></g>
+          <g transform="translate(850,110)"><circle r="9" fill="#C9A44C"/><circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/><text y="44" fill="currentColor" text-anchor="middle">STRATEGY SITE</text></g>
+          <g transform="translate(1150,110)"><circle r="9" fill="#C9A44C"/><circle r="18" fill="none" stroke="#C9A44C" stroke-opacity=".4"/><text y="-26" fill="currentColor" text-anchor="middle">BUILD</text></g>
         </g>
-        <!-- moving dots along path -->
-        <circle class="flow" r="4" fill="#e0bc70" style="offset-path: path('M 50 110 C 250 110, 300 60, 450 60 S 700 160, 850 110 S 1100 70, 1150 110'); animation-delay: 0s"/>
-        <circle class="flow" r="3" fill="#C9A44C" style="offset-path: path('M 50 110 C 250 110, 300 60, 450 60 S 700 160, 850 110 S 1100 70, 1150 110'); animation-delay: 1.4s"/>
-        <circle class="flow" r="3" fill="#C9A44C" style="offset-path: path('M 50 110 C 250 110, 300 60, 450 60 S 700 160, 850 110 S 1100 70, 1150 110'); animation-delay: 2.8s"/>
-        <circle class="flow" r="2.5" fill="#e0bc70" style="offset-path: path('M 50 110 C 250 110, 300 60, 450 60 S 700 160, 850 110 S 1100 70, 1150 110'); animation-delay: 4.2s"/>
+        <circle class="flow" r="4" fill="#e0bc70" style="offset-path:path('M 50 110 C 250 110,300 60,450 60 S 700 160,850 110 S 1100 70,1150 110');animation-delay:0s"/>
+        <circle class="flow" r="3" fill="#C9A44C" style="offset-path:path('M 50 110 C 250 110,300 60,450 60 S 700 160,850 110 S 1100 70,1150 110');animation-delay:1.4s"/>
+        <circle class="flow" r="3" fill="#C9A44C" style="offset-path:path('M 50 110 C 250 110,300 60,450 60 S 700 160,850 110 S 1100 70,1150 110');animation-delay:2.8s"/>
+        <circle class="flow" r="2.5" fill="#e0bc70" style="offset-path:path('M 50 110 C 250 110,300 60,450 60 S 700 160,850 110 S 1100 70,1150 110');animation-delay:4.2s"/>
       </svg>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6">
-      <!-- Step 1 -->
-      <div class="card rounded-2xl p-8 reveal">
+    <div class="grid sm:grid-cols-2 gap-5">
+      <div class="card rounded-2xl p-7 reveal">
         <div class="flex items-start justify-between gap-4 mb-5">
-          <span class="icon-tile">
-            <!-- magnifier -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="10.5" cy="10.5" r="6.5"/>
-              <path d="M20 20l-4.5-4.5"/>
-              <path d="M7.5 10.5h6M10.5 7.5v6" stroke-opacity=".5"/>
-            </svg>
-          </span>
+          <span class="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.5-4.5"/><path d="M7.5 10.5h6M10.5 7.5v6" stroke-opacity=".5"/></svg></span>
           <span class="num-tag text-5xl">01</span>
         </div>
-        <h3 class="display-md">Free audit — WebsiteCreditScore</h3>
-        <p class="mt-3 text-[var(--ink-soft)] leading-relaxed">
-          Drop in your URL. We score conversion, trust, technical health, and where you're hemorrhaging
-          leads. You get an action brief by email. Free, no call required.
-        </p>
-        <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=how&utm_campaign=apex" class="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-gold">Run the audit <span>→</span></a>
+        <h3 class="d-md">Free audit — WebsiteCreditScore</h3>
+        <p class="mt-3 text-[var(--ink-s)] leading-relaxed">Drop in your URL. We score conversion, trust, technical health, and where you're losing leads. You get an action brief by email. Free, no call required.</p>
+        <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=how&utm_campaign=apex" class="inline-flex items-center gap-1.5 mt-5 text-sm font-medium text-gold-500">Run the audit →</a>
       </div>
-
-      <!-- Step 2 -->
-      <div class="card rounded-2xl p-8 reveal delay-1">
+      <div class="card rounded-2xl p-7 reveal d1">
         <div class="flex items-start justify-between gap-4 mb-5">
-          <span class="icon-tile">
-            <!-- chat bubble -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 5h16v11H8l-4 4z"/>
-              <path d="M8 9.5h8M8 12.5h5" stroke-opacity=".55"/>
-            </svg>
-          </span>
+          <span class="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9.5h8M8 12.5h5" stroke-opacity=".55"/></svg></span>
           <span class="num-tag text-5xl">02</span>
         </div>
-        <h3 class="display-md">Discovery call</h3>
-        <p class="mt-3 text-[var(--ink-soft)] leading-relaxed">
-          Thirty minutes. We walk your audit, identify the one workflow worth automating first, and
-          scope the Phase 1 strategy. If we're not the right fit, we say so on the call.
-        </p>
+        <h3 class="d-md">Discovery call</h3>
+        <p class="mt-3 text-[var(--ink-s)] leading-relaxed">Thirty minutes. We walk your audit, identify the one workflow worth automating first, and scope the Phase 1 strategy. If we're not the right fit, we say so on the call.</p>
       </div>
-
-      <!-- Step 3 -->
-      <div class="card rounded-2xl p-8 reveal delay-2">
+      <div class="card rounded-2xl p-7 reveal d2">
         <div class="flex items-start justify-between gap-4 mb-5">
-          <span class="icon-tile">
-            <!-- browser -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="16" rx="2"/>
-              <path d="M3 9h18"/>
-              <circle cx="6" cy="6.5" r=".7" fill="currentColor"/>
-              <circle cx="8.4" cy="6.5" r=".7" fill="currentColor"/>
-              <path d="M7 13h6M7 16h10" stroke-opacity=".5"/>
-            </svg>
-          </span>
+          <span class="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6" cy="6.5" r=".7" fill="currentColor"/><circle cx="8.4" cy="6.5" r=".7" fill="currentColor"/><path d="M7 13h6M7 16h10" stroke-opacity=".5"/></svg></span>
           <span class="num-tag text-5xl">03</span>
         </div>
-        <h3 class="display-md">Your strategy on a private subdomain</h3>
-        <p class="mt-3 text-[var(--ink-soft)] leading-relaxed">
-          Within five business days, you get <span class="font-mono text-gold">{you}.strategypresentation.com</span> —
-          a password-gated site that holds the diagnosis, recommended stack, workflow maps,
-          timeline, and investment. We walk it together. 50% deposit on approval.
-        </p>
+        <h3 class="d-md">Your strategy on a private subdomain</h3>
+        <p class="mt-3 text-[var(--ink-s)] leading-relaxed">You get <span class="font-mono text-gold-500">{you}.strategypresentation.com</span> — a password-gated site with the diagnosis, recommended stack, workflow maps, timeline, and investment. We walk it together. 50% deposit on approval.</p>
       </div>
-
-      <!-- Step 4 -->
-      <div class="card rounded-2xl p-8 reveal delay-3">
+      <div class="card rounded-2xl p-7 reveal d3">
         <div class="flex items-start justify-between gap-4 mb-5">
-          <span class="icon-tile">
-            <!-- circuit / build -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="6" cy="6" r="2"/>
-              <circle cx="18" cy="6" r="2"/>
-              <circle cx="6" cy="18" r="2"/>
-              <circle cx="18" cy="18" r="2"/>
-              <path d="M8 6h8M6 8v8M18 8v8M8 18h8"/>
-              <rect x="10" y="10" width="4" height="4" rx="1"/>
-            </svg>
-          </span>
+          <span class="icon-tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M6 8v8M18 8v8M8 18h8"/><rect x="10" y="10" width="4" height="4" rx="1"/></svg></span>
           <span class="num-tag text-5xl">04</span>
         </div>
-        <h3 class="display-md">Build — credentials in Passwordn</h3>
-        <p class="mt-3 text-[var(--ink-soft)] leading-relaxed">
-          We build the automations against your stack. Every credential we touch is vaulted in
-          Passwordn so you keep control on day one and don't inherit a tangle when we hand off.
-          Final 50% Net-15 on delivery.
-        </p>
+        <h3 class="d-md">Build — credentials in Passwordn</h3>
+        <p class="mt-3 text-[var(--ink-s)] leading-relaxed">We build the automations against your stack. Every credential we touch is vaulted in Passwordn so you keep control on day one and don't inherit a tangle on handoff. Final 50% Net-15 on delivery.</p>
       </div>
     </div>
   </div>
@@ -703,317 +769,269 @@
 
 <div class="gold-rule"></div>
 
-<!-- ============== PRICING ============== -->
-<section id="pricing" class="relative max-w-7xl mx-auto px-6 py-24 md:py-36">
-  <div class="grid lg:grid-cols-12 gap-10 mb-14">
-    <div class="lg:col-span-7 reveal">
-      <span class="pill"><span class="dot"></span> Investment</span>
-      <h2 class="display-lg mt-5">Two phases. <span class="italic-display">No retainers.</span> No surprises.</h2>
-    </div>
-    <p class="lg:col-span-5 lead self-end reveal delay-1">
-      Most engagements run Phase 1 only. Phase 2 is for clients who want us to operate the
-      automations after the build, not just deliver them.
-    </p>
-  </div>
-
-  <div class="grid md:grid-cols-2 gap-8">
-    <!-- Phase 1 -->
-    <div class="card rounded-2xl p-9 relative reveal">
-      <div class="flex items-baseline justify-between gap-4">
-        <div>
-          <div class="eyebrow">Phase 1</div>
-          <div class="display-md mt-1.5">Strategy & Build</div>
-        </div>
-        <div class="text-right">
-          <div class="display-lg leading-none">$6,000</div>
-          <div class="text-xs font-mono mt-1 text-[var(--ink-soft)]">one-time</div>
-        </div>
-      </div>
-      <div class="mt-5 text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)] flex flex-wrap gap-x-4 gap-y-1">
-        <span>50% deposit</span><span>·</span><span>50% on delivery</span><span>·</span><span>Net-15</span>
-      </div>
-      <div class="mt-7 h-px bg-[var(--rule)]"></div>
-      <ul class="mt-7 space-y-4 text-[var(--ink-soft)]">
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Diagnostic audit and stack recommendation
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Personalized strategy on your private subdomain
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          One core workflow built and shipped (Monday, n8n, or your stack)
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Credentials vaulted in Passwordn — you own them on day one
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          5 business day turnaround on the strategy site
-        </li>
-      </ul>
-      <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=pricing-p1&utm_campaign=apex" class="btn-primary mt-9 inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium">Start with the audit <span class="arr">→</span></a>
-    </div>
-
-    <!-- Phase 2 -->
-    <div class="card rounded-2xl p-9 relative reveal delay-1">
-      <div class="absolute top-5 right-5 pill" style="background: rgba(201,164,76,0.08);">Optional</div>
-      <div class="flex items-baseline justify-between gap-4">
-        <div>
-          <div class="eyebrow">Phase 2</div>
-          <div class="display-md mt-1.5">Operate</div>
-        </div>
-        <div class="text-right">
-          <div class="display-lg leading-none">$4,500<span class="text-xl text-[var(--ink-soft)] font-sans">/mo</span></div>
-          <div class="text-xs font-mono mt-1 text-[var(--ink-soft)]">month-to-month</div>
-        </div>
-      </div>
-      <div class="mt-5 text-xs font-mono uppercase tracking-widest text-[var(--ink-soft)] flex flex-wrap gap-x-4 gap-y-1">
-        <span>Cancel anytime</span><span>·</span><span>30d notice</span>
-      </div>
-      <div class="mt-7 h-px bg-[var(--rule)]"></div>
-      <ul class="mt-7 space-y-4 text-[var(--ink-soft)]">
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Active monitoring of every workflow we built
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Two new automations per month
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Quarterly strategy review on your subdomain
-        </li>
-        <li class="flex gap-3">
-          <svg class="flex-shrink-0 mt-1" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Direct Slack channel with the build team
-        </li>
-      </ul>
-      <a href="#faq" class="btn-ghost mt-9 inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-medium">Read the fine print <span class="arr">→</span></a>
-    </div>
-  </div>
-</section>
-
-<div class="gold-rule"></div>
-
-<!-- ============== FAQ ============== -->
-<section id="faq" class="max-w-5xl mx-auto px-6 py-24 md:py-36">
+<!-- ══════════════ PRICING ══════════════ -->
+<section id="pricing" class="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 md:py-28">
   <div class="grid lg:grid-cols-12 gap-10 mb-12">
     <div class="lg:col-span-7 reveal">
-      <span class="pill"><span class="dot"></span> Questions worth answering</span>
-      <h2 class="display-lg mt-5">FAQ</h2>
+      <span class="pill"><span class="dot"></span> Investment</span>
+      <h2 class="d-lg mt-5">
+        Two phases. <span class="italic-gold">No retainers.</span><br>No surprises.
+      </h2>
     </div>
-    <p class="lg:col-span-5 lead self-end reveal delay-1">
-      The five we get most often. If yours isn't here, ask on the discovery call — that's
-      what it's for.
+    <p class="lg:col-span-5 lead self-end reveal d1">
+      Most engagements run Phase 1 only. Phase 2 is for clients who want us operating the
+      automations after the build, not just delivering them.
     </p>
   </div>
 
-  <div class="space-y-3">
-    <details class="faq card rounded-xl p-6 reveal">
-      <summary class="flex items-center justify-between gap-4">
-        <span class="font-display text-xl">Do I have to use Monday.com?</span>
-        <span class="chev text-gold text-2xl">+</span>
-      </summary>
-      <p class="mt-4 text-[var(--ink-soft)] leading-relaxed">
-        No. Monday is what we recommend most often because it scales without losing legibility,
-        but the strategy adapts to your stack. We've shipped against HubSpot, Airtable, n8n,
-        Notion, and bespoke Postgres setups. The diagnostic in Phase 1 tells us which.
-      </p>
-    </details>
+  <div class="grid md:grid-cols-2 gap-7">
+    <!-- Phase 1 -->
+    <div class="card rounded-2xl overflow-hidden reveal">
+      <div class="p-8 md:p-9">
+        <div class="flex items-baseline justify-between gap-4 flex-wrap">
+          <div>
+            <div class="eyebrow">Phase 1</div>
+            <div class="d-md mt-1.5">Strategy &amp; Build</div>
+          </div>
+          <div class="text-right">
+            <div class="d-lg leading-none">$6,000</div>
+            <div class="text-xs font-mono mt-1 text-[var(--ink-s)]">one-time</div>
+          </div>
+        </div>
+        <div class="mt-4 text-xs font-mono uppercase tracking-widest text-[var(--ink-s)] flex flex-wrap gap-x-3 gap-y-1">
+          <span>50% deposit</span><span>·</span><span>50% on delivery</span><span>·</span><span>Net-15</span>
+        </div>
+        <div class="mt-6 h-px bg-[var(--rule)]"></div>
+        <ul class="mt-6 space-y-3.5 text-[var(--ink-s)]">
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Diagnostic audit and stack recommendation</li>
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Personalized strategy on your private subdomain</li>
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>One core workflow built and shipped (Monday, n8n, or your stack)</li>
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Credentials vaulted in Passwordn — you own them on day one</li>
+        </ul>
+        <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=pricing-p1&utm_campaign=apex" class="btn-p mt-8 inline-flex px-6 py-3.5 rounded-full">Start with the audit <span class="arr">→</span></a>
+      </div>
+    </div>
 
-    <details class="faq card rounded-xl p-6 reveal delay-1">
-      <summary class="flex items-center justify-between gap-4">
-        <span class="font-display text-xl">What is the deposit actually paying for?</span>
-        <span class="chev text-gold text-2xl">+</span>
-      </summary>
-      <p class="mt-4 text-[var(--ink-soft)] leading-relaxed">
-        Research, design, the build of your subdomain strategy site, and standing up Monday or
-        n8n if you don't already have it. By the time we ask for the second half, you've walked
-        through the whole strategy and seen the first workflow running.
-      </p>
-    </details>
+    <!-- Phase 2 — Optional tag lives as a header row -->
+    <div class="card rounded-2xl overflow-hidden reveal d1">
+      <!-- Optional header strip -->
+      <div class="px-8 md:px-9 py-3 border-b border-[var(--rule)] flex items-center justify-between" style="background:rgba(201,164,76,.05)">
+        <span class="text-xs font-mono uppercase tracking-widest text-[var(--ink-s)]">Add-on after Phase 1</span>
+        <span class="pill" style="padding:.28rem .6rem;font-size:.62rem">Optional</span>
+      </div>
+      <div class="p-8 md:p-9">
+        <div class="flex items-baseline justify-between gap-4 flex-wrap">
+          <div>
+            <div class="eyebrow">Phase 2</div>
+            <div class="d-md mt-1.5">Operate</div>
+          </div>
+          <div class="text-right">
+            <div class="d-lg leading-none">$4,500<span class="text-xl text-[var(--ink-s)] font-sans">/mo</span></div>
+            <div class="text-xs font-mono mt-1 text-[var(--ink-s)]">month-to-month</div>
+          </div>
+        </div>
+        <div class="mt-4 text-xs font-mono uppercase tracking-widest text-[var(--ink-s)] flex flex-wrap gap-x-3 gap-y-1">
+          <span>Cancel anytime</span><span>·</span><span>30d notice</span>
+        </div>
+        <div class="mt-6 h-px bg-[var(--rule)]"></div>
+        <ul class="mt-6 space-y-3.5 text-[var(--ink-s)]">
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Active monitoring of every workflow we built</li>
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Two new automations per month</li>
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Quarterly strategy review on your subdomain</li>
+          <li class="flex gap-3"><svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C9A44C" stroke-width="1.8"><path d="M3 8l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round"/></svg>Direct Slack channel with the build team</li>
+        </ul>
+        <a href="#faq" class="btn-g mt-8 inline-flex px-6 py-3.5 rounded-full">Read the fine print <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <details class="faq card rounded-xl p-6 reveal delay-2">
-      <summary class="flex items-center justify-between gap-4">
-        <span class="font-display text-xl">How is this different from a Zapier consultant?</span>
-        <span class="chev text-gold text-2xl">+</span>
-      </summary>
-      <p class="mt-4 text-[var(--ink-soft)] leading-relaxed">
-        A consultant hands you a deck and an invoice. We hand you a hosted site that holds the
-        strategy, the diagrams, and the running workflows behind one URL you can show anyone.
-        Six months later it's still your reference manual, not a file in someone's downloads folder.
-      </p>
-    </details>
+<div class="gold-rule"></div>
 
-    <details class="faq card rounded-xl p-6 reveal delay-3">
-      <summary class="flex items-center justify-between gap-4">
-        <span class="font-display text-xl">Who owns the work after delivery?</span>
-        <span class="chev text-gold text-2xl">+</span>
-      </summary>
-      <p class="mt-4 text-[var(--ink-soft)] leading-relaxed">
-        You do. Every credential is vaulted in your Passwordn account. Every workflow runs in
-        your accounts on your billing. The subdomain stays yours as long as you want it.
-      </p>
-    </details>
+<!-- ══════════════ FAQ ══════════════ -->
+<section id="faq" class="max-w-5xl mx-auto px-5 sm:px-8 py-20 md:py-28">
+  <div class="grid lg:grid-cols-12 gap-10 mb-12">
+    <div class="lg:col-span-6 reveal">
+      <span class="pill"><span class="dot"></span> Common questions</span>
+      <h2 class="d-lg mt-5">FAQ</h2>
+    </div>
+    <p class="lg:col-span-6 lead self-end reveal d1">
+      The five we get most. If yours isn't here, ask on the discovery call — that's exactly what it's for.
+    </p>
+  </div>
 
-    <details class="faq card rounded-xl p-6 reveal delay-4">
+  <div class="space-y-2.5">
+    <details class="faq card rounded-xl px-6 py-5 reveal">
       <summary class="flex items-center justify-between gap-4">
-        <span class="font-display text-xl">How fast can you start?</span>
-        <span class="chev text-gold text-2xl">+</span>
+        <span style="font-family:'Fraunces',serif" class="text-xl">Do I have to use Monday.com?</span>
+        <span class="chev text-gold-500 text-2xl flex-shrink-0">+</span>
       </summary>
-      <p class="mt-4 text-[var(--ink-soft)] leading-relaxed">
-        Discovery call within 48 hours of a signed audit. Strategy site live within 5 business
-        days of the deposit. We hold one Phase 1 slot per week so we don't drop quality.
-      </p>
+      <p class="mt-4 text-[var(--ink-s)] leading-relaxed">No. Monday is what we recommend most often because it scales without losing legibility, but the strategy adapts to your stack. We've shipped against HubSpot, Airtable, n8n, Notion, and bespoke Postgres setups. The diagnostic in Phase 1 tells us which.</p>
+    </details>
+    <details class="faq card rounded-xl px-6 py-5 reveal d1">
+      <summary class="flex items-center justify-between gap-4">
+        <span style="font-family:'Fraunces',serif" class="text-xl">What is the deposit actually paying for?</span>
+        <span class="chev text-gold-500 text-2xl flex-shrink-0">+</span>
+      </summary>
+      <p class="mt-4 text-[var(--ink-s)] leading-relaxed">Research, design, the build of your subdomain strategy site, and standing up Monday or n8n if you don't already have it. By the time we ask for the second half, you've walked through the whole strategy and seen the first workflow running.</p>
+    </details>
+    <details class="faq card rounded-xl px-6 py-5 reveal d2">
+      <summary class="flex items-center justify-between gap-4">
+        <span style="font-family:'Fraunces',serif" class="text-xl">How is this different from a Zapier consultant?</span>
+        <span class="chev text-gold-500 text-2xl flex-shrink-0">+</span>
+      </summary>
+      <p class="mt-4 text-[var(--ink-s)] leading-relaxed">A consultant hands you a deck and an invoice. We hand you a hosted site that holds the strategy, the diagrams, and the running workflows behind one URL you can show anyone. Six months later it's still your reference manual, not a file in someone's downloads folder.</p>
+    </details>
+    <details class="faq card rounded-xl px-6 py-5 reveal d3">
+      <summary class="flex items-center justify-between gap-4">
+        <span style="font-family:'Fraunces',serif" class="text-xl">Who owns the work after delivery?</span>
+        <span class="chev text-gold-500 text-2xl flex-shrink-0">+</span>
+      </summary>
+      <p class="mt-4 text-[var(--ink-s)] leading-relaxed">You do. Every credential is vaulted in your Passwordn account. Every workflow runs in your accounts on your billing. The subdomain stays yours as long as you want it.</p>
+    </details>
+    <details class="faq card rounded-xl px-6 py-5 reveal d4">
+      <summary class="flex items-center justify-between gap-4">
+        <span style="font-family:'Fraunces',serif" class="text-xl">How fast can you start?</span>
+        <span class="chev text-gold-500 text-2xl flex-shrink-0">+</span>
+      </summary>
+      <p class="mt-4 text-[var(--ink-s)] leading-relaxed">Discovery call within 48 hours of a signed audit. We hold one Phase 1 slot per week so we don't drop quality.</p>
     </details>
   </div>
 </section>
 
-<!-- ============== FOOTER CTA ============== -->
+<!-- ══════════════ FOOTER CTA ══════════════ -->
 <section class="relative overflow-hidden bg-ink-900 text-ink-50">
-  <div class="absolute inset-0 grain opacity-30"></div>
-  <div class="absolute inset-0 mesh opacity-50"></div>
-  <!-- spinning badge -->
-  <div class="hidden lg:block absolute right-12 top-12">
+  <div class="absolute inset-0 grain opacity-25"></div>
+  <div class="absolute inset-0 mesh opacity-40"></div>
+  <div class="hidden lg:block absolute right-12 top-10">
     <div class="relative w-32 h-32">
       <svg viewBox="0 0 200 200" class="spin-slow w-full h-full">
-        <defs>
-          <path id="circ" d="M 100,100 m -78,0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0" />
-        </defs>
-        <text font-family="JetBrains Mono, monospace" font-size="14" fill="#C9A44C" letter-spacing="6">
-          <textPath href="#circ">RUN THE AUDIT · SEE YOUR SCORE · RUN THE AUDIT · </textPath>
+        <defs><path id="circ" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1-156,0"/></defs>
+        <text font-family="JetBrains Mono,monospace" font-size="14" fill="#C9A44C" letter-spacing="6">
+          <textPath href="#circ">RUN THE AUDIT · SEE YOUR SCORE · </textPath>
         </text>
       </svg>
       <div class="absolute inset-0 flex items-center justify-center">
-        <div class="w-12 h-12 rounded-full border border-gold-500/40 flex items-center justify-center">
-          <span class="text-gold text-xl">→</span>
-        </div>
+        <div class="w-11 h-11 rounded-full border border-gold-500/40 flex items-center justify-center text-gold-500 text-xl">→</div>
       </div>
     </div>
   </div>
-
-  <div class="relative max-w-5xl mx-auto px-6 py-28 md:py-36 text-center">
+  <div class="relative max-w-4xl mx-auto px-5 sm:px-8 py-24 md:py-32 text-center">
     <span class="pill"><span class="dot"></span> Start here</span>
-    <h2 class="display-xl mt-7 leading-[0.95]">
-      Run the audit.<br><span class="italic-display">See your score.</span>
+    <h2 class="d-xl mt-7 text-white">
+      Run the audit.<br><span class="italic-gold">See your score.</span>
     </h2>
-    <p class="mt-7 max-w-xl mx-auto text-ink-200 text-lg lead">
+    <p class="mt-7 max-w-lg mx-auto text-ink-200 lead">
       Five minutes. No call required. If the brief is useful, we'll talk about a strategy site.
       If it isn't, you've still got the brief.
     </p>
-    <div class="mt-12 flex flex-wrap justify-center gap-3">
-      <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=footer-cta&utm_campaign=apex" class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-medium px-8 py-4 rounded-full transition inline-flex items-center gap-2 shadow-[0_20px_40px_-15px_rgba(201,164,76,0.5)]">
+    <div class="mt-10 flex flex-wrap justify-center gap-3">
+      <a href="https://websitecreditscore.com/?utm_source=strategypresentation&utm_medium=footer-cta&utm_campaign=apex" class="inline-flex items-center gap-2 font-medium px-8 py-4 rounded-full transition" style="background:#C9A44C;color:#15110a;box-shadow:0 20px 40px -15px rgba(201,164,76,.5)">
         Get my free audit <span class="arr">→</span>
       </a>
-      <a href="https://saunders.strategypresentation.com" class="border border-gold-500/40 hover:border-gold-400 text-ink-50 font-medium px-8 py-4 rounded-full transition">
+      <a href="https://saunders.strategypresentation.com" class="btn-g px-8 py-4 rounded-full text-ink-50" style="border-color:rgba(201,164,76,.4)">
         See a sample strategy
       </a>
     </div>
   </div>
 </section>
 
-<!-- ============== FOOTER ============== -->
-<footer class="dark-footer border-t border-gold-500/10">
-  <div class="max-w-7xl mx-auto px-6 py-14 grid md:grid-cols-4 gap-10 text-sm">
-    <div class="md:col-span-1">
-      <div class="font-display text-lg text-ink-50 flex items-center gap-2.5">
-        <svg width="22" height="22" viewBox="0 0 28 28">
-          <rect x="1.5" y="1.5" width="25" height="25" rx="6" fill="none" stroke="#C9A44C" stroke-width="1.4"/>
-          <path d="M8 18 L14 8 L20 18" fill="none" stroke="#C9A44C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="14" cy="20" r="1.4" fill="#C9A44C"/>
-        </svg>
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="dark-footer border-t" style="border-color:rgba(201,164,76,.1)">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 py-14 grid sm:grid-cols-2 md:grid-cols-4 gap-10 text-sm">
+    <div class="sm:col-span-2 md:col-span-1">
+      <div style="font-family:'Fraunces',serif" class="text-lg text-ink-50 flex items-center gap-2.5">
+        <svg width="22" height="22" viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" rx="6" fill="none" stroke="#C9A44C" stroke-width="1.4"/><path d="M8 18L14 8l6 10" fill="none" stroke="#C9A44C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="20" r="1.4" fill="#C9A44C"/></svg>
         StrategyPresentation
       </div>
-      <p class="mt-4 text-ink-400 max-w-xs">
-        AI automation strategy sites for operators who'd rather see a working plan than read a deck.
-      </p>
+      <p class="mt-4 text-[#8a9e85] max-w-xs">AI automation strategy sites for operators who'd rather see a working plan than read a deck.</p>
     </div>
     <div>
-      <div class="text-xs uppercase tracking-widest text-gold mb-4">Ecosystem</div>
-      <ul class="space-y-2.5">
+      <div class="text-xs uppercase tracking-widest text-gold-500 mb-4">Ecosystem</div>
+      <ul class="space-y-2.5 text-[#8a9e85]">
         <li><a class="hover:text-gold-400 transition" href="https://websitecreditscore.com">WebsiteCreditScore</a></li>
         <li><a class="hover:text-gold-400 transition" href="https://strategypresentation.com">StrategyPresentation</a></li>
         <li><a class="hover:text-gold-400 transition" href="https://passwordn.com">Passwordn</a></li>
       </ul>
     </div>
     <div>
-      <div class="text-xs uppercase tracking-widest text-gold mb-4">See it live</div>
-      <ul class="space-y-2.5">
+      <div class="text-xs uppercase tracking-widest text-gold-500 mb-4">See it live</div>
+      <ul class="space-y-2.5 text-[#8a9e85]">
         <li><a class="hover:text-gold-400 transition" href="https://saunders.strategypresentation.com">saunders.strategypresentation.com</a></li>
         <li><a class="hover:text-gold-400 transition" href="https://abilitysc.strategypresentation.com">abilitysc.strategypresentation.com</a></li>
       </ul>
     </div>
     <div>
-      <div class="text-xs uppercase tracking-widest text-gold mb-4">Talk to us</div>
-      <ul class="space-y-2.5">
+      <div class="text-xs uppercase tracking-widest text-gold-500 mb-4">Talk to us</div>
+      <ul class="space-y-2.5 text-[#8a9e85]">
         <li><a class="hover:text-gold-400 transition" href="mailto:hans@strategypresentation.com">hans@strategypresentation.com</a></li>
         <li><a class="hover:text-gold-400 transition" href="https://websitecreditscore.com">Run a free audit →</a></li>
       </ul>
     </div>
   </div>
-  <div class="border-t border-gold-500/10">
-    <div class="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-400">
+  <div class="border-t" style="border-color:rgba(201,164,76,.1)">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-[#8a9e85]">
       <div>© <span id="yr"></span> Strategy Presentation. Built by Hans Turner.</div>
       <button id="theme-toggle" class="hover:text-gold-400 font-mono uppercase tracking-widest transition">Toggle theme</button>
     </div>
   </div>
 </footer>
 
-<style>
-  @keyframes scroll-line {
-    0% { transform: translateX(-100%); }
-    50% { transform: translateX(300%); }
-    100% { transform: translateX(300%); }
-  }
-</style>
-
 <script>
-  // Year
   document.getElementById("yr").textContent = new Date().getFullYear();
 
-  // Theme toggle
   document.getElementById("theme-toggle").addEventListener("click", function () {
     var isDark = document.documentElement.classList.toggle("dark");
-    var theme = isDark ? "dark" : "light";
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem("sp-theme", theme); } catch (e) {}
+    try { localStorage.setItem("sp-theme", isDark ? "dark" : "light"); } catch(e){}
   });
 
-  // IntersectionObserver-based reveal
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) {
+  // Scroll reveal
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
         e.target.classList.add("in");
+        // Score ring
+        if(e.target.id==="scoreRing") e.target.classList.add("in");
+        // Bars
+        e.target.querySelectorAll(".bar-wrap").forEach(function(b){ b.classList.add("in"); });
         io.unobserve(e.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  },{threshold:0.15,rootMargin:"0px 0px -30px 0px"});
 
-  document.querySelectorAll(".reveal, .draw-on-view").forEach(function (el) { io.observe(el); });
+  document.querySelectorAll(".reveal").forEach(function(el){ io.observe(el); });
 
-  // Cursor orb (desktop)
-  (function () {
-    var orb = document.getElementById("orb");
-    if (!orb) return;
-    var x = window.innerWidth/2, y = window.innerHeight/2;
-    var tx = x, ty = y;
-    document.addEventListener("mousemove", function (e) { tx = e.clientX; ty = e.clientY; });
-    function frame() {
-      x += (tx - x) * 0.18; y += (ty - y) * 0.18;
-      orb.style.transform = "translate(" + x + "px, " + y + "px) translate(-50%, -50%)";
+  // Score ring + bars (triggered by their container)
+  var wcsObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        document.getElementById("scoreRing").classList.add("in");
+        ["b1","b2","b3","b4"].forEach(function(id){
+          var el=document.getElementById(id);
+          if(el) el.classList.add("in");
+        });
+        wcsObs.unobserve(e.target);
+      }
+    });
+  },{threshold:0.3});
+  var wcsCard = document.getElementById("scoreRing");
+  if(wcsCard) wcsObs.observe(wcsCard.closest("section"));
+
+  // Cursor orb
+  (function(){
+    var orb=document.getElementById("orb");
+    if(!orb||window.innerWidth<900) return;
+    var x=window.innerWidth/2,y=window.innerHeight/2,tx=x,ty=y;
+    document.addEventListener("mousemove",function(e){tx=e.clientX;ty=e.clientY;});
+    function frame(){
+      x+=(tx-x)*.18; y+=(ty-y)*.18;
+      orb.style.transform="translate("+x+"px,"+y+"px) translate(-50%,-50%)";
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
-
-    var hoverables = document.querySelectorAll("a, button, summary");
-    hoverables.forEach(function (el) {
-      el.addEventListener("mouseenter", function () { orb.style.width = "36px"; orb.style.height = "36px"; });
-      el.addEventListener("mouseleave", function () { orb.style.width = "18px"; orb.style.height = "18px"; });
+    document.querySelectorAll("a,button,summary").forEach(function(el){
+      el.addEventListener("mouseenter",function(){orb.style.width="34px";orb.style.height="34px";});
+      el.addEventListener("mouseleave",function(){orb.style.width="18px";orb.style.height="18px";});
     });
   })();
 </script>
