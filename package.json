@@ -1,0 +1,24 @@
+{
+  "name": "strategypresentation",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/studio",
+    "build": "npm run build --workspace=apps/studio",
+    "type-check": "npm run type-check --workspace=apps/studio",
+    "seed": "npx tsx scripts/seed-dev.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5"
+  }
+}
