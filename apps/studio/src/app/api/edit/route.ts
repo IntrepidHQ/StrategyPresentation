@@ -1,14 +1,11 @@
-// ============================================================
-//  SP Studio — HTML Edit Endpoint (Lovable Mode)
-//  apps/studio/src/app/api/edit/route.ts
-//
-//  Hans prompts Claude to edit the current HTML.
-//  Saves edit history, returns updated HTML.
-// ============================================================
-
 import { NextRequest, NextResponse } from "next/server";
-import { getStrategy, updateStrategyHTML, saveEditHistory } from "@/lib/db";
-import { editStrategyHTML } from "@/lib/anthropic";
+import {
+  getStrategy,
+  updateStrategyHTML,
+  saveEditHistory,
+  getEditAtOffset,
+} from "@/lib/db";
+import { editStrategyHTML, estimateCostUSD, MODELS } from "@/lib/anthropic";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const auth = req.headers.get("x-studio-passphrase");
@@ -22,11 +19,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-
   if (!body.strategyId || !body.prompt?.trim()) {
     return NextResponse.json(
       { error: "strategyId and prompt required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -37,34 +33,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!strategy.current_html) {
     return NextResponse.json(
       { error: "No HTML to edit — generate first" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   try {
-    const { updatedHtml, tokensUsed } = await editStrategyHTML(
+    const { updatedHtml, usage } = await editStrategyHTML(
       strategy.current_html,
-      body.prompt
+      body.prompt,
     );
 
-    // Save to edit history (captures before/after for undo)
     const edit = await saveEditHistory({
       strategyId: body.strategyId,
       prompt: body.prompt,
       htmlBefore: strategy.current_html,
       htmlAfter: updatedHtml,
-      tokensUsed,
-      model: "claude-sonnet-4-6",
+      usage,
+      model: MODELS.edit,
     });
 
-    // Update current HTML in strategies table
     await updateStrategyHTML(body.strategyId, updatedHtml);
 
     return NextResponse.json({
       ok: true,
       editId: edit.id,
-      tokensUsed,
-      // Return updated HTML so client can refresh iframe without another fetch
+      usage,
+      costUSD: estimateCostUSD(usage),
       html: updatedHtml,
     });
   } catch (e) {
@@ -73,8 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-// ── Undo: revert to N edits ago ───────────────────────────────
-
+// Undo: revert to N edits ago
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   const auth = req.headers.get("x-studio-passphrase");
   if (auth !== process.env.STUDIO_PASSPHRASE) {
@@ -89,13 +82,10 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "strategyId required" }, { status: 400 });
   }
 
-  const { getEditAtOffset } = await import("@/lib/db");
   const html = await getEditAtOffset(strategyId, stepsBack);
-
   if (!html) {
     return NextResponse.json({ error: "No edit to undo" }, { status: 404 });
   }
-
   await updateStrategyHTML(strategyId, html);
   return NextResponse.json({ ok: true, html });
 }

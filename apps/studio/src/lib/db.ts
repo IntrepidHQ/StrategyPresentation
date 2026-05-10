@@ -1,8 +1,3 @@
-// ============================================================
-//  SP Studio — Supabase DB Client
-//  apps/studio/src/lib/db.ts
-// ============================================================
-
 import { createClient } from "@supabase/supabase-js";
 import type {
   StrategyRecord,
@@ -11,8 +6,11 @@ import type {
   WCSReport,
   StrategyTier,
   StrategyStatus,
+  StripePhase,
   StrategyCardVM,
 } from "./types";
+import type { TokenUsage } from "./anthropic";
+import { assertTransition } from "./lifecycle";
 
 function getClient() {
   const url = process.env.SUPABASE_URL;
@@ -20,9 +18,7 @@ function getClient() {
   if (!url || !key) {
     throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
   }
-  return createClient(url, key, {
-    auth: { persistSession: false },
-  });
+  return createClient(url, key, { auth: { persistSession: false } });
 }
 
 // ── strategies ────────────────────────────────────────────────
@@ -34,6 +30,7 @@ export async function createStrategy(params: {
   wcsReport: WCSReport;
   gatePassword?: string;
   gateSignedDate?: string;
+  sourceScanId?: string;
 }): Promise<StrategyRecord> {
   const sb = getClient();
   const { data, error } = await sb
@@ -45,7 +42,8 @@ export async function createStrategy(params: {
       wcs_report: params.wcsReport,
       gate_password: params.gatePassword ?? generatePassword(params.clientSlug),
       gate_signed_date: params.gateSignedDate ?? formatTodayDate(),
-      status: "draft",
+      status: "draft" as StrategyStatus,
+      source_scan_id: params.sourceScanId ?? null,
     })
     .select()
     .single();
@@ -56,13 +54,8 @@ export async function createStrategy(params: {
 
 export async function getStrategy(id: string): Promise<StrategyRecord | null> {
   const sb = getClient();
-  const { data, error } = await sb
-    .from("strategies")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error?.code === "PGRST116") return null; // not found
+  const { data, error } = await sb.from("strategies").select("*").eq("id", id).single();
+  if (error?.code === "PGRST116") return null;
   if (error) throw new Error(`DB getStrategy: ${error.message}`);
   return data as StrategyRecord;
 }
@@ -74,9 +67,22 @@ export async function getStrategyBySlug(slug: string): Promise<StrategyRecord | 
     .select("*")
     .eq("client_slug", slug)
     .single();
-
   if (error?.code === "PGRST116") return null;
   if (error) throw new Error(`DB getStrategyBySlug: ${error.message}`);
+  return data as StrategyRecord;
+}
+
+export async function getStrategyByStripeSession(
+  sessionId: string,
+): Promise<StrategyRecord | null> {
+  const sb = getClient();
+  const { data, error } = await sb
+    .from("strategies")
+    .select("*")
+    .eq("stripe_session_id", sessionId)
+    .single();
+  if (error?.code === "PGRST116") return null;
+  if (error) throw new Error(`DB getStrategyByStripeSession: ${error.message}`);
   return data as StrategyRecord;
 }
 
@@ -84,7 +90,9 @@ export async function listStrategies(): Promise<StrategyCardVM[]> {
   const sb = getClient();
   const { data, error } = await sb
     .from("strategies")
-    .select("id, client_name, client_slug, tier, status, wcs_report, created_at, published_at, vercel_url")
+    .select(
+      "id, client_name, client_slug, tier, status, wcs_report, created_at, published_at, vercel_url",
+    )
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(`DB listStrategies: ${error.message}`);
@@ -109,60 +117,92 @@ export async function listStrategies(): Promise<StrategyCardVM[]> {
 
 export async function updateStrategyNarrative(
   id: string,
-  narrative: StrategyNarrative
+  narrative: StrategyNarrative,
 ): Promise<void> {
   const sb = getClient();
   const { error } = await sb
     .from("strategies")
-    .update({ narrative, status: "generated" })
+    .update({ narrative, status: "generated" as StrategyStatus })
     .eq("id", id);
-
   if (error) throw new Error(`DB updateStrategyNarrative: ${error.message}`);
 }
 
 export async function updateStrategyHTML(
   id: string,
   html: string,
-  status?: StrategyStatus
+  status?: StrategyStatus,
 ): Promise<void> {
   const sb = getClient();
   const update: Record<string, unknown> = { current_html: html };
   if (status) update.status = status;
-
   const { error } = await sb.from("strategies").update(update).eq("id", id);
   if (error) throw new Error(`DB updateStrategyHTML: ${error.message}`);
 }
 
-export async function updateStrategyStatus(
+// Generic transition setter — verifies legality then writes.
+export async function transitionStatus(
   id: string,
-  status: StrategyStatus
-): Promise<void> {
+  to: StrategyStatus,
+  extra: Record<string, unknown> = {},
+): Promise<StrategyRecord> {
+  const current = await getStrategy(id);
+  if (!current) throw new Error(`Strategy not found: ${id}`);
+  if (current.status !== to) {
+    assertTransition(current.status, to);
+  }
   const sb = getClient();
-  const { error } = await sb
+  const { data, error } = await sb
     .from("strategies")
-    .update({ status })
-    .eq("id", id);
-
-  if (error) throw new Error(`DB updateStrategyStatus: ${error.message}`);
+    .update({ status: to, ...extra })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw new Error(`DB transitionStatus(${current.status}→${to}): ${error.message}`);
+  return data as StrategyRecord;
 }
 
-export async function markStrategyPublished(
+export async function markPublished(
   id: string,
   vercelUrl: string,
-  vercelDeployId: string
-): Promise<void> {
-  const sb = getClient();
-  const { error } = await sb
-    .from("strategies")
-    .update({
-      status: "published",
-      published_at: new Date().toISOString(),
-      vercel_url: vercelUrl,
-      vercel_deploy_id: vercelDeployId,
-    })
-    .eq("id", id);
+): Promise<StrategyRecord> {
+  return transitionStatus(id, "published", {
+    published_at: new Date().toISOString(),
+    vercel_url: vercelUrl,
+  });
+}
 
-  if (error) throw new Error(`DB markStrategyPublished: ${error.message}`);
+export async function markApproved(id: string): Promise<StrategyRecord> {
+  return transitionStatus(id, "approved", {
+    approved_at: new Date().toISOString(),
+  });
+}
+
+export async function markPaid(
+  id: string,
+  stripeSessionId: string,
+  phase: StripePhase,
+): Promise<StrategyRecord> {
+  return transitionStatus(id, "paid", {
+    paid_at: new Date().toISOString(),
+    stripe_session_id: stripeSessionId,
+    stripe_phase: phase,
+  });
+}
+
+export async function markProjectCreated(
+  id: string,
+  crmProjectId: string,
+): Promise<StrategyRecord> {
+  return transitionStatus(id, "project_created", {
+    project_created_at: new Date().toISOString(),
+    crm_project_id: crmProjectId,
+  });
+}
+
+export async function markDelivered(id: string): Promise<StrategyRecord> {
+  return transitionStatus(id, "delivered", {
+    delivered_at: new Date().toISOString(),
+  });
 }
 
 // ── edit_history ──────────────────────────────────────────────
@@ -172,10 +212,12 @@ export async function saveEditHistory(params: {
   prompt: string;
   htmlBefore: string;
   htmlAfter: string;
-  tokensUsed?: number;
+  usage?: TokenUsage;
   model?: string;
 }): Promise<EditHistoryRecord> {
   const sb = getClient();
+  const u = params.usage;
+  const total = u ? u.input + u.output + u.cacheCreate + u.cacheRead : null;
   const { data, error } = await sb
     .from("edit_history")
     .insert({
@@ -183,7 +225,10 @@ export async function saveEditHistory(params: {
       prompt: params.prompt,
       html_before: params.htmlBefore,
       html_after: params.htmlAfter,
-      tokens_used: params.tokensUsed ?? null,
+      tokens_used: total,
+      cache_create_tokens: u?.cacheCreate ?? null,
+      cache_read_tokens: u?.cacheRead ?? null,
+      output_tokens: u?.output ?? null,
       model: params.model ?? null,
     })
     .select()
@@ -201,15 +246,13 @@ export async function getEditHistory(strategyId: string): Promise<EditHistoryRec
     .eq("strategy_id", strategyId)
     .order("created_at", { ascending: false })
     .limit(50);
-
   if (error) throw new Error(`DB getEditHistory: ${error.message}`);
   return (data ?? []) as EditHistoryRecord[];
 }
 
-// Get the HTML from Nth edit back (for undo)
 export async function getEditAtOffset(
   strategyId: string,
-  offset: number // 1 = one step back
+  offset: number,
 ): Promise<string | null> {
   const sb = getClient();
   const { data, error } = await sb
@@ -219,7 +262,6 @@ export async function getEditAtOffset(
     .order("created_at", { ascending: false })
     .range(offset - 1, offset - 1)
     .single();
-
   if (error) return null;
   return (data as EditHistoryRecord)?.html_before ?? null;
 }

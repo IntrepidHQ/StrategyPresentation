@@ -150,7 +150,21 @@ export interface StrategyNarrative {
 
 // ── DB Records ────────────────────────────────────────────────
 
-export type StrategyStatus = "draft" | "generating" | "generated" | "review" | "published";
+// Lifecycle: scan → manual promote → draft → generating → generated → review →
+// published (visible at slug.sp.com) → approved (client said yes) → paid (Stripe
+// completed) → project_created (CRM webhook fired) → delivered (work done).
+export type StrategyStatus =
+  | "draft"
+  | "generating"
+  | "generated"
+  | "review"
+  | "published"
+  | "approved"
+  | "paid"
+  | "project_created"
+  | "delivered";
+
+export type StripePhase = "phase_1" | "phase_2";
 
 export interface StrategyRecord {
   id: string;
@@ -164,8 +178,15 @@ export interface StrategyRecord {
   gate_signed_date: string | null;
   status: StrategyStatus;
   published_at: string | null;
+  approved_at: string | null;
+  paid_at: string | null;
+  project_created_at: string | null;
+  delivered_at: string | null;
+  stripe_session_id: string | null;
+  stripe_phase: StripePhase | null;
   vercel_url: string | null;
-  vercel_deploy_id: string | null;
+  crm_project_id: string | null;
+  source_scan_id: string | null;
   created_at: string;
   updated_at: string;
 }

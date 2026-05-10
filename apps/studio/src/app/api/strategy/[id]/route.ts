@@ -1,22 +1,18 @@
-// ============================================================
-//  SP Studio — Strategy Detail API
-//  apps/studio/src/app/api/strategy/[id]/route.ts
-// ============================================================
-
 import { NextRequest, NextResponse } from "next/server";
 import { getStrategy } from "@/lib/db";
 import type { StrategyCardVM } from "@/lib/types";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const auth = req.headers.get("x-studio-passphrase");
   if (auth !== process.env.STUDIO_PASSPHRASE) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const strategy = await getStrategy(params.id);
+  const { id } = await params;
+  const strategy = await getStrategy(id);
   if (!strategy) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
