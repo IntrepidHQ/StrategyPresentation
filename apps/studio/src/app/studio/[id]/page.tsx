@@ -20,6 +20,13 @@ interface EditRecord {
   createdAt: string;
 }
 
+interface TokenUsage {
+  input: number;
+  output: number;
+  cacheCreate: number;
+  cacheRead: number;
+}
+
 interface StrategyMeta {
   id: string;
   clientName: string;
@@ -50,6 +57,8 @@ export default function StudioEditor() {
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState<"phase_1" | "phase_2" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showPublishChecklist, setShowPublishChecklist] = useState(false);
@@ -117,7 +126,7 @@ export default function StudioEditor() {
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
-      setSuccessMsg(`Generated — ${data.pass1Tokens?.toLocaleString()} tokens used`);
+      setSuccessMsg(`Generated — ${formatUsage(data.usage)} · ${formatCost(data.costUSD)}`);
       await fetchStrategy();
     } catch (e) {
       setError(String(e));
@@ -145,12 +154,50 @@ export default function StudioEditor() {
       updateIframeHtml(data.html);
       setPrompt("");
       await fetchEditHistory();
-      setSuccessMsg(`Edit applied — ${data.tokensUsed?.toLocaleString()} tokens`);
+      setSuccessMsg(`Edit applied — ${formatUsage(data.usage)} · ${formatCost(data.costUSD)}`);
     } catch (e) {
       setError(String(e));
     } finally {
       setIsEditing(false);
       promptRef.current?.focus();
+    }
+  }
+
+  async function handleApprove() {
+    setIsApproving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/approve", {
+        method: "POST",
+        headers: { ...authHeader(), "Content-Type": "application/json" },
+        body: JSON.stringify({ strategyId: id }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      setSuccessMsg("Approved — checkout is ready");
+      await fetchStrategy();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setIsApproving(false);
+    }
+  }
+
+  async function handleCheckout(phase: "phase_1" | "phase_2") {
+    setIsCheckingOut(phase);
+    setError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { ...authHeader(), "Content-Type": "application/json" },
+        body: JSON.stringify({ strategyId: id, phase }),
+      });
+      const data = await res.json();
+      if (!data.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
+      window.location.href = data.url;
+    } catch (e) {
+      setError(String(e));
+      setIsCheckingOut(null);
     }
   }
 
@@ -358,6 +405,45 @@ export default function StudioEditor() {
                   </div>
                 )}
               </div>
+
+              <div style={styles.checkoutSection}>
+                <p style={styles.checklistTitle}>Approval + checkout</p>
+                <p style={styles.checkoutHint}>
+                  Publish first, then approve the strategy before creating a Stripe checkout link.
+                </p>
+                <button
+                  onClick={handleApprove}
+                  disabled={isApproving || !["published", "approved"].includes(meta.status)}
+                  style={{
+                    ...styles.approveBtn,
+                    opacity: ["published", "approved"].includes(meta.status) ? 1 : 0.4,
+                  }}
+                >
+                  {meta.status === "approved" ? "Approved" : isApproving ? "Approving…" : "Approve strategy"}
+                </button>
+                <div style={styles.checkoutButtons}>
+                  <button
+                    onClick={() => handleCheckout("phase_1")}
+                    disabled={meta.status !== "approved" || isCheckingOut !== null}
+                    style={{
+                      ...styles.checkoutBtn,
+                      opacity: meta.status === "approved" ? 1 : 0.4,
+                    }}
+                  >
+                    {isCheckingOut === "phase_1" ? "Opening…" : "Phase 1 · $6,000"}
+                  </button>
+                  <button
+                    onClick={() => handleCheckout("phase_2")}
+                    disabled={meta.status !== "approved" || isCheckingOut !== null}
+                    style={{
+                      ...styles.checkoutBtnSecondary,
+                      opacity: meta.status === "approved" ? 1 : 0.4,
+                    }}
+                  >
+                    {isCheckingOut === "phase_2" ? "Opening…" : "Phase 2 · $4,500"}
+                  </button>
+                </div>
+              </div>
             </>
           )}
 
@@ -420,6 +506,10 @@ function statusBadgeStyle(status: string): React.CSSProperties {
     generated: "#3b82f6",
     review: "#8b5cf6",
     published: "#10b981",
+    approved: "#22c55e",
+    paid: "#14b8a6",
+    project_created: "#06b6d4",
+    delivered: "#a3e635",
   };
   return {
     ...styles.statusBadge,
@@ -683,6 +773,57 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "12px",
     cursor: "pointer",
   },
+  checkoutSection: {
+    padding: "16px",
+    borderBottom: "1px solid #1e1e1e",
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  checkoutHint: {
+    color: "#777",
+    fontSize: "12px",
+    lineHeight: 1.5,
+    margin: 0,
+  },
+  approveBtn: {
+    width: "100%",
+    padding: "10px 16px",
+    background: "#22c55e",
+    border: "none",
+    borderRadius: "8px",
+    color: "#07110a",
+    fontSize: "13px",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+  checkoutButtons: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "8px",
+  },
+  checkoutBtn: {
+    width: "100%",
+    padding: "10px 16px",
+    background: "#C9A44C",
+    border: "none",
+    borderRadius: "8px",
+    color: "#0a0a08",
+    fontSize: "13px",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+  checkoutBtnSecondary: {
+    width: "100%",
+    padding: "10px 16px",
+    background: "transparent",
+    border: "1px solid #C9A44C",
+    borderRadius: "8px",
+    color: "#C9A44C",
+    fontSize: "13px",
+    fontWeight: 700,
+    cursor: "pointer",
+  },
   historySection: {
     flex: 1,
     overflowY: "auto",
@@ -751,3 +892,13 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: 9999,
   },
 };
+
+function formatUsage(usage?: TokenUsage): string {
+  if (!usage) return "token usage unavailable";
+  const total = usage.input + usage.output + usage.cacheCreate + usage.cacheRead;
+  return `${total.toLocaleString()} tokens`;
+}
+
+function formatCost(cost?: number): string {
+  return typeof cost === "number" ? `$${cost.toFixed(4)}` : "cost unavailable";
+}

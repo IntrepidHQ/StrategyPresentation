@@ -208,10 +208,19 @@ export interface GenerateRequest {
   strategyId: string;
 }
 
-export interface GenerateResponse {
+export interface TokenUsageShape {
+  input: number;
+  output: number;
+  cacheCreate: number;
+  cacheRead: number;
+}
+
+export type GenerateResponse = {
   ok: true;
   strategyId: string;
   status: StrategyStatus;
+  usage?: TokenUsageShape;
+  costUSD?: number;
 } | {
   ok: false;
   error: string;
@@ -222,10 +231,12 @@ export interface EditRequest {
   prompt: string;
 }
 
-export interface EditResponse {
+export type EditResponse = {
   ok: true;
   editId: string;
-  tokensUsed: number;
+  usage: TokenUsageShape;
+  costUSD: number;
+  html: string;
 } | {
   ok: false;
   error: string;
@@ -235,13 +246,13 @@ export interface PublishRequest {
   strategyId: string;
 }
 
-export interface PublishResponse {
+export type PublishResponse = {
   ok: true;
   url: string;
-  deployId: string;
 } | {
   ok: false;
   error: string;
+  issues?: string[];
 };
 
 // ── UI view models ────────────────────────────────────────────
