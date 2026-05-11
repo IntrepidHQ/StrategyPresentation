@@ -22,7 +22,9 @@ import {
 } from "@/lib/anthropic";
 
 // Template paths (relative to repo root, accessible at runtime)
-const TEMPLATE_DIR = path.join(process.cwd(), "..", "..", "templates");
+const REPO_ROOT = path.join(process.cwd(), "..", "..");
+const TEMPLATE_DIR = path.join(REPO_ROOT, "templates");
+const PARTIAL_DIR = path.join(TEMPLATE_DIR, "partials");
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // Studio-only: verify local passphrase
@@ -75,10 +77,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         ? "nonprofit-strategy.html"
         : "base-strategy.html";
 
-    const templateHtml = await readFile(
-      path.join(TEMPLATE_DIR, templateFile),
-      "utf-8"
-    );
+    const templateHtml = await loadTemplate(templateFile);
 
     const html = renderStrategyHTML(
       templateHtml,
@@ -103,6 +102,31 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.error(`[generate] Error: ${e}`);
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
+}
+
+async function loadTemplate(templateFile: string): Promise<string> {
+  let templateHtml = await readFile(path.join(TEMPLATE_DIR, templateFile), "utf-8");
+
+  const partials = [
+    {
+      src: "../../templates/partials/gate.js",
+      file: "gate.js",
+    },
+    {
+      src: "../../templates/partials/shared-header.js",
+      file: "shared-header.js",
+    },
+  ];
+
+  for (const partial of partials) {
+    const script = await readFile(path.join(PARTIAL_DIR, partial.file), "utf-8");
+    templateHtml = templateHtml.replace(
+      `<script src="${partial.src}"></script>`,
+      `<script>\n${script}\n</script>`
+    );
+  }
+
+  return templateHtml;
 }
 
 function capitalize(s: string): string {
