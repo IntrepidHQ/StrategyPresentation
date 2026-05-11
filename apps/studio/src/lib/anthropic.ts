@@ -97,6 +97,13 @@ export async function generateStrategyNarrative(
   clientSlug: string,
   tier: StrategyTier
 ): Promise<{ narrative: StrategyNarrative; tokensUsed: number }> {
+  if (!process.env.ANTHROPIC_API_KEY && process.env.NODE_ENV === "development") {
+    return {
+      narrative: buildDevelopmentNarrative(wcsReport, clientName, clientSlug, tier),
+      tokensUsed: 0,
+    };
+  }
+
   const userMessage = `CLIENT: ${clientName}
 SLUG: ${clientSlug}
 TIER: ${tier}
@@ -133,6 +140,103 @@ Generate the StrategyNarrative JSON now.`;
     (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0);
 
   return { narrative, tokensUsed };
+}
+
+function buildDevelopmentNarrative(
+  wcsReport: WCSReport,
+  clientName: string,
+  clientSlug: string,
+  tier: StrategyTier
+): StrategyNarrative {
+  const lowestDimensions = [...wcsReport.dimensions]
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 4);
+
+  return {
+    clientName,
+    clientSlug,
+    tier,
+    heroHeadline:
+      tier === "nonprofit"
+        ? "Your mission deserves a stronger digital engine."
+        : "Your website is hiding the quality of your work.",
+    executiveSummary: `${clientName} already has real trust signals: an established presence, visible proof of work, and enough substance to build from. The issue is that the current digital experience does not make that trust obvious quickly enough.\n\nThe opportunity is to turn the website into a sharper strategy asset: faster, clearer, easier to act on, and built around the exact decisions a visitor needs to make before they call, donate, book, or buy.`,
+    whatIsWorking: wcsReport.green_flags.slice(0, 5).map((flag) => `${flag.title}: ${flag.detail}`),
+    whatIsCostingYou: wcsReport.red_flags
+      .slice(0, 5)
+      .map((flag) => `${flag.title}: ${flag.detail}`),
+    dimensionNarratives: lowestDimensions.map((dimension) => ({
+      key: dimension.key,
+      headline: `${dimension.label} is currently limiting confidence.`,
+      body: dimension.verdict,
+      recommendation: `Rebuild this area around clearer hierarchy, stronger evidence, and a faster path to action.`,
+    })),
+    strategyRoadmap: [
+      {
+        phase: 1,
+        title: "Stabilize the Foundation",
+        timeline: "Weeks 1-2",
+        items: ["Clarify priority conversions", "Resolve technical blockers", "Tighten mobile navigation"],
+        outcome: "So the site can stop leaking qualified attention.",
+      },
+      {
+        phase: 2,
+        title: "Rebuild the Trust Layer",
+        timeline: "Weeks 3-5",
+        items: ["Redesign core pages", "Reframe proof and credibility", "Improve content hierarchy"],
+        outcome: "So visitors understand why you are credible before they compare alternatives.",
+      },
+      {
+        phase: 3,
+        title: "Launch and Measure",
+        timeline: "Weeks 6-8",
+        items: ["Ship the new experience", "Connect analytics", "Measure conversion paths"],
+        outcome: "So improvements are visible in behavior, not just design polish.",
+      },
+    ],
+    googleAdGrantSection:
+      tier === "nonprofit"
+        ? {
+            eligibilityStatus:
+              "Based on the current nonprofit signals, this organization appears positioned for Google Ad Grant activation once the site meets policy and quality requirements.",
+            grantAmount: "$120,000",
+            whyYouQualify: [
+              "The organization has a clear public-service mission.",
+              "The site contains evidence of active programming and community impact.",
+              "The brand has enough existing trust to support compliant grant campaigns.",
+            ],
+            whatWeWouldDo: [
+              "Repair the website issues that can block grant approval.",
+              "Build compliant campaign structure around high-intent searches.",
+              "Create landing pages that convert grant traffic into real outcomes.",
+            ],
+            estimatedImpact:
+              "A properly activated grant can create a durable awareness channel without increasing paid media spend.",
+          }
+        : undefined,
+    investmentSection: {
+      headline: "Recommended ways to move from audit to implementation.",
+      options: [
+        {
+          label: "Foundation",
+          price: tier === "nonprofit" ? "$6,500" : "$4,500",
+          includes: ["Core strategy", "Priority page rebuilds", "Technical cleanup"],
+        },
+        {
+          label: "Growth",
+          price: tier === "nonprofit" ? "$12,000" : "$8,500",
+          includes: ["Full site rebuild", "Conversion system", "Launch analytics"],
+        },
+        {
+          label: "Partnership",
+          price: tier === "nonprofit" ? "$18,000+" : "$12,000+",
+          includes: ["Full implementation", "Campaign support", "Ongoing optimization"],
+        },
+      ],
+    },
+    closingStatement:
+      "This local development narrative is a preview scaffold so the studio can be reviewed without an Anthropic API key. In production, Claude generates this section from the complete WCS report.",
+  };
 }
 
 // ── Pass 2: Render HTML from Template + Narrative ────────────

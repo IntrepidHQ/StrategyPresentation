@@ -7,6 +7,8 @@ node_modules/
 dist/
 out/
 *.tsbuildinfo
+.sp-studio.local.json
+.sp-studio.local.json.tmp
 
 # Local env files
 .env

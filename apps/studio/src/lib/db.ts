@@ -4,6 +4,9 @@
 // ============================================================
 
 import { createClient } from "@supabase/supabase-js";
+import { randomUUID } from "node:crypto";
+import { readFile, rename, writeFile } from "node:fs/promises";
+import path from "node:path";
 import type {
   StrategyRecord,
   EditHistoryRecord,
@@ -13,6 +16,18 @@ import type {
   StrategyStatus,
   StrategyCardVM,
 } from "./types";
+
+interface LocalState {
+  strategies: StrategyRecord[];
+  editHistory: EditHistoryRecord[];
+}
+
+function shouldUseLocalStore() {
+  return (
+    process.env.NODE_ENV === "development" &&
+    (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)
+  );
+}
 
 function getClient() {
   const url = process.env.SUPABASE_URL;
@@ -25,6 +40,45 @@ function getClient() {
   });
 }
 
+function localStorePath() {
+  return (
+    process.env.SP_STUDIO_LOCAL_DB_PATH ??
+    path.join(/* turbopackIgnore: true */ process.cwd(), ".sp-studio.local.json")
+  );
+}
+
+async function readLocalState(): Promise<LocalState> {
+  try {
+    const raw = await readFile(localStorePath(), "utf-8");
+    return JSON.parse(raw) as LocalState;
+  } catch {
+    return { strategies: [], editHistory: [] };
+  }
+}
+
+async function writeLocalState(state: LocalState): Promise<void> {
+  const file = localStorePath();
+  const tmp = `${file}.tmp`;
+  await writeFile(tmp, JSON.stringify(state, null, 2));
+  await rename(tmp, file);
+}
+
+function toCard(row: StrategyRecord): StrategyCardVM {
+  return {
+    id: row.id,
+    clientName: row.client_name,
+    clientSlug: row.client_slug,
+    tier: row.tier,
+    status: row.status,
+    overallScore: row.wcs_report.overall.score,
+    overallGrade: row.wcs_report.overall.grade,
+    domain: row.wcs_report.domain,
+    createdAt: row.created_at,
+    publishedAt: row.published_at,
+    vercelUrl: row.vercel_url,
+  };
+}
+
 // ── strategies ────────────────────────────────────────────────
 
 export async function createStrategy(params: {
@@ -35,6 +89,31 @@ export async function createStrategy(params: {
   gatePassword?: string;
   gateSignedDate?: string;
 }): Promise<StrategyRecord> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const now = new Date().toISOString();
+    const strategy: StrategyRecord = {
+      id: randomUUID(),
+      client_name: params.clientName,
+      client_slug: params.clientSlug,
+      tier: params.tier,
+      wcs_report: params.wcsReport,
+      narrative: null,
+      current_html: null,
+      gate_password: params.gatePassword ?? generatePassword(params.clientSlug),
+      gate_signed_date: params.gateSignedDate ?? formatTodayDate(),
+      status: "draft",
+      published_at: null,
+      vercel_url: null,
+      vercel_deploy_id: null,
+      created_at: now,
+      updated_at: now,
+    };
+    state.strategies.push(strategy);
+    await writeLocalState(state);
+    return strategy;
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("strategies")
@@ -55,6 +134,11 @@ export async function createStrategy(params: {
 }
 
 export async function getStrategy(id: string): Promise<StrategyRecord | null> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    return state.strategies.find((strategy) => strategy.id === id) ?? null;
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("strategies")
@@ -68,6 +152,11 @@ export async function getStrategy(id: string): Promise<StrategyRecord | null> {
 }
 
 export async function getStrategyBySlug(slug: string): Promise<StrategyRecord | null> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    return state.strategies.find((strategy) => strategy.client_slug === slug) ?? null;
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("strategies")
@@ -81,6 +170,13 @@ export async function getStrategyBySlug(slug: string): Promise<StrategyRecord | 
 }
 
 export async function listStrategies(): Promise<StrategyCardVM[]> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    return state.strategies
+      .toSorted((a, b) => b.created_at.localeCompare(a.created_at))
+      .map(toCard);
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("strategies")
@@ -111,6 +207,17 @@ export async function updateStrategyNarrative(
   id: string,
   narrative: StrategyNarrative
 ): Promise<void> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const strategy = state.strategies.find((item) => item.id === id);
+    if (!strategy) throw new Error("DB updateStrategyNarrative: strategy not found");
+    strategy.narrative = narrative;
+    strategy.status = "generated";
+    strategy.updated_at = new Date().toISOString();
+    await writeLocalState(state);
+    return;
+  }
+
   const sb = getClient();
   const { error } = await sb
     .from("strategies")
@@ -125,6 +232,17 @@ export async function updateStrategyHTML(
   html: string,
   status?: StrategyStatus
 ): Promise<void> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const strategy = state.strategies.find((item) => item.id === id);
+    if (!strategy) throw new Error("DB updateStrategyHTML: strategy not found");
+    strategy.current_html = html;
+    if (status) strategy.status = status;
+    strategy.updated_at = new Date().toISOString();
+    await writeLocalState(state);
+    return;
+  }
+
   const sb = getClient();
   const update: Record<string, unknown> = { current_html: html };
   if (status) update.status = status;
@@ -137,6 +255,16 @@ export async function updateStrategyStatus(
   id: string,
   status: StrategyStatus
 ): Promise<void> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const strategy = state.strategies.find((item) => item.id === id);
+    if (!strategy) throw new Error("DB updateStrategyStatus: strategy not found");
+    strategy.status = status;
+    strategy.updated_at = new Date().toISOString();
+    await writeLocalState(state);
+    return;
+  }
+
   const sb = getClient();
   const { error } = await sb
     .from("strategies")
@@ -151,6 +279,19 @@ export async function markStrategyPublished(
   vercelUrl: string,
   vercelDeployId: string
 ): Promise<void> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const strategy = state.strategies.find((item) => item.id === id);
+    if (!strategy) throw new Error("DB markStrategyPublished: strategy not found");
+    strategy.status = "published";
+    strategy.published_at = new Date().toISOString();
+    strategy.vercel_url = vercelUrl;
+    strategy.vercel_deploy_id = vercelDeployId;
+    strategy.updated_at = new Date().toISOString();
+    await writeLocalState(state);
+    return;
+  }
+
   const sb = getClient();
   const { error } = await sb
     .from("strategies")
@@ -175,6 +316,23 @@ export async function saveEditHistory(params: {
   tokensUsed?: number;
   model?: string;
 }): Promise<EditHistoryRecord> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const edit: EditHistoryRecord = {
+      id: randomUUID(),
+      strategy_id: params.strategyId,
+      prompt: params.prompt,
+      html_before: params.htmlBefore,
+      html_after: params.htmlAfter,
+      tokens_used: params.tokensUsed ?? null,
+      model: params.model ?? null,
+      created_at: new Date().toISOString(),
+    };
+    state.editHistory.push(edit);
+    await writeLocalState(state);
+    return edit;
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("edit_history")
@@ -194,6 +352,14 @@ export async function saveEditHistory(params: {
 }
 
 export async function getEditHistory(strategyId: string): Promise<EditHistoryRecord[]> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    return state.editHistory
+      .filter((edit) => edit.strategy_id === strategyId)
+      .toSorted((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, 50);
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("edit_history")
@@ -211,6 +377,14 @@ export async function getEditAtOffset(
   strategyId: string,
   offset: number // 1 = one step back
 ): Promise<string | null> {
+  if (shouldUseLocalStore()) {
+    const state = await readLocalState();
+    const edit = state.editHistory
+      .filter((item) => item.strategy_id === strategyId)
+      .toSorted((a, b) => b.created_at.localeCompare(a.created_at))[offset - 1];
+    return edit?.html_before ?? null;
+  }
+
   const sb = getClient();
   const { data, error } = await sb
     .from("edit_history")

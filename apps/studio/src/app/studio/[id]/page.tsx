@@ -9,7 +9,7 @@
 //  Right: live iframe preview
 // ============================================================
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -55,9 +55,7 @@ export default function StudioEditor() {
   const [showPublishChecklist, setShowPublishChecklist] = useState(false);
   const [checklistDone, setChecklistDone] = useState<Record<string, boolean>>({});
 
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const promptRef = useRef<HTMLTextAreaElement>(null);
-  const blobUrlRef = useRef<string | null>(null);
 
   // ── Load strategy ─────────────────────────────────────────
   useEffect(() => {
@@ -77,7 +75,6 @@ export default function StudioEditor() {
     setMeta(data.meta);
     if (data.html) {
       setCurrentHtml(data.html);
-      updateIframeHtml(data.html);
     }
   }
 
@@ -89,21 +86,6 @@ export default function StudioEditor() {
     const data = await res.json();
     setEditHistory(data.edits ?? []);
   }
-
-  // ── iframe hot reload ─────────────────────────────────────
-  const updateIframeHtml = useCallback((html: string) => {
-    if (!iframeRef.current) return;
-
-    // Revoke previous blob URL to avoid memory leak
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current);
-    }
-
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    blobUrlRef.current = url;
-    iframeRef.current.src = url;
-  }, []);
 
   // ── Generate HTML ─────────────────────────────────────────
   async function handleGenerate() {
@@ -142,7 +124,6 @@ export default function StudioEditor() {
       if (!data.ok) throw new Error(data.error);
 
       setCurrentHtml(data.html);
-      updateIframeHtml(data.html);
       setPrompt("");
       await fetchEditHistory();
       setSuccessMsg(`Edit applied — ${data.tokensUsed?.toLocaleString()} tokens`);
@@ -166,7 +147,6 @@ export default function StudioEditor() {
       return;
     }
     setCurrentHtml(data.html);
-    updateIframeHtml(data.html);
     await fetchEditHistory();
     setSuccessMsg("Undone");
   }
@@ -389,7 +369,7 @@ export default function StudioEditor() {
         <main style={styles.previewPane}>
           {currentHtml ? (
             <iframe
-              ref={iframeRef}
+              srcDoc={currentHtml}
               style={styles.iframe}
               title="Strategy Preview"
               sandbox="allow-scripts allow-same-origin"
