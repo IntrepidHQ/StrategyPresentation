@@ -13,7 +13,7 @@
 import DemoWidget from "./DemoWidget";
 import { SlideCounter } from "./SlideCounter";
 import { TemplateGallery } from "./TemplateGallery";
-import { particleChessCluster, particlePiece } from "./chess-art";
+import { particleChessCluster, particlePiece, particleRoyalty } from "./chess-art";
 
 const TEMPLATES = [
   { id: "blueprint", name: "Blueprint", blurb: "The drafting sheet — blueprint grid, white line-work." },
@@ -166,7 +166,7 @@ export default function LandingPage() {
 
         {/* ── 03 · Live demo (column form) ── */}
         <section className="lp-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
-          <div className="lp-chess lp-chess-pawn" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("pawn", "sp-demo") }} />
+          <div className="lp-chess lp-chess-royalty" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleRoyalty("sp-demo") }} />
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
             <h2 id="demo-h">See your business the way we do.</h2>

@@ -13,7 +13,7 @@
 //  monochrome via currentColor.
 // ============================================================
 
-type PieceName = "knight" | "queen" | "bishop" | "rook" | "pawn";
+type PieceName = "knight" | "queen" | "bishop" | "rook" | "pawn" | "king";
 
 // ── Lathe profiles: [height 0..1, radius] control points ──
 // Radii are in piece-height units; linear interpolation between stops.
@@ -38,6 +38,12 @@ const PROFILES: Record<Exclude<PieceName, "knight">, [number, number][]> = {
     [0.0, 0.36], [0.06, 0.36], [0.11, 0.24], [0.2, 0.16], [0.36, 0.12],
     [0.5, 0.11], [0.56, 0.17], [0.6, 0.12],
   ],
+  king: [
+    [0.0, 0.35], [0.05, 0.35], [0.08, 0.25], [0.12, 0.18], [0.2, 0.135],
+    [0.34, 0.1], [0.46, 0.085], [0.5, 0.12], [0.54, 0.085], [0.62, 0.08],
+    [0.7, 0.095], [0.75, 0.16], [0.8, 0.215], [0.83, 0.17], [0.87, 0.19],
+    [0.9, 0.09], [0.92, 0.04],
+  ],
 };
 
 // Spheres stacked on top of the lathe body: [centerH, radius].
@@ -46,6 +52,7 @@ const TOPPERS: Record<Exclude<PieceName, "knight">, [number, number][]> = {
   bishop: [[0.955, 0.045]],
   rook: [],
   pawn: [[0.74, 0.15]],
+  king: [[0.945, 0.04]],
 };
 
 // Crown spikes (queen): cones rising from the crown rim.
@@ -161,6 +168,18 @@ function sampleLathe(piece: Exclude<PieceName, "knight">, rand: () => number, co
         x: cr * s * Math.cos(th), y: ch + cr * u, z: cr * s * Math.sin(th),
         nx: s * Math.cos(th), ny: u, nz: s * Math.sin(th),
       });
+    }
+  }
+
+  if (piece === "king") {
+    const n = Math.floor(count * 0.1);
+    for (let i = 0; i < n; i++) {
+      const vertical = rand() > 0.42;
+      const t = rand();
+      const x = vertical ? (rand() - 0.5) * 0.032 : -0.075 + t * 0.15;
+      const y = vertical ? 0.985 + t * 0.095 : 1.02 + (rand() - 0.5) * 0.03;
+      const z = (rand() - 0.5) * 0.032;
+      pts.push({ x, y, z, nx: x * 8, ny: 0.3, nz: 0.7 });
     }
   }
 
@@ -339,8 +358,8 @@ function project(pts: P3[], rand: () => number, opts: { rotY: number; scale: num
     const persp = f / (f - z);
     const shade = Math.max(0, nx * LIGHT.x + ny * LIGHT.y + nz * LIGHT.z);
     const rim = Math.pow(1 - Math.min(1, Math.abs(nz)), 2.2); // grazing → glow
-    const o = Math.min(1, 0.1 + shade * 0.55 + rim * 0.45 + rand() * 0.06);
-    const r = (0.5 + shade * 0.75 + rim * 0.45) * persp * scale * 0.0062;
+    const o = Math.min(1, 0.05 + shade * 0.7 + rim * 0.55 + rand() * 0.03);
+    const r = (0.45 + shade * 0.6 + rim * 0.4) * persp * scale * 0.0045;
     out.push({ x: cx + x * scale * persp, y: baseY - (y + 0.5) * scale * persp, z, r, o });
   }
   out.sort((a, b) => a.z - b.z); // far first, near paints on top
@@ -370,7 +389,7 @@ function threads(pts: P2[], rand: () => number, reach: number, keep = 0.3): stri
         }
     if (best >= 0) {
       const q = pts[best];
-      segs.push(`<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" opacity="${(0.05 + Math.min(p.o, q.o) * 0.14).toFixed(2)}"/>`);
+      segs.push(`<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" opacity="${(0.04 + Math.min(p.o, q.o) * 0.1).toFixed(2)}"/>`);
     }
   });
   return segs.join("");
@@ -397,18 +416,27 @@ function renderPiece(piece: PieceName, seed: string, count: number, opts: { rotY
 /** One piece as a standalone SVG (negative-space placements). */
 export function particlePiece(piece: PieceName, seed = "sp"): string {
   const W = 320, H = 420;
-  const counts: Record<PieceName, number> = { queen: 1600, knight: 1500, bishop: 1400, rook: 1300, pawn: 1000 };
+  const counts: Record<PieceName, number> = { queen: 2000, knight: 1900, bishop: 1750, rook: 1650, pawn: 1250, king: 2100 };
   return `<svg class="lp-chess-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true" focusable="false">${renderPiece(
     piece, seed, counts[piece], { rotY: 0.35, scale: 360, cx: W / 2, baseY: H - 12 },
   )}</svg>`;
+}
+
+/** King + queen side by side — the demo slide's "this is how we see you." */
+export function particleRoyalty(seed = "sp"): string {
+  const W = 640, H = 560;
+  return `<svg class="lp-chess-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMax meet">
+  ${renderPiece("king", seed + "K", 2100, { rotY: 0.3, scale: 520, cx: 200, baseY: H - 10 })}
+  ${renderPiece("queen", seed + "Q", 1900, { rotY: 0.24, scale: 470, cx: 460, baseY: H - 10 })}
+</svg>`;
 }
 
 /** The hero cluster: bishop · queen (tallest, center) · knight. */
 export function particleChessCluster(seed = "sp"): string {
   const W = 880, H = 640;
   return `<svg class="lp-chess-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMax meet">
-  ${renderPiece("bishop", seed + "b", 1750, { rotY: 0.5, scale: 430, cx: 165, baseY: H - 14 })}
-  ${renderPiece("queen", seed + "q", 2500, { rotY: 0.28, scale: 600, cx: 440, baseY: H - 8 })}
-  ${renderPiece("knight", seed + "k", 2100, { rotY: 0.15, scale: 470, cx: 715, baseY: H - 12 })}
+  ${renderPiece("bishop", seed + "b", 2300, { rotY: 0.5, scale: 430, cx: 165, baseY: H - 14 })}
+  ${renderPiece("queen", seed + "q", 3300, { rotY: 0.28, scale: 600, cx: 440, baseY: H - 8 })}
+  ${renderPiece("knight", seed + "k", 2800, { rotY: 0.15, scale: 470, cx: 715, baseY: H - 12 })}
 </svg>`;
 }

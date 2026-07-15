@@ -245,13 +245,13 @@ html {
   .lp-chess-hero { width: 100%; max-width: 480px; margin: 0.5rem 0 0; }
 }
 /* Negative-space pieces on later slides — quiet, cropped by the frame. */
-.lp-chess-rook, .lp-chess-pawn, .lp-chess-bishop, .lp-chess-queen {
+.lp-chess-rook, .lp-chess-royalty, .lp-chess-bishop, .lp-chess-queen {
   position: absolute;
   z-index: 0;
   opacity: 0.34;
 }
 .lp-chess-rook { right: -3%; bottom: -6%; width: clamp(180px, 22vw, 330px); }
-.lp-chess-pawn { right: 4%; top: 12%; width: clamp(140px, 16vw, 240px); }
+.lp-chess-royalty { right: 2%; bottom: 4%; width: clamp(240px, 28vw, 420px); opacity: 0.5; }
 .lp-chess-bishop { right: -2%; top: 8%; width: clamp(170px, 20vw, 300px); }
 .lp-chess-queen { right: 2%; bottom: -4%; width: clamp(200px, 24vw, 360px); }
 @media (prefers-reduced-motion: no-preference) {
