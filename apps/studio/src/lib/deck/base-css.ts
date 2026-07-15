@@ -160,7 +160,30 @@ p.lede { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.35rem); color: var(--muted); m
 }
 #s-cover .slide-inner { position: relative; z-index: 1; }
 
-.cover-layout { display: grid; gap: 2.5rem; grid-template-columns: 1.2fr 0.8fr; align-items: center; }
+/* ── Cover constellation (Design Mind: Brainztem particle-brain lineage) ──
+   A generative, per-client particle field threaded with near-neighbor lines,
+   sitting between the ambient glow and the content. Tinted by the template's
+   accent; opacity tiers keep it atmospheric, never competing with the h1. */
+.cover-constellation {
+  position: absolute; z-index: 0; pointer-events: none;
+  top: 0; right: -4%; height: 100%; width: min(58%, 640px);
+  color: var(--accent);
+}
+.cover-constellation .pc-threads line { stroke: currentColor; stroke-width: 0.7; opacity: 0.16; }
+.cover-constellation .pc-dots circle { fill: currentColor; }
+.cover-constellation .pc-t0 { opacity: 0.25; }
+.cover-constellation .pc-t1 { opacity: 0.45; }
+.cover-constellation .pc-t2 { opacity: 0.7; }
+@media (max-width: 820px) { .cover-constellation { width: 100%; right: 0; opacity: 0.55; } }
+@media (prefers-reduced-motion: no-preference) {
+  .cover-constellation { animation: pc-drift 26s ease-in-out infinite alternate; }
+  @keyframes pc-drift {
+    from { transform: translateY(-6px); }
+    to { transform: translateY(10px); }
+  }
+}
+
+.cover-layout { display: grid; gap: 2.5rem; grid-template-columns: 1.2fr 0.8fr; align-items: center; position: relative; z-index: 1; }
 @media (max-width: 820px) { .cover-layout { grid-template-columns: 1fr; } }
 .score-ring-wrap { display: grid; place-items: center; position: relative; }
 .score-ring-wrap::before {
