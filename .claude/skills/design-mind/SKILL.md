@@ -61,6 +61,15 @@ Warm editorial deck: terracotta + cream. **The other ½ of SP's new brand direct
 - **Splashes**: organic SVG ink-splat blobs + ✦ marks, scattered at slide edges.
 - Display face (self-contained decks can't load webfonts): `Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif-condensed` uppercase; serif italic: `Didot, "Bodoni MT", "Playfair Display", Georgia, serif`. On the landing (webfonts OK): Archivo Black / Fraunces italic.
 
+### BRAND v2 — "Blueprint" (2026-07-15, Hans's revision after seeing Voltage v1 live)
+Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be white and this look kind of like a blue print style... Again I don't like this light bgs. Just make the whole site blue with black and white text. Add a paper like texture... The bold font used in headers should be a bit more condensed and paired with instrument serif as the serif. Definitely lose that orange color and just go monochrome."* Also: the splash art becomes **particle chess pieces** (brainztem's particle-thread style, but knight/queen/bishop clustered on the hero, other pieces in negative space as you scroll), copy re-aimed at the small-business owner debating their first hire (EA/content writer) with Brainztem as the answer, and templates get Lovable-style click-to-preview popups.
+- **Canvas: ONE color.** Electric blue everywhere; no cream/light slabs on the site. White text (8.5:1), black reserved for chrome accents (counter chip, buttons) — never body text on blue (2.3:1 fails).
+- **Blueprint texture**: fine white grid (24px minor / 120px major, ≤0.10 alpha lines) + paper grain (feTurbulence) over the blue — drafting-table energy.
+- **Type v2**: Anton (more condensed than Archivo Black) + **Instrument Serif** italic + Inter body.
+- **Monochrome**: the red-orange is GONE from the site. Decoration = white particle line-work only.
+- **Particle chess pieces**: ASCII-mask-sampled point clouds with near-neighbor threads (chess-art.ts) — the brand's illustration system. Pieces = strategy; blueprint = the plan.
+- Lesson: v1's FusionForce cream/red read as "another loud agency"; Hans wanted the *drafting room*, not the *print shop*. When a client says "blueprint," kill every warm hue.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
