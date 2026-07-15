@@ -127,8 +127,8 @@ h1, h2 {
   font-family: var(--font-display); color: var(--text);
   line-height: 1.12; margin: 0 0 1rem; text-wrap: balance;
 }
-h1 { font-size: clamp(2.1rem, 1.4rem + 3.4vw, 4rem); }
-h2 { font-size: clamp(1.7rem, 1.2rem + 2.2vw, 2.8rem); }
+h1 { font-size: clamp(2.3rem, 1.3rem + 4.4vw, 4.8rem); }
+h2 { font-size: clamp(1.8rem, 1.2rem + 2.6vw, 3.1rem); }
 h3 { font-family: var(--font-display); font-size: 1.15rem; margin: 0 0 0.4rem; }
 p.lede { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.35rem); color: var(--muted); max-width: 56ch; }
 .muted { color: var(--muted); }
@@ -136,14 +136,38 @@ p.lede { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.35rem); color: var(--muted); m
 .card {
   background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 1.4rem;
+  /* Restrained ambient lift, not a "floating card" effect — a theme can
+     still override box-shadow directly if it wants a different treatment. */
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--line) 70%, transparent),
+              0 8px 20px -16px color-mix(in srgb, var(--text) 30%, transparent);
 }
 .grid-2 { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
 .grid-3 { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
 
-/* ── Cover ── */
+/* ── Cover ──
+   Depth over flatness (Design Mind): an ambient glow layered in via ::before
+   so it never fights a theme's own #s-cover background declaration — themes
+   that already set their own richer cover background (signal, gallery) get
+   this glow blended underneath; themes that don't (summit, editorial,
+   monospace, beacon) get it as their only cover depth. Either way, no
+   template ships a flat void behind its opening slide. */
+#s-cover::before {
+  content: ""; position: absolute; inset: -15% -8% auto -8%; height: 85%;
+  z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(40rem 24rem at 86% 8%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%),
+    radial-gradient(28rem 20rem at 4% 90%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 65%);
+}
+#s-cover .slide-inner { position: relative; z-index: 1; }
+
 .cover-layout { display: grid; gap: 2.5rem; grid-template-columns: 1.2fr 0.8fr; align-items: center; }
 @media (max-width: 820px) { .cover-layout { grid-template-columns: 1fr; } }
-.score-ring-wrap { display: grid; place-items: center; }
+.score-ring-wrap { display: grid; place-items: center; position: relative; }
+.score-ring-wrap::before {
+  content: ""; position: absolute; z-index: -1; inset: 8%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+  filter: blur(6px);
+}
 .score-ring { width: min(300px, 70vw); height: auto; }
 .score-ring .ring-track { stroke: var(--line); }
 .score-ring .ring-value { stroke: var(--accent); transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -168,7 +192,12 @@ html.js .slide:not(.in) .dim-bar > span { transform: scaleX(0); }
 
 /* ── Flags ── */
 .flag-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
-.flag-list li { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--good); border-radius: var(--radius); padding: 1rem 1.2rem; }
+.flag-list li {
+  background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--good);
+  border-radius: var(--radius); padding: 1rem 1.2rem;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--line) 70%, transparent),
+              0 8px 20px -16px color-mix(in srgb, var(--text) 30%, transparent);
+}
 .flag-list.is-risks li { border-left-color: var(--bad); }
 .flag-list li .sev {
   display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em;
@@ -191,7 +220,11 @@ html.js .slide:not(.in) .dim-bar > span { transform: scaleX(0); }
 
 /* ── Crew ── */
 .crew-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
-.crew-list li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; }
+.crew-list li {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--line) 70%, transparent),
+              0 8px 20px -16px color-mix(in srgb, var(--text) 30%, transparent);
+}
 .crew-list .crew-name { font-weight: 700; }
 
 /* ── Build sheet ── */
@@ -203,6 +236,8 @@ html.js .slide:not(.in) .dim-bar > span { transform: scaleX(0); }
   display: grid; grid-template-columns: auto 1fr auto; gap: 0.4rem 0.9rem; align-items: start;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 0.85rem 1.05rem; cursor: pointer;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--line) 70%, transparent),
+              0 8px 20px -16px color-mix(in srgb, var(--text) 30%, transparent);
 }
 .bs-item:has(input:checked) { border-color: var(--accent-strong); box-shadow: inset 4px 0 0 var(--accent-strong); }
 .bs-item input { width: 1.35rem; height: 1.35rem; margin-top: 0.2rem; accent-color: var(--accent-strong); }

@@ -9,6 +9,7 @@ out/
 *.tsbuildinfo
 .sp-studio.local.json
 .sp-studio.local.json.tmp
+apps/studio/.sp-demo-leads.local.jsonl
 
 # Local env files
 .env

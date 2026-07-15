@@ -67,17 +67,37 @@ export default function LandingPage() {
 
       <main id="main">
         <section className="lp-hero">
-          <div className="lp-wrap">
-            <p className="lp-eyebrow">Pitch decks with receipts</p>
-            <h1>
-              Turn any website into a <span className="lp-gold-i">boardroom-ready</span> pitch deck.
-            </h1>
-            <p className="lp-sub">
-              SP reads the public record — credibility, reputation, design, technical health — and
-              builds an evidence-backed presentation in six polished styles. Every claim sourced.
-              Every chart accessible. Ready in minutes.
-            </p>
-            <DemoWidget />
+          <div className="lp-wrap lp-hero-grid">
+            <div className="lp-hero-copy">
+              <p className="lp-eyebrow">Pitch decks with receipts</p>
+              <h1>
+                Turn any website into a <span className="lp-gold-i">boardroom-ready</span> pitch deck.
+              </h1>
+              <p className="lp-sub">
+                SP reads the public record — credibility, reputation, design, technical health — and
+                builds an evidence-backed presentation in six polished styles. Every claim sourced.
+                Every chart accessible. Ready in minutes.
+              </p>
+              <DemoWidget />
+            </div>
+
+            {/* Decorative — real proof, not illustration: our own six deck covers,
+                scattered and blurred behind one sharp anchor, so the hero shows the
+                product instead of just claiming it. Purely atmospheric; the same
+                thumbnails are presented properly (with alt text) in #templates below. */}
+            <div className="lp-hero-art" aria-hidden="true">
+              <img className="lp-hero-art-bg lp-hero-art-1" src="/templates/summit.png" alt="" />
+              <img className="lp-hero-art-bg lp-hero-art-2" src="/templates/editorial.png" alt="" />
+              <img className="lp-hero-art-bg lp-hero-art-3" src="/templates/gallery.png" alt="" />
+              <img className="lp-hero-art-bg lp-hero-art-4" src="/templates/beacon.png" alt="" />
+              <img className="lp-hero-art-bg lp-hero-art-5" src="/templates/monospace.png" alt="" />
+              <div className="lp-hero-art-sharp">
+                <div className="lp-hero-chrome">
+                  <span /><span /><span />
+                </div>
+                <img src="/templates/signal.png" alt="" />
+              </div>
+            </div>
           </div>
         </section>
 
