@@ -96,7 +96,7 @@ export function ChessHero() {
         const H = () => host.clientHeight || 520;
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
         renderer.setSize(W(), H());
         renderer.domElement.className = "lp-chess-canvas";
         renderer.domElement.setAttribute("aria-hidden", "true");
@@ -276,6 +276,8 @@ export function ChessHero() {
             (p.obj.material as import("three").ShaderMaterial).uniforms.uScale.value = H() * 0.0085;
           });
         };
+        const ro = new ResizeObserver(onResize);
+        ro.observe(host);
         window.addEventListener("resize", onResize);
       } catch {
         // WebGL/fetch failed — the SVG fallback simply stays.
