@@ -94,6 +94,15 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Orphan policy**: text-wrap balance on display/lede, pretty on body, plus explicit nbsp joins on short label lines ("every&nbsp;year", "build,&nbsp;once"). Hans checks for orphans at every size.
 - Doodle figures need explicit necks + faces on ALL actors (the dog needs a head too), or they read as broken.
 
+### Brand v2.4 — motion system + full-3D everywhere (2026-07-15, Hans's detail pass)
+- **The planet rotates** (0.055 rad/s): sleeping bodies ride the spin kinematically (re-home each frame via rotated home transforms); poked pieces exit the carousel and glide back to the CURRENT rotated square. Pivot math for world-baked geometry: pos = c − R·c.
+- **Physics restraint**: wake ONLY the clicked body — cannon wakes neighbors on real contact; waking everything makes the whole scene explode (Hans: "they all went crazy"). Damping 0.35/0.22, impulse ~1.3.
+- **PieceScene**: every chess appearance is a live 3D vignette (shared points-lib loader+shaders, IntersectionObserver lazy-boot, SVG fallback inside). No static pieces anywhere.
+- **CheckerWave**: the closing texture = checkered particle cloth, sine-wave displaced in-shader with analytic normals; under the footer, paused off-screen.
+- **Motion system**: slide children rise-in staggered on .in (SlideCounter's observer, one-way, cover exempt); deck [data-reveal] gets nth-of-type delays; FAQ animates via ::details-content height + interpolate-size + rotating chevron; doodles have named animated parts (.d-steam/.d-tail/.d-laugh/.d-sparks). ALL behind prefers-reduced-motion.
+- **Optical grid alignment**: background-position-x: calc(max((100vw − 1120px)/2, pad)) pins a major gridline to the content edge — the grid must belong to the type.
+- Deck iframes: html/body overflow-x clip (previews had a horizontal scrollbar).
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
