@@ -184,6 +184,15 @@ p.lede { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.35rem); color: var(--muted); m
 }
 
 .cover-layout { display: grid; gap: 2.5rem; grid-template-columns: 1.2fr 0.8fr; align-items: center; position: relative; z-index: 1; }
+/* Two-tone headline spans + editorial marks row — no-ops by default (spans
+   inherit color; marks are hidden), activated per-theme (Voltage). */
+#s-cover .cover-marks {
+  display: none; /* activated per-theme (Voltage sets display:flex) */
+  position: relative; z-index: 1; margin-top: 2.2rem; padding-top: 0.9rem;
+  flex-wrap: wrap; gap: 0.6rem 1.8rem;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em;
+  border-top: 1px solid var(--line);
+}
 @media (max-width: 820px) { .cover-layout { grid-template-columns: 1fr; } }
 .score-ring-wrap { display: grid; place-items: center; position: relative; }
 .score-ring-wrap::before {
