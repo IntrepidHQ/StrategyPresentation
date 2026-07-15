@@ -31,6 +31,17 @@ const STACK_DIDONE = `Didot, "Bodoni 72", "Playfair Display", Georgia, serif`;
 const STACK_MONO = `ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace`;
 const STACK_GEOMETRIC = `Futura, "Avenir Next", "Century Gothic", "URW Gothic", ${STACK_SANS}`;
 const STACK_HUMANIST = `Seravek, "Gill Sans Nova", "Trebuchet MS", Verdana, ${STACK_SANS}`;
+// Brutalist condensed display (Voltage) — Impact ships on macOS+Windows;
+// Haettenschweiler/Arial Narrow cover the rest. Self-contained decks can't
+// fetch webfonts, and Impact's crushed width is exactly the FusionForce cut.
+const STACK_CONDENSED = `Impact, Haettenschweiler, "Arial Narrow Bold", "Franklin Gothic Medium", ${STACK_SANS}`;
+
+// Rustic print grain (Voltage) — inline feTurbulence noise, zero requests.
+const GRAIN_URI = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E")`;
+
+// Organic ink splashes (Voltage) — two hand-tuned blobs, tinted per use.
+const SPLASH_RED = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23ff3d00' d='M97 18c22-9 48 2 58 21 9 17-2 30 8 46 11 18 22 34 8 52-15 19-42 8-63 16-19 7-38 22-56 10-17-11-8-33-16-51-8-17-25-28-17-47C27 46 45 44 62 35c13-7 22-12 35-17Z'/%3E%3Ccircle fill='%23ff3d00' cx='178' cy='38' r='9'/%3E%3Ccircle fill='%23ff3d00' cx='24' cy='150' r='6'/%3E%3Ccircle fill='%23ff3d00' cx='170' cy='168' r='5'/%3E%3C/svg%3E")`;
+const SPLASH_CREAM = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23f4eee1' d='M104 12c19-6 44-2 52 16 8 16-4 31 6 47 10 17 26 31 15 50-12 20-38 12-58 21-18 8-34 25-53 15-18-10-12-32-21-49-9-16-27-25-21-45 6-19 25-19 41-29 14-8 26-21 39-26Z'/%3E%3Ccircle fill='%23f4eee1' cx='182' cy='42' r='8'/%3E%3Ccircle fill='%23f4eee1' cx='20' cy='142' r='5'/%3E%3C/svg%3E")`;
 
 export const THEMES: Record<TemplateId, DeckTheme> = {
   // ── Summit: light boardroom — serif, navy & antique gold ────
@@ -245,6 +256,107 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
         border-radius: 50%; width: 3.4rem; height: 3.4rem;
         display: grid; place-items: center; font-size: 1.6rem;
       }
+    `,
+  },
+
+  // ── Voltage: SP's own brand — brutalist electric blue, cream, splashes ──
+  // The "super wild mix" (FusionForce brutalism × Brighter warmth): electric
+  // blue canvas, condensed-uppercase × didone-italic type collision, cream
+  // cover slab with a two-tone headline, rustic grain, ink splashes,
+  // edge-runner slide titles. Every text/background pair verified ≥ 4.5:1
+  // (splash red is decoration/display-only at 3:1+).
+  voltage: {
+    id: "voltage",
+    name: "Voltage",
+    description: "SP's house brand: brutalist electric blue, cream slabs, ink splashes.",
+    colorScheme: "dark",
+    tokens: {
+      "--bg": "#1a2be0",
+      "--surface": "#0f1cc0",
+      "--text": "#ffffff",
+      "--muted": "#cfd2f7",
+      "--accent": "#f4eee1",
+      "--accent-strong": "#ffffff",
+      "--on-accent": "#0c0c0c",
+      "--line": "rgba(255,255,255,0.30)",
+      "--focus": "#ffffff",
+      "--good": "#8ff0b0",
+      "--warn": "#ffd166",
+      "--bad": "#ffb0a0",
+      "--radius": "0px",
+      "--font-display": STACK_CONDENSED,
+      "--font-body": STACK_SANS,
+    },
+    css: `
+      /* Rustic print grain over everything (decorative, non-interactive). */
+      body::after {
+        content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none;
+        background: ${GRAIN_URI}; opacity: 0.05; mix-blend-mode: overlay;
+      }
+      h1, h2 {
+        text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.92;
+        font-weight: 400; /* Impact carries its own weight */
+      }
+      h1 { font-size: clamp(3rem, 2rem + 5.5vw, 6.4rem); }
+      .lede { font-family: ${STACK_DIDONE.replace(/"/g, "'")}; font-style: italic; font-size: 1.35rem; }
+      .eyebrow { letter-spacing: 0.3em; font-family: var(--font-body); font-weight: 700; }
+
+      /* ── Cover: cream slab, two-tone headline, splash, marks ── */
+      #s-cover { background: #f4eee1; }
+      #s-cover::before { content: none; } /* no ambient glow — hard edges only */
+      #s-cover, #s-cover .lede { color: #0c0c0c; }
+      #s-cover .eyebrow { color: #b02800; }
+      #s-cover .muted { color: #3a3a34; }
+      #s-cover h1 .hl-a { color: #0c0c0c; }
+      #s-cover h1 .hl-b { color: #1a2be0; }
+      #s-cover .slide-inner::after {
+        content: ""; position: absolute; top: 4%; right: 2%;
+        width: clamp(90px, 14vw, 180px); aspect-ratio: 1;
+        background: ${SPLASH_RED} no-repeat center / contain;
+        pointer-events: none;
+      }
+      #s-cover .cover-constellation { color: #1a2be0; }
+      #s-cover .score-ring .ring-track { stroke: rgba(12,12,12,0.15); }
+      #s-cover .score-ring .ring-value { stroke: #1a2be0; }
+      #s-cover .score-ring text { fill: #0c0c0c; }
+      #s-cover .score-readout { color: #3a3a34; }
+      /* The marks row IS the blue footer slab — full-bleed via negative
+         margins matching the slide padding, so text and band never drift. */
+      #s-cover .cover-marks {
+        display: flex; align-items: center; border-top: 0;
+        background: #1a2be0; color: #f4eee1;
+        margin: 2.6rem calc(-1 * clamp(1.25rem, 5vw, 4rem)) calc(-1 * clamp(4.5rem, 8vh, 6rem));
+        padding: 1.4rem clamp(1.25rem, 5vw, 4rem) 1.6rem;
+      }
+
+      /* ── Edge-runner slide titles (FusionForce vertical crop) ── */
+      .slide:not(#s-cover)::before {
+        content: attr(data-folio) / ""; position: absolute; z-index: 0;
+        right: -0.06em; bottom: -0.18em; pointer-events: none;
+        font-family: var(--font-display); font-size: clamp(8rem, 24vw, 22rem);
+        line-height: 1; color: rgba(244,238,225,0.10); letter-spacing: -0.02em;
+      }
+      .slide-inner { position: relative; z-index: 1; }
+
+      /* Hard-edged slabs everywhere. */
+      .card, .flag-list li, .bs-item, .crew-list li {
+        border: 2px solid rgba(255,255,255,0.35); box-shadow: none;
+      }
+      .card h3 { text-transform: uppercase; letter-spacing: 0.08em; }
+
+      /* Cream splash punctuating the CTA slide — parked top-right, clear of
+         the headline (content is left-aligned) and of the bottom-right folio. */
+      #s-next-step .slide-inner::before {
+        content: ""; position: absolute; top: -14%; right: 2%;
+        width: clamp(80px, 11vw, 150px); aspect-ratio: 1;
+        background: ${SPLASH_CREAM} no-repeat center / contain; opacity: 0.85;
+        pointer-events: none;
+      }
+      .btn-cta {
+        border-radius: 0; background: #f4eee1; color: #0c0c0c;
+        text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800;
+      }
+      .deck-nav button { border-radius: 0; }
     `,
   },
 };

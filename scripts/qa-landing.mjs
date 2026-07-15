@@ -53,7 +53,7 @@ function check(name, cond) {
   await page.screenshot({ path: path.join(OUT, "landing-light-full.png"), fullPage: true });
 
   check("hero heading present", await page.locator("h1").first().isVisible());
-  check("6 template cards", (await page.locator(".lp-tcard").count()) === 6);
+  check("7 template entries", (await page.locator(".lp-tgrid li").count()) === 7);
 
   // axe audit
   await page.evaluate(readFileSync(AXE_PATH, "utf-8"));

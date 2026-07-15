@@ -25,12 +25,13 @@ export const metadata: Metadata = {
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      {/* Fraunces is brand equity from the original site; system serif fallbacks
-          keep the page fine if the font fails to load. */}
+      {/* Voltage brand faces: Archivo Black (brutalist condensed display),
+          Fraunces italic (the didone counterpoint), Inter (body). System
+          fallbacks keep the page fine if fonts fail to load. */}
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Inter:wght@400;600;700;800&display=swap"
       />
       {children}
     </>

@@ -61,12 +61,21 @@ export function renderCover(model: DeckModel): string {
     year: "numeric", month: "long", day: "numeric",
   });
 
+  // Two-tone headline (FusionForce mechanic): split at the midpoint word into
+  // .hl-a / .hl-b spans. Both inherit color by default, so the six original
+  // themes render unchanged; Voltage colors the halves ink/blue.
+  const words = score.headline.split(" ");
+  const mid = Math.ceil(words.length / 2);
+  const headline =
+    `<span class="hl-a">${esc(words.slice(0, mid).join(" "))}</span> ` +
+    `<span class="hl-b">${esc(words.slice(mid).join(" "))}</span>`;
+
   return `${slideOpen("cover", model, "cover-h")}
     ${particleConstellation(meta.domain)}
     <div class="cover-layout">
       <div>
         <p class="eyebrow" data-reveal>Strategy presentation · ${esc(meta.domain)}</p>
-        <h1 id="cover-h" data-reveal>${esc(score.headline)}</h1>
+        <h1 id="cover-h" data-reveal>${headline}</h1>
         <p class="lede" data-reveal>${esc(score.oneLiner)}</p>
         <p class="muted" data-reveal>Prepared for ${esc(meta.clientName)} · Scanned ${esc(scanDate)} · Evidence: ${model.sources.length} public sources</p>
       </div>
@@ -83,6 +92,13 @@ export function renderCover(model: DeckModel): string {
         </svg>
         <p class="score-readout muted">Website Credit Score · benchmark-ready is ${score.benchmarkTarget}</p>
       </div>
+    </div>
+    <div class="cover-marks" aria-hidden="true">
+      <span>✦</span>
+      <span>©${new Date(meta.scannedAt).getFullYear()}</span>
+      <span>${esc(meta.domain.toUpperCase())}</span>
+      <span>EVIDENCE-BACKED</span>
+      <span>${model.sources.length} SOURCES</span>
     </div>
 ${SLIDE_CLOSE}`;
 }

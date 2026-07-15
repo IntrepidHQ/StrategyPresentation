@@ -35,6 +35,32 @@ The opposite move — pure restraint and confidence, worth knowing when *not* to
 - **Generous negative space above the product shot** — the restraint itself reads as confidence/premium, not a lack of content.
 - **Lesson for SP**: rich ≠ better everywhere. The hero can be rich (Pitch-style), but data/proof sections (scorecards, credibility sections) should borrow Linear's discipline — real screenshots, minimal chrome, let the content be the decoration.
 
+### FusionForce pitch deck — Dhefry Andirezha / One Week Wonders, Dribbble shot 24246998 (2026-07-15, supplied by Hans)
+Brutalist agency deck: red-orange (#ff3d00-family), ink black, cream. **Hans declared this ½ of SP's new brand direction.**
+- **Two-tone display headline**: one word/half in ink, the other in cream, set in an ultra-condensed uppercase display face at enormous scale (fills ~40% of slide height), tight negative tracking, crushed line-height. The color SPLIT is the logo-level identity move.
+- **Condensed-uppercase × serif-italic collision**: the giant condensed headline is immediately followed by a high-contrast didone serif in sentence case ("Continued *Innovation.*" / "*Made Easy.*") — the pairing IS the brand voice: brutal + literary.
+- **Editorial furniture as decoration**: coordinates ("40.7440° N 73.9873° W"), © marks, ✦ sparks, "2022–PRESENT" date ranges, tiny all-caps address lines scattered at slide edges. Zero-cost, huge character; reads as print ephemera.
+- **Color-blocked slabs, hard edges**: slides are 2-3 solid rectangles (red/black/cream) butted together with NO gaps, radii, or shadows. Text color flips per slab. Justified micro-copy paragraphs in the slab corners.
+- **Halftone/duotone photography**: photos are high-contrast halftone-dot mono treatments (never full color), cropped brutally (an eye-strip), so imagery matches the ink-on-paper energy.
+- **Vertical edge-runner type**: giant rotated words running up slide edges, cropped by the frame ("SERVICES", "BRAND…") — the crop itself is the aesthetic.
+
+### Brighter event-agency deck — Dribbble (2026-07-15, supplied by Hans)
+Warm editorial deck: terracotta + cream. **The other ½ of SP's new brand direction** (the rustic/textured warmth).
+- **Photo-collage covers**: 3-5 small unframed photos scattered AROUND and BEHIND a giant script/serif wordmark that overlaps them — type over imagery, not beside it.
+- **A hand-drawn connector line** (one thin looping scribble/underline) crossing the cover — instant human warmth against structured layouts.
+- **Stat blocks as the proof section**: "100% ON-TIME DELIVERY / 30% TIME REDUCTION / 90+ COMPLETED PROJECTS" — huge numerals, tiny caps labels, 1-line support sentence, boxed in hairline rules on cream. This is the "Why choose us" pattern to copy.
+- **Hairline-boxed labels** ("CORPORATE EVENTS AND TEAM BUILDING") instead of filled buttons/pills.
+- **Numbered slides ("02", "06") in a corner** — deck-ness as a design feature.
+- Mostly-image decks (Hans's mp4 example, same family): full-bleed photography per slide with a single short line of type — when imagery is strong, the layout should get out of the way entirely.
+
+### THE SP BRAND DECISION — "Voltage" (2026-07-15, Hans, verbatim direction)
+*"The strategypresentation brand should look like this super wild mix of the two images... Brutalist, bright, a rustic textured, electric blue bg, ADA compliant white or black so we can use both, and with splashes."* And: the landing page should itself BE a presentation — *"I'd prefer if it was a presentation itself so that it really sells."*
+- **Canvas: electric blue `#1a2be0`** (white on it = 8.5:1 AAA, cream `#f4eee1` on it = 7.4:1 AAA). Black `#0c0c0c` is NOT for text on blue (2.3:1) — black text lives on cream/white slabs. That's the "white or black so we can use both" rule, verified with WCAG math.
+- **Splash accent: `#ff3d00`** red-orange (FusionForce), decoration + large display only on cream.
+- **Texture: rustic grain** via an SVG `feTurbulence` fractalNoise data-URI overlaid at low opacity — the "printed poster" feel, costs zero requests.
+- **Splashes**: organic SVG ink-splat blobs + ✦ marks, scattered at slide edges.
+- Display face (self-contained decks can't load webfonts): `Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif-condensed` uppercase; serif italic: `Didot, "Bodoni MT", "Playfair Display", Georgia, serif`. On the landing (webfonts OK): Archivo Black / Fraunces italic.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
