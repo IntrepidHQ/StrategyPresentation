@@ -75,6 +75,11 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **8th deck template `blueprint`**: the site brand as a deck — blue sheet, blueprint grid + grain on body, white line-work, and the cover's second headline half rendered as OUTLINED text (`-webkit-text-stroke`, transparent fill, @supports fallback) — drawn, not filled.
 - **All-8 polish**: cover marks row now on every theme (✦ takes --accent); per-theme signatures — summit double-rule small-caps marks, signal beam under h1, editorial hairline magazine frame, monospace "> " eyebrow + dashed hairlines, gallery ghost terracotta folio, beacon sunrise arc, voltage splash/band, blueprint outline+grid.
 
+### Interactive particle chess — real geometry beats generative (2026-07-15, Hans: "use a royalty free 3d model... so realistic that when you click one it falls down and rolls")
+- **When silhouette fidelity matters, sample a real mesh.** Hand-tuned lathe profiles held up for turned pieces; the knight never did. Khronos glTF-Sample-Assets "ABeautifulGame" (CC BY 4.0, credit ASWF + Ed Mackey in footer) → surface-sample triangles area-weighted → quantized point cloud (Int16 pos + Int8 normals, 227KB for 6 pieces at 4.2K pts) in public/chess-points.bin. Extraction script pattern lives in the scratchpad/git history (extract.py).
+- **Stickiness = physics.** three.js Points + custom shader (diffuse + rim per particle) over cannon-es rigid bodies (cylinder colliders from piece base radii). Click → raycast proxy → impulse at hit point → topple/roll/collide → all-asleep or 9s → easeOut glide home. Progressive enhancement: server-rendered SVG stays for no-JS/no-WebGL/reduced-motion.
+- **Gotchas burned here:** `.lp-chess { pointer-events:none }` also killed canvas clicks (re-enable on the canvas); any new public/ asset must be added to the proxy's PUBLIC_PATHS or it 307s to /login; gl_PointSize needs px-scale ≈ viewportH × 0.0085 (a 1.0 factor fills the screen with blobs); headless Playwright needs `--use-angle=swiftshader --enable-unsafe-swiftshader` for WebGL.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
