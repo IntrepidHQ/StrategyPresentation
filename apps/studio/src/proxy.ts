@@ -20,6 +20,10 @@ const PUBLIC_PATHS = [
   "/templates",   // template gallery thumbnails (public/)
   "/icon.svg",
   "/api/webhook",
+  // Crawler surface — robots + sitemap must never gate to /login (they were
+  // 307ing there until 2026-07-15, so search engines could index nothing).
+  "/robots.txt",
+  "/sitemap.xml",
 ];
 
 const MARKETING_HOSTS = new Set(["strategypresentation.com", "www.strategypresentation.com"]);

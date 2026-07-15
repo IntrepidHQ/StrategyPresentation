@@ -44,9 +44,37 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
+// Structured data for AEO/LLM-citation visibility: the product as a
+// SoftwareApplication (with the free-trial offer) and the on-page FAQ.
+const JSON_LD = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Strategy Presentation",
+    description:
+      "Turns a WebsiteCreditScore credibility scan into an evidence-backed, WCAG-AA-accessible pitch deck in six templates.",
+    url: "https://www.strategypresentation.com/",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    offers: { "@type": "Offer", price: 0, priceCurrency: "USD", description: "Free demo deck from a live scan" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="lp">
+      {JSON_LD.map((d, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
+      ))}
       <a className="lp-skip" href="#main">
         Skip to content
       </a>

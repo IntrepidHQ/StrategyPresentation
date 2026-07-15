@@ -2,11 +2,24 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./home.css";
 
+const TITLE = "Strategy Presentation — turn any website into a boardroom-ready pitch deck";
+const DESCRIPTION =
+  "SP scans the public record — credibility, reputation, design, technical health — and builds an evidence-backed pitch deck in six accessible templates. Free to try.";
+
 export const metadata: Metadata = {
-  title: "Strategy Presentation — turn any website into a boardroom-ready pitch deck",
-  description:
-    "SP scans the public record — credibility, reputation, design, technical health — and builds an evidence-backed pitch deck in six accessible templates. Free to try.",
+  metadataBase: new URL("https://www.strategypresentation.com"),
+  title: TITLE,
+  description: DESCRIPTION,
   robots: "index, follow", // overrides the studio-wide noindex for the public landing
+  alternates: { canonical: "https://www.strategypresentation.com/" },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "https://www.strategypresentation.com/",
+    siteName: "Strategy Presentation",
+    type: "website",
+  },
+  twitter: { card: "summary", title: TITLE, description: DESCRIPTION },
 };
 
 export default function HomeLayout({ children }: { children: ReactNode }) {
