@@ -35,25 +35,30 @@
   background-attachment: fixed;
 }
 
-/* ── Rolled-blueprint paper edges ──
-   The true paper color shows 5-8px on every side, torn/deckled inner edge
-   (irregular SVG masks). Sits above the grain; never intercepts input. */
-.lp-paper-frame { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
-.lp-edge { position: absolute; background-repeat: repeat; }
-.lp-edge-t, .lp-edge-b {
-  left: 0; right: 0; height: 9px;
+/* ── Worn blueprint edges ──
+   Not a fully torn sheet — occasional worn patches (~1/6 of each edge)
+   where the paper color shows through. Absolutely positioned in the
+   DOCUMENT so they scroll with the page: the top tears leave as you
+   scroll; the bottom ones only appear at the end. Tapered ends via mask. */
+.lp { position: relative; }
+.lp-tears { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+.lp-tear { position: absolute; }
+.lp-tear-h {
+  height: 9px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='9'%3E%3Cpath d='M0 0 H260 V3.5 L247 5 L241 3.2 L229 6.2 L214 4 L207 6.5 L193 3 L178 5.5 L171 4.2 L156 6.8 L149 3.4 L133 5.2 L119 3.8 L108 6.4 L94 4.6 L82 6 L74 3.2 L60 5.8 L47 3.6 L38 6.6 L24 4.2 L12 5.4 L0 3.8 Z' fill='%23efe6d4'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
 }
-.lp-edge-t { top: 0; }
-.lp-edge-b { bottom: 0; transform: scaleY(-1); }
-.lp-edge-l, .lp-edge-r {
-  top: 0; bottom: 0; width: 9px;
+.lp-tear-hb { transform: scaleY(-1); }
+.lp-tear-v {
+  width: 9px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='260'%3E%3Cpath d='M0 0 V260 H3.5 L5 247 L3.2 241 L6.2 229 L4 214 L6.5 207 L3 193 L5.5 178 L4.2 171 L6.8 156 L3.4 149 L5.2 133 L3.8 119 L6.4 108 L4.6 94 L6 82 L3.2 74 L5.8 60 L3.6 47 L6.6 38 L4.2 24 L5.4 12 L3.8 0 Z' fill='%23efe6d4'/%3E%3C/svg%3E");
   background-repeat: repeat-y;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
 }
-.lp-edge-l { left: 0; }
-.lp-edge-r { right: 0; transform: scaleX(-1); }
+.lp-tear-vr { transform: scaleX(-1); }
 
 /* Paper grain over everything — decorative, zero requests. */
 .lp::after {
@@ -72,7 +77,7 @@ html {
   scroll-snap-type: y proximity;
   overflow-x: hidden;
   overflow-x: clip;
-  background: #efe6d4; /* the sheet's true paper color, seen at the torn edges */
+  background: #1a2be0;
 }
 body {
   overflow-x: hidden;
@@ -204,6 +209,7 @@ body {
   color: var(--muted);
 }
 .lp h1, .lp h2 {
+  text-wrap: balance;
   font-family: var(--font-display);
   text-transform: uppercase;
   line-height: 0.98;
@@ -215,6 +221,7 @@ body {
 .lp h1 { font-size: clamp(3rem, 1.4rem + 7.5vw, 7.2rem); }
 .lp h2 { font-size: clamp(2.1rem, 1.1rem + 4.2vw, 4.4rem); }
 .lp-lede {
+  text-wrap: balance;
   font-family: var(--font-serif);
   font-style: italic;
   font-size: clamp(1.45rem, 1rem + 2vw, 2.3rem);
@@ -224,6 +231,7 @@ body {
 }
 .lp-lede em { font-style: italic; color: var(--muted); }
 .lp-support {
+  text-wrap: pretty;
   max-width: 42rem;
   font-size: clamp(1rem, 0.95rem + 0.3vw, 1.15rem);
   line-height: 1.65;
@@ -267,7 +275,7 @@ body {
   color: #fff;
   pointer-events: none;
 }
-.lp-doodle-worknote { left: 44%; bottom: 10%; width: clamp(140px, 12vw, 185px); transform: rotate(-6deg); opacity: 0.92; }
+.lp-doodle-worknote { left: 4%; bottom: 5%; width: clamp(140px, 12vw, 180px); transform: rotate(-6deg); opacity: 0.9; }
 .lp-doodle-phone { right: 27%; top: 7%; width: clamp(70px, 7vw, 105px); transform: rotate(5deg); opacity: 0.8; }
 .lp-doodle-feetup { right: 6%; top: 10%; width: clamp(110px, 12vw, 170px); transform: rotate(-3deg); opacity: 0.85; }
 .lp-doodle-lifenote { right: 8%; top: 12%; width: clamp(140px, 13vw, 190px); transform: rotate(4deg); opacity: 0.92; }
@@ -275,7 +283,7 @@ body {
 .lp-doodle-dogrun { left: 4%; bottom: 7%; width: clamp(120px, 14vw, 190px); transform: rotate(-2deg); opacity: 0.8; }
 @media (max-width: 959px) {
   .lp-doodle-phone, .lp-doodle-feetup, .lp-doodle-cheers, .lp-doodle-dogrun { display: none; }
-  .lp-doodle-worknote { position: static; width: 170px; margin: 1.4rem auto 0; transform: rotate(-4deg); }
+  .lp-doodle-worknote { display: none; }
   .lp-doodle-lifenote { width: 130px; top: auto; bottom: 4%; right: 4%; }
 }
 
@@ -289,18 +297,19 @@ body {
 .lp-chess-hero {
   align-self: center;
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   margin: 0.5rem auto 0;
-  opacity: 0.95;
   position: relative;
-  aspect-ratio: 880 / 640;
-  max-height: 62vh;
+  aspect-ratio: 1 / 1;
+  max-height: 66vh;
 }
 @media (min-width: 960px) {
-  .lp-chess-hero { max-width: none; width: 104%; margin: -4vh -2% 0 -2%; }
-}
-@media (min-width: 1280px) {
-  .lp-chess-hero { width: 124%; margin: -9vh -18% 0 -6%; }
+  .lp-chess-hero {
+    max-width: none;
+    width: calc(100% + clamp(1.25rem, 6vw, 5rem)); /* run to the viewport edge */
+    margin: -6vh calc(-1 * clamp(1.25rem, 6vw, 5rem)) 0 0;
+    max-height: 82vh;
+  }
 }
 .lp-chess-hero .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
 .lp-chess-hero .lp-chess-fallback { position: absolute; inset: 0; }
@@ -382,7 +391,7 @@ body {
   text-transform: uppercase;
   color: #fff;
 }
-.lp-stat-sub { font-size: 0.86rem; line-height: 1.5; color: var(--muted); }
+.lp-stat-sub { font-size: 0.86rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
 
 /* ── Live demo: strictly a column ── */
 .lp-demo-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; max-width: 34rem; }
@@ -548,11 +557,12 @@ body {
   margin: 0 0 0.5rem;
   color: #fff;
 }
-.lp-steps p { margin: 0; font-size: 0.92rem; line-height: 1.6; color: var(--muted); }
+.lp-steps p { margin: 0; font-size: 0.92rem; line-height: 1.6; color: var(--muted); text-wrap: pretty; }
 
 /* ── FAQ + footer ── */
 .lp-faq { margin-top: 1.8rem; max-width: 52rem; }
-.lp-faq details { border: 1px solid var(--line); margin-bottom: 1px; background: var(--blue); }
+.lp-faq details { border: 1px solid var(--line); background: var(--blue); }
+.lp-faq details + details { border-top: 0; }
 .lp-faq summary {
   cursor: pointer;
   padding: 1rem 1.2rem;
@@ -562,11 +572,24 @@ body {
   font-size: 0.85rem;
 }
 .lp-faq summary:hover, .lp-faq summary:focus-visible { background: rgba(255, 255, 255, 0.07); }
-.lp-faq p { margin: 0; padding: 0 1.2rem 1.2rem; font-size: 0.92rem; line-height: 1.65; color: #eceaf9; }
+.lp-faq p { margin: 0; padding: 0 1.2rem 1.2rem; font-size: 0.92rem; line-height: 1.65; color: #eceaf9; text-wrap: pretty; }
 
-.lp-footer { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1.2rem; }
-.lp-footer p { margin: 0; font-size: 0.8rem; letter-spacing: 0.06em; color: var(--muted); }
-.lp-footer a { color: #fff; }
+.lp-footer { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1.4rem; display: grid; gap: 0.9rem; }
+.lp-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem 2rem; }
+.lp-footer-brand {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-display); text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.04em;
+}
+.lp-footer-brand span { color: var(--muted); }
+.lp-footer-links { display: inline-flex; flex-wrap: wrap; gap: 1.6rem; }
+.lp-footer-links a {
+  color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  border-bottom: 2px solid transparent; padding-bottom: 2px;
+}
+.lp-footer-links a:hover, .lp-footer-links a:focus-visible { border-bottom-color: #fff; }
+.lp-footer-meta { margin: 0; font-size: 0.75rem; letter-spacing: 0.04em; color: var(--muted); text-wrap: pretty; }
+.lp-footer-meta a { color: var(--muted); }
 
 /* ── Buttons + focus ── */
 .lp-btn {

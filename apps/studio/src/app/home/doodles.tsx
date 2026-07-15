@@ -187,19 +187,23 @@ export function DoodleCheers() {
   );
 }
 
-/** Out for a run with the dog. */
+/** Out for a run with the dog — both of them clearly have heads. */
 export function DoodleDogRun() {
   return (
-    <Figure vb="0 0 170 110">
-      <circle cx="52" cy="20" r="10" />
-      <path d="M52 30 q4 18 -2 28" /> {/* torso leaning forward */}
-      <path d="M50 58 q-10 16 -18 22 M50 58 q14 10 18 24" /> {/* running legs */}
-      <path d="M52 38 q12 6 22 4" /> {/* arm to leash */}
-      <path d="M74 42 Q100 52 118 64" strokeDasharray="5 6" strokeWidth="1.8" /> {/* leash */}
-      <path d="M118 70 q10 -10 24 -6 q8 2 6 10 q-14 6 -26 2 z" strokeWidth="2.2" /> {/* dog body */}
-      <path d="M146 66 l8 -8 M150 74 l10 -2" strokeWidth="1.8" /> {/* dog ears/tail */}
-      <path d="M120 76 l-4 10 M136 78 l2 10" strokeWidth="2" /> {/* dog legs */}
-      <path d="M20 30 h-10 M24 44 h-14 M30 58 h-10" strokeWidth="1.6" /> {/* speed lines */}
+    <Figure vb="0 0 180 115">
+      <circle cx="48" cy="17" r="11" /> {/* runner's head */}
+      <path d="M45 16 q3 4 7 1" strokeWidth="1.8" /> {/* smile */}
+      <path d="M48 28 L46 34 Q42 48 46 58" /> {/* neck + leaning torso */}
+      <path d="M46 58 q-9 16 -16 22 M46 58 q13 9 16 24" /> {/* running legs */}
+      <path d="M46 38 q13 4 22 2" /> {/* arm to leash */}
+      <path d="M68 40 Q96 50 116 60" strokeDasharray="5 6" strokeWidth="1.8" /> {/* leash */}
+      <circle cx="126" cy="60" r="7" /> {/* dog's head */}
+      <path d="M131 55 l6 -7 M121 55 l-2 -8" strokeWidth="1.8" /> {/* ears */}
+      <path d="M133 62 q5 1 7 4" strokeWidth="1.8" /> {/* snout */}
+      <path d="M124 67 q8 10 22 8 q10 -1 10 -8" strokeWidth="2.2" /> {/* dog back */}
+      <path d="M156 62 q8 -6 6 -12" strokeWidth="1.8" /> {/* wagging tail */}
+      <path d="M130 76 l-4 10 M146 76 l2 10 M154 72 l6 9" strokeWidth="2" /> {/* dog legs */}
+      <path d="M18 28 h-10 M22 42 h-13 M27 56 h-9" strokeWidth="1.6" /> {/* speed lines */}
     </Figure>
   );
 }

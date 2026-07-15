@@ -76,10 +76,10 @@ const JSON_LD = [
 ];
 
 const STATS = [
-  { n: "$54K", label: "a typical first hire, every year", sub: "salary alone — before taxes, tools, and the time to manage them." },
-  { n: "$10.5K", label: "your Brainztem build, once", sub: "an AI operation working your content, outreach, and follow-ups. Four milestones, pay as it's delivered." },
-  { n: "48H", label: "free trial, no card", sub: "a working instance built from your own website — chat with your crew before you spend a dollar." },
-  { n: "1", label: "URL to start", sub: "paste it below; the scan and the pitch do the rest." },
+  { n: "$54K", label: "a typical first hire, every\u00A0year", sub: "salary alone — before taxes, tools, and the time to\u00A0manage\u00A0them." },
+  { n: "$10.5K", label: "your Brainztem build,\u00A0once", sub: "an AI operation working your content, outreach, and follow-ups. Four milestones, pay as it's\u00A0delivered." },
+  { n: "48H", label: "free trial, no\u00A0card", sub: "a working instance built from your own website — chat with your crew before you spend a\u00A0dollar." },
+  { n: "1", label: "URL to\u00A0start", sub: "paste it below; the scan and the pitch do the\u00A0rest." },
 ];
 
 export default function LandingPage() {
@@ -104,11 +104,16 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      <div className="lp-paper-frame" aria-hidden="true">
-        <span className="lp-edge lp-edge-t" />
-        <span className="lp-edge lp-edge-b" />
-        <span className="lp-edge lp-edge-l" />
-        <span className="lp-edge lp-edge-r" />
+      <div className="lp-tears" aria-hidden="true">
+        <span className="lp-tear lp-tear-h" style={{ top: 0, left: "6%", width: "17vw" }} />
+        <span className="lp-tear lp-tear-h" style={{ top: 0, left: "58%", width: "11vw" }} />
+        <span className="lp-tear lp-tear-v" style={{ top: "48vh", left: 0, height: "17vh" }} />
+        <span className="lp-tear lp-tear-v lp-tear-vr" style={{ top: "128vh", right: 0, height: "13vh" }} />
+        <span className="lp-tear lp-tear-v" style={{ top: "236vh", left: 0, height: "15vh" }} />
+        <span className="lp-tear lp-tear-v lp-tear-vr" style={{ top: "338vh", right: 0, height: "16vh" }} />
+        <span className="lp-tear lp-tear-v" style={{ top: "452vh", left: 0, height: "12vh" }} />
+        <span className="lp-tear lp-tear-h lp-tear-hb" style={{ bottom: 0, left: "14%", width: "15vw" }} />
+        <span className="lp-tear lp-tear-h lp-tear-hb" style={{ bottom: 0, left: "70%", width: "12vw" }} />
       </div>
 
       <SlideCounter />
@@ -130,7 +135,7 @@ export default function LandingPage() {
               <p className="lp-eyebrow">For the owner doing everything · strategypresentation.com</p>
               <h1 id="cover-h">About that first&nbsp;hire.</h1>
               <p className="lp-lede">
-                The assistant. The content writer. The ops person you&apos;re about to pay <em>every month, forever.</em>
+                The assistant. The content writer. The ops person you&apos;re about to pay <em>every month,{'\u00A0'}forever.</em>
               </p>
               <p className="lp-support">
                 Before you post the job: paste your website below. We&apos;ll scan your public record,
@@ -143,7 +148,6 @@ export default function LandingPage() {
             </div>
             <ChessHero />
           </div>
-          <div className="lp-doodle lp-doodle-worknote" aria-hidden="true"><NoteWorkDone /></div>
           <div className="lp-doodle lp-doodle-phone" aria-hidden="true"><DoodleOnPhone /></div>
           <div className="lp-marks" aria-hidden="true">
             <span>✦</span>
@@ -158,6 +162,7 @@ export default function LandingPage() {
         <section className="lp-slide" id="math" data-slide-name="The math" aria-labelledby="math-h">
           <div className="lp-chess lp-chess-rook" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("rook", "sp-math") }} />
           <div className="lp-doodle lp-doodle-feetup" aria-hidden="true"><DoodleFeetUp /></div>
+          <div className="lp-doodle lp-doodle-worknote" aria-hidden="true"><NoteWorkDone /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">The math</p>
             <h2 id="math-h">One salary, or one system.</h2>
@@ -250,12 +255,20 @@ export default function LandingPage() {
               ))}
             </div>
             <footer className="lp-footer">
-              <p>
-                © {new Date().getFullYear()} StrategyPresentation ·{" "}
-                <a href="https://websitecreditscore.com" rel="noopener" target="_blank">Powered by WebsiteCreditScore</a> ·{" "}
-                <a href="https://brainztem.com" rel="noopener" target="_blank">Built on Brainztem</a> ·{" "}
-                <a href="mailto:seekercray@gmail.com">Contact</a> ·{" "}
-                <span>Chess geometry: <a href="https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ABeautifulGame" rel="noopener" target="_blank">&quot;A Beautiful Game&quot;</a> © ASWF &amp; Ed Mackey, CC BY 4.0</span>
+              <div className="lp-footer-top">
+                <span className="lp-footer-brand">
+                  <KingMark size={18} />
+                  Strategy<span>Presentation</span>
+                </span>
+                <nav aria-label="Footer" className="lp-footer-links">
+                  <a href="https://websitecreditscore.com" rel="noopener" target="_blank">WebsiteCreditScore</a>
+                  <a href="https://brainztem.com" rel="noopener" target="_blank">Brainztem</a>
+                  <a href="mailto:seekercray@gmail.com">Contact</a>
+                </nav>
+              </div>
+              <p className="lp-footer-meta">
+                © {new Date().getFullYear()} StrategyPresentation · Evidence-backed decks, WCAG 2.1 AA ·
+                Chess geometry from <a href="https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ABeautifulGame" rel="noopener" target="_blank">&quot;A Beautiful Game&quot;</a> © ASWF &amp; Ed Mackey (CC BY 4.0)
               </p>
             </footer>
           </div>
