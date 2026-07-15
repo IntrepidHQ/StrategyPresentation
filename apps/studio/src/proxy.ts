@@ -24,6 +24,8 @@ const PUBLIC_PATHS = [
   // 307ing there until 2026-07-15, so search engines could index nothing).
   "/robots.txt",
   "/sitemap.xml",
+  // Chess piece point-cloud geometry for the landing hero (public/).
+  "/chess-points.bin",
 ];
 
 const MARKETING_HOSTS = new Set(["strategypresentation.com", "www.strategypresentation.com"]);

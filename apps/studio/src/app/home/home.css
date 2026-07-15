@@ -240,6 +240,23 @@ html {
   width: 112%;
   margin: -8vh -6% 0 -6%;
   opacity: 0.95;
+  position: relative;
+  aspect-ratio: 880 / 640;
+}
+.lp-chess-hero .lp-chess-canvas { position: absolute; inset: 0; pointer-events: auto; touch-action: manipulation; }
+.lp-chess-hero .lp-chess-fallback { position: absolute; inset: 0; }
+.lp-chess-hero.is-live .lp-chess-fallback { display: none; }
+/* "Click a piece" whisper under the live scene. */
+.lp-chess-hero.is-live::after {
+  content: "CLICK A PIECE";
+  position: absolute;
+  bottom: -1.6rem;
+  right: 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  pointer-events: none;
 }
 @media (max-width: 959px) {
   .lp-chess-hero { width: 100%; max-width: 480px; margin: 0.5rem 0 0; }

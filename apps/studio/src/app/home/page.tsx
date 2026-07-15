@@ -13,7 +13,8 @@
 import DemoWidget from "./DemoWidget";
 import { SlideCounter } from "./SlideCounter";
 import { TemplateGallery } from "./TemplateGallery";
-import { particleChessCluster, particlePiece, particleRoyalty } from "./chess-art";
+import { particlePiece, particleRoyalty } from "./chess-art";
+import { ChessHero } from "./ChessHero";
 
 const TEMPLATES = [
   { id: "blueprint", name: "Blueprint", blurb: "The drafting sheet — blueprint grid, white line-work." },
@@ -131,7 +132,7 @@ export default function LandingPage() {
                 <a className="lp-btn" href="#demo">Show me ↓</a>
               </p>
             </div>
-            <div className="lp-chess lp-chess-hero" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleChessCluster("sp-hero") }} />
+            <ChessHero />
           </div>
           <div className="lp-marks" aria-hidden="true">
             <span>✦</span>
@@ -238,7 +239,8 @@ export default function LandingPage() {
                 © {new Date().getFullYear()} StrategyPresentation ·{" "}
                 <a href="https://websitecreditscore.com" rel="noopener" target="_blank">Powered by WebsiteCreditScore</a> ·{" "}
                 <a href="https://brainztem.com" rel="noopener" target="_blank">Built on Brainztem</a> ·{" "}
-                <a href="mailto:seekercray@gmail.com">Contact</a>
+                <a href="mailto:seekercray@gmail.com">Contact</a> ·{" "}
+                <span>Chess geometry: <a href="https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ABeautifulGame" rel="noopener" target="_blank">&quot;A Beautiful Game&quot;</a> © ASWF &amp; Ed Mackey, CC BY 4.0</span>
               </p>
             </footer>
           </div>
