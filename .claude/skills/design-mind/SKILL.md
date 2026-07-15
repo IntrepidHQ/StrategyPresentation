@@ -70,6 +70,11 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Particle chess pieces**: ASCII-mask-sampled point clouds with near-neighbor threads (chess-art.ts) — the brand's illustration system. Pieces = strategy; blueprint = the plan.
 - Lesson: v1's FusionForce cream/red read as "another loud agency"; Hans wanted the *drafting room*, not the *print shop*. When a client says "blueprint," kill every warm hue.
 
+### Brand v2.1 — 3D particle system + Blueprint template (2026-07-15, Hans: "improve that artwork greatly")
+- **Particle art rule: fake 3D is not enough.** Flat silhouette masks read as "confetti in a shape." Genuine depth needs: surfaces of revolution sampled by area (lathe profiles for turned chess pieces), a directional light (dot(normal, light)), a **rim-glow term** (grazing normals brighten — this is what makes point clouds look lit), perspective projection, depth-sorted painting, and a **ground-scatter ring** to seat the object. ~1.5-2.5K particles/piece at small radii beats 500 big blobs. All in `chess-art.ts`.
+- **8th deck template `blueprint`**: the site brand as a deck — blue sheet, blueprint grid + grain on body, white line-work, and the cover's second headline half rendered as OUTLINED text (`-webkit-text-stroke`, transparent fill, @supports fallback) — drawn, not filled.
+- **All-8 polish**: cover marks row now on every theme (✦ takes --accent); per-theme signatures — summit double-rule small-caps marks, signal beam under h1, editorial hairline magazine frame, monospace "> " eyebrow + dashed hairlines, gallery ghost terracotta folio, beacon sunrise arc, voltage splash/band, blueprint outline+grid.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)

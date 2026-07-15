@@ -74,6 +74,7 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       h1, h2 { font-weight: 600; }
       .cover-layout h1 { border-top: 3px double var(--accent); padding-top: 1.2rem; }
       .card, .flag-list li, .bs-item, .crew-list li { box-shadow: 0 1px 0 var(--line); }
+      #s-cover .cover-marks { font-variant-caps: all-small-caps; border-top: 3px double var(--accent); }
     `,
   },
 
@@ -109,6 +110,10 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       }
       .eyebrow::before { content: "// "; color: var(--muted); }
       .btn-cta { border-radius: 999px; }
+      #s-cover h1::after {
+        content: ""; display: block; width: 6rem; height: 4px; margin-top: 1.1rem;
+        background: linear-gradient(90deg, var(--accent), transparent); border-radius: 2px;
+      }
     `,
   },
 
@@ -145,6 +150,7 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
         font-family: var(--font-display); font-size: 0.95rem; color: var(--muted);
       }
       .phase-num { color: var(--accent); font-style: italic; }
+      #s-cover .slide-inner { outline: 1px solid var(--text); outline-offset: clamp(0.8rem, 2vw, 1.8rem); }
     `,
   },
 
@@ -220,6 +226,13 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
         background: color-mix(in srgb, var(--accent) 9%, transparent);
       }
       #s-cover .score-ring-wrap { position: relative; }
+      .slide:not(#s-cover)::before {
+        content: attr(data-folio) / ""; position: absolute; right: 0.02em; top: -0.12em;
+        z-index: 0; pointer-events: none; font-family: var(--font-display);
+        font-size: clamp(7rem, 20vw, 18rem); line-height: 1; font-weight: 500;
+        color: color-mix(in srgb, var(--accent) 7%, transparent);
+      }
+      .slide-inner { position: relative; z-index: 1; }
     `,
   },
 
@@ -256,6 +269,11 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
         background: color-mix(in srgb, var(--accent) 12%, transparent);
         border-radius: 50%; width: 3.4rem; height: 3.4rem;
         display: grid; place-items: center; font-size: 1.6rem;
+      }
+      #s-cover::after {
+        content: ""; position: absolute; left: 50%; bottom: -26vh; translate: -50% 0;
+        width: 120vh; height: 120vh; border-radius: 50%; pointer-events: none;
+        background: radial-gradient(circle, color-mix(in srgb, var(--accent) 14%, transparent), transparent 62%);
       }
     `,
   },
@@ -355,6 +373,80 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       }
       .btn-cta {
         border-radius: 0; background: #f4eee1; color: #0c0c0c;
+        text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800;
+      }
+      .deck-nav button { border-radius: 0; }
+    `,
+  },
+
+  // ── Blueprint: the site's own brand as a deck — drafting sheet ──
+  // One electric-blue sheet, white line-work, fine blueprint grid, paper
+  // grain, outlined second headline half (drawn, not filled — line-work).
+  // Monochrome. Contrast verified: white 8.5:1, muted 5.8:1, accent 6:1.
+  blueprint: {
+    id: "blueprint",
+    name: "Blueprint",
+    description: "The drafting sheet: electric blue, white line-work, blueprint grid.",
+    colorScheme: "dark",
+    tokens: {
+      "--bg": "#1a2be0",
+      "--surface": "#1424c9",
+      "--text": "#ffffff",
+      "--muted": "#cfd2f7",
+      "--accent": "#cfd6ff",
+      "--accent-strong": "#ffffff",
+      "--on-accent": "#0c0c0c",
+      "--line": "rgba(255,255,255,0.32)",
+      "--focus": "#ffffff",
+      "--good": "#8ff0b0",
+      "--warn": "#ffd166",
+      "--bad": "#ffb0a0",
+      "--radius": "0px",
+      "--font-display": STACK_CONDENSED,
+      "--font-body": STACK_SANS,
+    },
+    css: `
+      /* The drafting sheet: minor/major grid + paper grain. */
+      body {
+        background-image:
+          linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+          linear-gradient(rgba(255,255,255,0.09) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.09) 1px, transparent 1px);
+        background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+      }
+      body::after {
+        content: ""; position: fixed; inset: 0; z-index: 40; pointer-events: none;
+        background: ${GRAIN_URI}; opacity: 0.05; mix-blend-mode: overlay;
+      }
+      h1, h2 { text-transform: uppercase; line-height: 0.95; font-weight: 400; letter-spacing: 0.005em; }
+      h1 { font-size: clamp(3rem, 2rem + 5.2vw, 6.2rem); }
+      .lede { font-family: ${STACK_DIDONE.replace(/"/g, "'")}; font-style: italic; font-size: 1.35rem; }
+      .eyebrow { letter-spacing: 0.3em; font-family: var(--font-body); font-weight: 700; color: var(--muted); }
+      #s-cover::before { content: none; }
+      /* Line-work headline: the second half is DRAWN, not filled. */
+      #s-cover h1 .hl-b { color: transparent; -webkit-text-stroke: 2px #ffffff; }
+      @supports not (-webkit-text-stroke: 2px #fff) {
+        #s-cover h1 .hl-b { color: var(--accent); }
+      }
+      #s-cover .cover-marks {
+        display: flex; border-top: 2px solid #ffffff; color: #ffffff;
+        border-bottom: 2px solid #ffffff; padding-bottom: 0.9rem;
+      }
+      /* Giant cropped folio, drafting-stamp quiet. */
+      .slide:not(#s-cover)::before {
+        content: attr(data-folio) / ""; position: absolute; z-index: 0;
+        right: -0.06em; bottom: -0.18em; pointer-events: none;
+        font-family: var(--font-display); font-size: clamp(8rem, 24vw, 22rem);
+        line-height: 1; color: rgba(255,255,255,0.05); letter-spacing: -0.02em;
+      }
+      .slide-inner { position: relative; z-index: 1; }
+      .card, .flag-list li, .bs-item, .crew-list li {
+        border: 1px solid var(--line); box-shadow: none; background: var(--surface);
+      }
+      .card h3 { text-transform: uppercase; letter-spacing: 0.08em; }
+      .btn-cta {
+        border-radius: 0; background: #ffffff; color: #0c0c0c;
         text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800;
       }
       .deck-nav button { border-radius: 0; }
