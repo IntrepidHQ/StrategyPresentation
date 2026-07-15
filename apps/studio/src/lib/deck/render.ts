@@ -41,8 +41,8 @@ export function renderDeck(model: DeckModel): string {
 <title>${esc(title)}</title>
 <script>document.documentElement.classList.add("js");</script>
 <style>
-${themeCss(theme)}
 ${BASE_CSS}
+${themeCss(theme)}
 </style>
 </head>
 <body>

@@ -8,6 +8,7 @@
 //  always present as real text or a table.
 // ============================================================
 
+import { particleConstellation } from "./art";
 import type { DeckModel, SlideId } from "./deck-model";
 
 export function esc(value: string | number | undefined | null): string {
@@ -61,6 +62,7 @@ export function renderCover(model: DeckModel): string {
   });
 
   return `${slideOpen("cover", model, "cover-h")}
+    ${particleConstellation(meta.domain)}
     <div class="cover-layout">
       <div>
         <p class="eyebrow" data-reveal>Strategy presentation · ${esc(meta.domain)}</p>
