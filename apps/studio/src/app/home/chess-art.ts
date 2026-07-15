@@ -51,32 +51,33 @@ const TOPPERS: Record<Exclude<PieceName, "knight">, [number, number][]> = {
 // Crown spikes (queen): cones rising from the crown rim.
 const QUEEN_SPIKES = 7;
 
-// Knight silhouette mask (side profile, faces left) — billboard + depth.
-const KNIGHT_MASK = [
-  "......####........",
-  ".....######.......",
-  "....#########.....",
-  "...##.########....",
-  "..#############...",
-  ".###############..",
-  "##..############..",
-  "#..#############..",
-  "...#############..",
-  "..#####..#######..",
-  "..###....#######..",
-  ".........#######..",
-  "........########..",
-  ".......#########..",
-  "......##########..",
-  ".....###########..",
-  ".....############.",
-  "....#############.",
-  "....#############.",
-  "...##############.",
-  "...###############",
-  "..################",
-  ".#################",
-  "##################",
+// ── Knight geometry ──
+// The head/neck is a traced Staunton profile polygon (x centered on the
+// lathe axis, y 0..1 up, muzzle facing -x). The plinth below y≈0.2 is
+// TURNED like every other piece, so the knight sits on the same round base.
+const KNIGHT_BASE: [number, number][] = [
+  [0.0, 0.34], [0.05, 0.34], [0.09, 0.24], [0.13, 0.19], [0.17, 0.17], [0.2, 0.185],
+];
+const KNIGHT_POLY: [number, number][] = [
+  [-0.3, 0.19], [-0.27, 0.3], [-0.21, 0.44], [-0.16, 0.52],   // chest → throat
+  [-0.23, 0.555],                                              // chin
+  [-0.43, 0.60], [-0.455, 0.655],                              // muzzle underside → nose tip
+  [-0.38, 0.715], [-0.245, 0.815],                             // nose bridge → forehead
+  [-0.145, 0.875], [-0.10, 1.0], [-0.025, 0.895],              // ear 1
+  [0.055, 0.975], [0.10, 0.865],                               // ear 2
+  [0.16, 0.815],                                               // crown
+  [0.245, 0.71], [0.185, 0.655],                               // mane notch 1
+  [0.285, 0.565], [0.225, 0.51],                               // mane notch 2
+  [0.325, 0.42], [0.265, 0.365],                               // mane notch 3
+  [0.305, 0.19],                                               // back of body
+];
+// Carved voids — particle absence reads as sculpted detail.
+const KNIGHT_EYE = { x: -0.155, y: 0.705, r: 0.048 };
+const KNIGHT_NOSTRIL = { x: -0.395, y: 0.645, r: 0.022 };
+const KNIGHT_MOUTH = { x1: -0.44, y1: 0.615, x2: -0.29, y2: 0.585, r: 0.014 };
+// The mane crest: a raised ridge along the back-of-neck curve.
+const KNIGHT_MANE: [number, number][] = [
+  [0.16, 0.80], [0.21, 0.70], [0.25, 0.60], [0.28, 0.50], [0.30, 0.40], [0.30, 0.30],
 ];
 
 /** mulberry32 — deterministic per (piece, seed). */
@@ -180,38 +181,136 @@ function sampleLathe(piece: Exclude<PieceName, "knight">, rand: () => number, co
   return pts;
 }
 
-/** Knight: silhouette mask billboarded with an elliptical depth section. */
-function sampleKnight(rand: () => number, count: number): P3[] {
-  const rows = KNIGHT_MASK.length;
-  const cols = KNIGHT_MASK[0].length;
-  const filledCells: [number, number][] = [];
-  for (let r = 0; r < rows; r++)
-    for (let c = 0; c < cols; c++) if (KNIGHT_MASK[r][c] === "#") filledCells.push([r, c]);
-  // Per-row width → approximate a centered elliptical cross-section.
-  const rowSpan: Record<number, [number, number]> = {};
-  for (const [r, c] of filledCells) {
-    const s = rowSpan[r] ?? [c, c];
-    rowSpan[r] = [Math.min(s[0], c), Math.max(s[1], c)];
+function pointInPoly(x: number, y: number, poly: [number, number][]): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
   }
+  return inside;
+}
+
+function inVoid(x: number, y: number): boolean {
+  const eye = (x - KNIGHT_EYE.x) ** 2 + (y - KNIGHT_EYE.y) ** 2 < KNIGHT_EYE.r ** 2;
+  const nos = (x - KNIGHT_NOSTRIL.x) ** 2 + (y - KNIGHT_NOSTRIL.y) ** 2 < KNIGHT_NOSTRIL.r ** 2;
+  // Mouth: distance from the slit segment.
+  const { x1, y1, x2, y2, r } = KNIGHT_MOUTH;
+  const dx = x2 - x1, dy = y2 - y1;
+  const t = Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy)));
+  const mouth = (x - (x1 + t * dx)) ** 2 + (y - (y1 + t * dy)) ** 2 < r ** 2;
+  return eye || nos || mouth;
+}
+
+/** Knight: turned plinth (lathe) + traced head/neck polygon with carved
+ *  eye/mouth/nostril voids, a raised mane crest, and contour-derived
+ *  normals so the light follows the silhouette. */
+function sampleKnight(rand: () => number, count: number): P3[] {
   const pts: P3[] = [];
-  const thick = 0.34; // body depth relative to height
-  while (pts.length < count) {
-    const [r, c] = filledCells[Math.floor(rand() * filledCells.length)];
-    const u = c + rand();
-    const v = r + rand();
-    const [c0, c1] = rowSpan[r];
-    const mid = (c0 + c1 + 1) / 2;
-    const half = Math.max(1, (c1 - c0 + 1) / 2);
-    const across = Math.max(-1, Math.min(1, (u - mid) / half)); // -1..1 across the row
-    const zHalf = Math.sqrt(Math.max(0, 1 - across * across)) * thick * 0.5;
-    const z = (rand() * 2 - 1) * zHalf;
-    // Bias to the shell for a surface look.
-    const shell = Math.sign(z || 1) * zHalf * (0.65 + 0.35 * rand());
-    const zz = rand() > 0.35 ? shell : z;
-    const x = (u / cols - 0.5) * (cols / rows); // keep aspect
-    const y = 1 - v / rows;
-    const nz = zz / Math.max(1e-4, zHalf);
-    pts.push({ x, y, z: zz, nx: across * 0.6, ny: 0.1, nz: Math.max(-1, Math.min(1, nz)) });
+
+  // Turned base — same construction as every other piece.
+  const baseCount = Math.floor(count * 0.22);
+  const rBaseMax = 0.34;
+  while (pts.length < baseCount) {
+    const h = rand() * 0.2;
+    const { r, slope } = profileAt(KNIGHT_BASE, h);
+    if (rand() > r / rBaseMax) continue;
+    const th = rand() * Math.PI * 2;
+    const nl = Math.hypot(1, slope);
+    pts.push({
+      x: r * Math.cos(th), y: h, z: r * Math.sin(th),
+      nx: Math.cos(th) / nl, ny: -slope / nl, nz: Math.sin(th) / nl,
+    });
+  }
+
+  // Depth half-thickness by height: rounder at the body, slimmer at the head.
+  const halfT = (y: number) => (y > 0.62 ? 0.115 : y > 0.4 ? 0.15 : 0.2);
+
+  // 1) CONTOUR: walk the polygon perimeter and lay a dense, bright particle
+  //    line along it — this is what makes the muzzle, ears, and mane notches
+  //    read crisply regardless of how thin they are.
+  const edges: { ax: number; ay: number; bx: number; by: number; len: number }[] = [];
+  let per = 0;
+  for (let i = 0; i < KNIGHT_POLY.length; i++) {
+    const [ax, ay] = KNIGHT_POLY[i];
+    const [bx, by] = KNIGHT_POLY[(i + 1) % KNIGHT_POLY.length];
+    const len = Math.hypot(bx - ax, by - ay);
+    edges.push({ ax, ay, bx, by, len });
+    per += len;
+  }
+  const contourCount = Math.floor(count * 0.3);
+  for (let i = 0; i < contourCount; i++) {
+    let d = rand() * per;
+    const e = edges.find((ed) => (d -= ed.len) <= 0) ?? edges[edges.length - 1];
+    const t = 1 + d / e.len; // d is negative remainder within this edge
+    const x = e.ax + (e.bx - e.ax) * t + (rand() - 0.5) * 0.012;
+    const y = e.ay + (e.by - e.ay) * t + (rand() - 0.5) * 0.012;
+    // Outward 2D normal of the edge (polygon is wound clockwise in screen space).
+    const nl = Math.max(1e-4, e.len);
+    const nx = (e.by - e.ay) / nl;
+    const ny = -(e.bx - e.ax) / nl;
+    const zh = halfT(y);
+    const z = (rand() * 2 - 1) * zh * 0.85;
+    pts.push({ x, y, z, nx, ny, nz: 0.4 });
+  }
+
+  // 2) DETAIL RIMS: bright rings around the carved eye / nostril / mouth.
+  const rimCount = Math.floor(count * 0.07);
+  for (let i = 0; i < rimCount; i++) {
+    const pick = rand();
+    let x: number, y: number, nx: number, ny: number;
+    if (pick < 0.45) {
+      const th = rand() * Math.PI * 2;
+      x = KNIGHT_EYE.x + Math.cos(th) * KNIGHT_EYE.r;
+      y = KNIGHT_EYE.y + Math.sin(th) * KNIGHT_EYE.r;
+      nx = Math.cos(th); ny = Math.sin(th);
+    } else if (pick < 0.6) {
+      const th = rand() * Math.PI * 2;
+      x = KNIGHT_NOSTRIL.x + Math.cos(th) * KNIGHT_NOSTRIL.r;
+      y = KNIGHT_NOSTRIL.y + Math.sin(th) * KNIGHT_NOSTRIL.r;
+      nx = Math.cos(th); ny = Math.sin(th);
+    } else {
+      const m = KNIGHT_MOUTH;
+      const t = rand();
+      const side = rand() > 0.5 ? 1 : -1;
+      x = m.x1 + (m.x2 - m.x1) * t;
+      y = m.y1 + (m.y2 - m.y1) * t + side * m.r;
+      nx = 0; ny = side;
+    }
+    if (!pointInPoly(x, y, KNIGHT_POLY)) continue;
+    pts.push({ x, y, z: halfT(y) * 0.9, nx: nx * 0.5, ny: ny * 0.5, nz: 0.85 });
+  }
+
+  // 3) INTERIOR FILL: volumetric but deliberately dimmer (shortened normals
+  //    lower the light term) so the contour carries the drawing.
+  const bodyCount = Math.floor(count * 0.56);
+  let made = 0;
+  while (made < bodyCount) {
+    const x = -0.47 + rand() * 0.8;
+    const y = 0.18 + rand() * 0.84;
+    if (!pointInPoly(x, y, KNIGHT_POLY) || inVoid(x, y)) continue;
+    const zh = halfT(y);
+    const zc = (rand() * 2 - 1);
+    const shellZ = Math.sign(zc || 1) * zh * Math.sqrt(1 - Math.min(1, Math.abs(zc))) * (0.7 + 0.3 * rand());
+    const z = rand() > 0.3 ? shellZ : zc * zh;
+    const nzs = Math.max(-1, Math.min(1, z / Math.max(1e-4, zh)));
+    pts.push({ x, y, z, nx: 0, ny: 0.05, nz: nzs * 0.55 });
+    made++;
+  }
+
+  // Mane crest: dense ridge along the back-of-neck curve, pushed proud of
+  // the shell — catches the light as a bright rim.
+  const maneCount = Math.max(0, Math.floor(count * 0.06));
+  for (let i = 0; i < maneCount; i++) {
+    const t = rand() * (KNIGHT_MANE.length - 1);
+    const k = Math.floor(t);
+    const f = t - k;
+    const [ax, ay] = KNIGHT_MANE[Math.min(k, KNIGHT_MANE.length - 1)];
+    const [bx, by] = KNIGHT_MANE[Math.min(k + 1, KNIGHT_MANE.length - 1)];
+    const mx = ax + (bx - ax) * f + (rand() - 0.5) * 0.03;
+    const my = ay + (by - ay) * f + (rand() - 0.5) * 0.03;
+    const z = (rand() * 2 - 1) * 0.05;
+    pts.push({ x: mx, y: my, z, nx: 0.4, ny: 0.3, nz: 0.55 });
   }
   return pts;
 }
