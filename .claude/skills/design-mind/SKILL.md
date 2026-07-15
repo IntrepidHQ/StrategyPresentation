@@ -86,6 +86,14 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Rolled-blueprint edges**: fixed 9px strips on all four sides showing the paper color #efe6d4 with an ORGANIC torn inner edge (irregular node spacing + 2.5-6.5px varied depths, 260px repeat — regular sawtooth reads as rick-rack trim, avoid). html background = same paper so overscroll stays in-world. z-index 80, pointer-events none.
 - **Hero composition rule**: stage in DEPTH, not a lineup — far piece upstage-left, tall pair just off center, one piece downstage cropped by the frame edge (the crop = energy). Wide lens (fov 46-48) + low off-axis camera.
 
+### Brand v2.3 — the chess planet + restraint rules (2026-07-15, Hans's sketch)
+- **The hero is a little-planet shot** (Hans's ink sketch): a checkerboard SPHERE of ~26K particles (lat/long 14×10 fields; light squares dense at lum .88, dark squares sparse ink speckle at .24) with nine pieces standing radially on the surface, oriented along surface normals with per-piece spin. Central-gravity physics (world gravity zero; per-frame force toward the core; static Sphere collider) — click → blast off → tumble → glide home.
+- **Per-material point-size multipliers matter**: the globe reads crisp at 0.5× the piece size; without it everything blows out into blobs. Same shader, different uScale.
+- **Never crop a piece with a harsh canvas edge** — compose so the full object fits, and run the canvas to the viewport edge instead (Hans: "I don't ever really wanna see just a harsh edge").
+- **Worn ≠ shredded**: paper tears cover ~1/6 of each edge as isolated patches, absolutely positioned so they SCROLL with the document (top tears exist only at the top of the site, bottom only at the end), tapered ends via mask-image. Full-perimeter fixed strips read as "torn-up paper."
+- **Orphan policy**: text-wrap balance on display/lede, pretty on body, plus explicit nbsp joins on short label lines ("every&nbsp;year", "build,&nbsp;once"). Hans checks for orphans at every size.
+- Doodle figures need explicit necks + faces on ALL actors (the dog needs a head too), or they read as broken.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
