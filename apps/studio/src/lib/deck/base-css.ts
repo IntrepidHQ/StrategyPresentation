@@ -108,6 +108,8 @@ html.autoplaying .deck-header, html.autoplaying .rail {
   outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px;
 }
 
+html, body { overflow-x: hidden; overflow-x: clip; } /* previews must never h-scroll */
+
 /* ── Slides ── */
 .slide {
   min-height: 100vh; min-height: 100dvh;
@@ -312,6 +314,10 @@ html.js .slide:not(.in) .dim-bar > span { transform: scaleX(0); }
 /* ── Reveal animation (JS-gated so no-JS users see everything) ── */
 html.js .slide:not(.in) [data-reveal] { opacity: 0; transform: translateY(16px); }
 .slide.in [data-reveal] { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s ease; }
+.slide.in [data-reveal]:nth-of-type(2) { transition-delay: 0.09s; }
+.slide.in [data-reveal]:nth-of-type(3) { transition-delay: 0.18s; }
+.slide.in [data-reveal]:nth-of-type(4) { transition-delay: 0.27s; }
+.slide.in [data-reveal]:nth-of-type(n+5) { transition-delay: 0.36s; }
 
 @media (prefers-reduced-motion: reduce) {
   html.js .slide:not(.in) [data-reveal] { opacity: 1; transform: none; }

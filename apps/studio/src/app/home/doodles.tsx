@@ -150,7 +150,7 @@ export function DoodleFeetUp() {
       <path d="M60 26 h9 v8 h-9 z M69 28 q5 1 0 5" strokeWidth="2" /> {/* mug */}
       <path d="M96 46 v34 h34" /> {/* desk */}
       <path d="M22 52 q-6 14 4 24" /> {/* chair back */}
-      <path d="M63 12 q2 -5 6 -3 M71 8 q3 -4 6 -1" strokeWidth="1.6" /> {/* steam */}
+      <path className="d-steam" d="M63 12 q2 -5 6 -3 M71 8 q3 -4 6 -1" strokeWidth="1.6" /> {/* steam */}
     </Figure>
   );
 }
@@ -166,7 +166,7 @@ export function DoodleOnPhone() {
       <path d="M52 40 q9 -12 12 -21" /> {/* arm up to phone */}
       <path d="M52 44 q-12 4 -16 12" /> {/* other arm gesturing */}
       <path d="M52 67 q-8 20 -14 28 M52 67 q8 18 4 30" /> {/* mid-stride legs */}
-      <path d="M20 16 q-2 -6 4 -8 M14 30 q-6 0 -6 -6 M24 42 l-6 4" strokeWidth="1.6" /> {/* laughter marks */}
+      <path className="d-laugh" d="M20 16 q-2 -6 4 -8 M14 30 q-6 0 -6 -6 M24 42 l-6 4" strokeWidth="1.6" /> {/* laughter marks */}
     </Figure>
   );
 }
@@ -181,7 +181,7 @@ export function DoodleCheers() {
       <path d="M42 44 q-2 20 0 32 M118 44 q2 20 0 32" /> {/* torsos */}
       <path d="M42 52 q14 -14 24 -22 M118 52 q-14 -14 -24 -22" /> {/* arms raised */}
       <path d="M66 22 l6 8 M94 22 l-6 8 M66 22 q7 -3 14 0 l-4 9 q-3 2 -6 0 z M94 22 q-7 -3 -14 0" strokeWidth="1.8" /> {/* glasses clink */}
-      <path d="M78 10 l2 -6 M84 12 l4 -5 M72 12 l-3 -5" strokeWidth="1.6" /> {/* sparks */}
+      <path className="d-sparks" d="M78 10 l2 -6 M84 12 l4 -5 M72 12 l-3 -5" strokeWidth="1.6" /> {/* sparks */}
       <path d="M42 76 q-6 16 -10 24 M42 76 q6 16 10 24 M118 76 q-6 16 -10 24 M118 76 q6 16 10 24" />
     </Figure>
   );
@@ -201,7 +201,7 @@ export function DoodleDogRun() {
       <path d="M131 55 l6 -7 M121 55 l-2 -8" strokeWidth="1.8" /> {/* ears */}
       <path d="M133 62 q5 1 7 4" strokeWidth="1.8" /> {/* snout */}
       <path d="M124 67 q8 10 22 8 q10 -1 10 -8" strokeWidth="2.2" /> {/* dog back */}
-      <path d="M156 62 q8 -6 6 -12" strokeWidth="1.8" /> {/* wagging tail */}
+      <path className="d-tail" d="M156 62 q8 -6 6 -12" strokeWidth="1.8" /> {/* wagging tail */}
       <path d="M130 76 l-4 10 M146 76 l2 10 M154 72 l6 9" strokeWidth="2" /> {/* dog legs */}
       <path d="M18 28 h-10 M22 42 h-13 M27 56 h-9" strokeWidth="1.6" /> {/* speed lines */}
     </Figure>

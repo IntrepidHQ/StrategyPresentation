@@ -32,6 +32,7 @@
     linear-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
   background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+  background-position-x: calc(max((100vw - 1120px) / 2, clamp(1.25rem, 6vw, 5rem)));
   background-attachment: fixed;
 }
 
@@ -41,7 +42,7 @@
    DOCUMENT so they scroll with the page: the top tears leave as you
    scroll; the bottom ones only appear at the end. Tapered ends via mask. */
 .lp { position: relative; }
-.lp-tears { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+.lp-tears { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
 .lp-tear { position: absolute; }
 .lp-tear-h {
   height: 9px;
@@ -199,6 +200,22 @@ body {
 .lp-rail a:hover, .lp-rail a:focus-visible { background: #fff; }
 @media (max-width: 720px) { .lp-rail { display: none; } }
 
+/* ── Scroll reveals (SlideCounter adds .in one-way) ── */
+@media (prefers-reduced-motion: no-preference) {
+  .lp-slide .lp-slide-inner > * {
+    opacity: 0;
+    translate: 0 26px;
+    transition: opacity 0.65s ease, translate 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-slide .lp-slide-inner > *:nth-child(2) { transition-delay: 0.08s; }
+  .lp-slide .lp-slide-inner > *:nth-child(3) { transition-delay: 0.16s; }
+  .lp-slide .lp-slide-inner > *:nth-child(4) { transition-delay: 0.24s; }
+  .lp-slide .lp-slide-inner > *:nth-child(5) { transition-delay: 0.32s; }
+  .lp-slide.in .lp-slide-inner > * { opacity: 1; translate: 0 0; }
+  /* The cover is above the fold — never hide it waiting for an observer. */
+  .lp-cover .lp-slide-inner > * { opacity: 1; translate: 0 0; }
+}
+
 /* ── Type system ── */
 .lp-eyebrow {
   margin: 0 0 1.1rem;
@@ -280,11 +297,22 @@ body {
 .lp-doodle-feetup { right: 6%; top: 10%; width: clamp(110px, 12vw, 170px); transform: rotate(-3deg); opacity: 0.85; }
 .lp-doodle-lifenote { right: 8%; top: 12%; width: clamp(140px, 13vw, 190px); transform: rotate(4deg); opacity: 0.92; }
 .lp-doodle-cheers { right: 5%; top: 12%; width: clamp(120px, 13vw, 180px); transform: rotate(3deg); opacity: 0.85; }
-.lp-doodle-dogrun { left: 4%; bottom: 7%; width: clamp(120px, 14vw, 190px); transform: rotate(-2deg); opacity: 0.8; }
+.lp-doodle-dogrun { left: 3%; bottom: 22%; width: clamp(120px, 14vw, 190px); transform: rotate(-2deg); opacity: 0.8; }
 @media (max-width: 959px) {
   .lp-doodle-phone, .lp-doodle-feetup, .lp-doodle-cheers, .lp-doodle-dogrun { display: none; }
   .lp-doodle-worknote { display: none; }
   .lp-doodle-lifenote { width: 130px; top: auto; bottom: 4%; right: 4%; }
+}
+
+/* Doodle micro-animation (reduced-motion: off). */
+@media (prefers-reduced-motion: no-preference) {
+  .lp-doodle .d-steam { animation: lp-steam 2.6s ease-in-out infinite; transform-origin: center bottom; }
+  .lp-doodle .d-tail { animation: lp-wag 0.9s ease-in-out infinite alternate; transform-origin: 156px 62px; }
+  .lp-doodle .d-laugh { animation: lp-pulse 1.8s ease-in-out infinite; }
+  .lp-doodle .d-sparks { animation: lp-pulse 1.4s ease-in-out infinite; }
+  @keyframes lp-steam { 0%, 100% { opacity: 0.4; translate: 0 0; } 50% { opacity: 1; translate: 0 -3px; } }
+  @keyframes lp-wag { from { rotate: -14deg; } to { rotate: 12deg; } }
+  @keyframes lp-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 }
 
 /* ── Particle chess pieces ── */
@@ -326,16 +354,15 @@ body {
   color: var(--muted);
   pointer-events: none;
 }
-/* Negative-space pieces on later slides — quiet, cropped by the frame. */
-.lp-chess-rook, .lp-chess-royalty, .lp-chess-bishop, .lp-chess-queen {
-  position: absolute;
-  z-index: 0;
-  opacity: 0.34;
-}
-.lp-chess-rook { right: -3%; bottom: -6%; width: clamp(180px, 22vw, 330px); }
-.lp-chess-royalty { right: 2%; bottom: 4%; width: clamp(240px, 28vw, 420px); opacity: 0.5; }
-.lp-chess-bishop { right: -2%; top: 8%; width: clamp(170px, 20vw, 300px); }
-.lp-chess-queen { right: 2%; bottom: -4%; width: clamp(200px, 24vw, 360px); }
+/* Interactive piece vignettes on later slides. */
+.lp-piece-scene { position: absolute; z-index: 0; }
+.lp-piece-scene .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
+.lp-piece-scene .lp-chess-fallback { position: absolute; inset: 0; opacity: 0.5; }
+.lp-piece-scene.is-live .lp-chess-fallback { display: none; }
+.lp-chess-rook { right: 0; bottom: 4%; width: clamp(200px, 24vw, 340px); aspect-ratio: 1; opacity: 0.75; }
+.lp-chess-royalty { right: 1%; bottom: 6%; width: clamp(260px, 30vw, 440px); aspect-ratio: 1.15; opacity: 0.85; }
+.lp-chess-bishop { right: 0; top: 12%; width: clamp(190px, 22vw, 320px); aspect-ratio: 1; opacity: 0.75; }
+.lp-chess-queen { right: 0; bottom: 18%; width: clamp(200px, 24vw, 350px); aspect-ratio: 1.1; opacity: 0.8; }
 @media (prefers-reduced-motion: no-preference) {
   .lp-chess-hero { animation: lp-drift 26s ease-in-out infinite alternate; }
   @keyframes lp-drift {
@@ -563,6 +590,7 @@ body {
 .lp-faq { margin-top: 1.8rem; max-width: 52rem; }
 .lp-faq details { border: 1px solid var(--line); background: var(--blue); }
 .lp-faq details + details { border-top: 0; }
+.lp-faq { interpolate-size: allow-keywords; }
 .lp-faq summary {
   cursor: pointer;
   padding: 1rem 1.2rem;
@@ -570,9 +598,36 @@ body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 0.85rem;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary::before {
+  content: "";
+  width: 0.55em;
+  height: 0.55em;
+  border-right: 2.5px solid #fff;
+  border-bottom: 2.5px solid #fff;
+  transform: rotate(-45deg);
+  transition: transform 0.3s ease;
+  flex: none;
+}
+.lp-faq details[open] > summary::before { transform: rotate(45deg); }
+.lp-faq details::details-content {
+  height: 0;
+  overflow: clip;
+  transition: height 0.38s cubic-bezier(0.22, 1, 0.36, 1), content-visibility 0.38s allow-discrete;
+}
+.lp-faq details[open]::details-content { height: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-faq details::details-content { transition: none; }
+  .lp-faq summary::before { transition: none; }
 }
 .lp-faq summary:hover, .lp-faq summary:focus-visible { background: rgba(255, 255, 255, 0.07); }
-.lp-faq p { margin: 0; padding: 0 1.2rem 1.2rem; font-size: 0.92rem; line-height: 1.65; color: #eceaf9; text-wrap: pretty; }
+.lp-faq p { margin: 0; padding: 0.2rem 1.2rem 1.2rem; font-size: 0.92rem; line-height: 1.65; color: #eceaf9; text-wrap: pretty; }
+.lp-faq p a { color: #fff; font-weight: 700; }
 
 .lp-footer { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1.4rem; display: grid; gap: 0.9rem; }
 .lp-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem 2rem; }
@@ -614,6 +669,16 @@ body {
   outline: 3px solid #fff;
   outline-offset: 3px;
 }
+
+/* ── Closing checker wave (under the footer) ── */
+.lp-wave {
+  position: relative;
+  height: clamp(180px, 30vh, 320px);
+  overflow: hidden;
+  scroll-snap-align: none;
+  border-top: 1px solid var(--line);
+}
+.lp-wave canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
 
 /* ── Small screens ── */
 @media (max-width: 720px) {
