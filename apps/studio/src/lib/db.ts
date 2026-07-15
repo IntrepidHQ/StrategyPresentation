@@ -1,6 +1,13 @@
 // ============================================================
 //  SP Studio — Supabase DB Client
 //  apps/studio/src/lib/db.ts
+//
+//  SP shares ONE Supabase project with WCS and Brainztem
+//  (IntrepidHQ's Project, xeaeiowwodppqhswotsx) rather than
+//  running its own — SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY are
+//  that project's own values. Own schema, own lane: `sp` (mirrors
+//  `public` for WCS and `brainztem` for Brainztem). Full bootstrap
+//  SQL: supabase/sp-studio-schema.sql.
 // ============================================================
 
 import { createClient } from "@supabase/supabase-js";
@@ -22,21 +29,34 @@ interface LocalState {
   editHistory: EditHistoryRecord[];
 }
 
+// Accept NEXT_PUBLIC_SUPABASE_URL as an alias — WCS and Brainztem env
+// templates use that name, so a key pasted from either "just works" here.
+// (The URL is not actually a secret; only the service-role key is.)
+export function supabaseUrl(): string | undefined {
+  return process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+}
+export function supabaseServiceKey(): string | undefined {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+}
+
 function shouldUseLocalStore() {
   return (
     process.env.NODE_ENV === "development" &&
-    (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)
+    (!supabaseUrl() || !supabaseServiceKey())
   );
 }
 
 function getClient() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = supabaseUrl();
+  const key = supabaseServiceKey();
   if (!url || !key) {
-    throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
+    throw new Error("SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY must be set");
   }
+  // Pinned to "sp" — the shared project's schemas are otherwise ambiguous
+  // (the client's default "public" schema belongs to WCS here).
   return createClient(url, key, {
     auth: { persistSession: false },
+    db: { schema: "sp" },
   });
 }
 
@@ -86,6 +106,9 @@ export async function createStrategy(params: {
   clientSlug: string;
   tier: StrategyTier;
   wcsReport: WCSReport;
+  templateId?: string;
+  source?: StrategyRecord["source"];
+  sandboxToken?: string;
   gatePassword?: string;
   gateSignedDate?: string;
 }): Promise<StrategyRecord> {
@@ -106,6 +129,9 @@ export async function createStrategy(params: {
       published_at: null,
       vercel_url: null,
       vercel_deploy_id: null,
+      template_id: params.templateId ?? null,
+      source: params.source ?? null,
+      sandbox_token: params.sandboxToken ?? null,
       created_at: now,
       updated_at: now,
     };
@@ -125,6 +151,11 @@ export async function createStrategy(params: {
       gate_password: params.gatePassword ?? generatePassword(params.clientSlug),
       gate_signed_date: params.gateSignedDate ?? formatTodayDate(),
       status: "draft",
+      // Requires migration 002_strategy_deck_fields.sql; only sent when set so
+      // legacy WCS payloads keep working against an un-migrated database.
+      ...(params.templateId ? { template_id: params.templateId } : {}),
+      ...(params.source ? { source: params.source } : {}),
+      ...(params.sandboxToken ? { sandbox_token: params.sandboxToken } : {}),
     })
     .select()
     .single();

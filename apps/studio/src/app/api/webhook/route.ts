@@ -9,7 +9,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyWebhook } from "@/lib/webhook-verify";
-import { createStrategy, getStrategyBySlug } from "@/lib/db";
+import { createStrategy, getStrategyBySlug, updateStrategyHTML } from "@/lib/db";
+import { buildDeckModel, fetchRemoteCatalog, renderDeck, TEMPLATE_IDS } from "@/lib/deck";
+import type { TemplateId } from "@/lib/deck";
 import type { WebhookPayload } from "@/lib/types";
 
 // Minimal Zod validation for the webhook body
@@ -37,6 +39,9 @@ const WebhookBodySchema = z.object({
     .max(63)
     .regex(/^[a-z0-9-]+$/, "slug must be lowercase alphanumeric with hyphens"),
   tier: z.enum(["standard", "nonprofit"]),
+  templateId: z.enum(TEMPLATE_IDS).optional(),
+  source: z.enum(["wcs", "brainztem", "sp-demo"]).optional(),
+  sandboxToken: z.string().regex(/^[a-z0-9]{16,64}$/i).optional(),
   gatePassword: z.string().optional(),
   gateSignedDate: z.string().optional(),
 });
@@ -89,16 +94,43 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       clientSlug: body.clientSlug,
       tier: body.tier,
       wcsReport: body.wcsReport,
+      templateId: body.templateId,
+      source: body.source,
+      sandboxToken: body.sandboxToken,
       gatePassword: body.gatePassword,
       gateSignedDate: body.gateSignedDate,
     });
 
-    console.log(`[webhook] Created strategy ${strategy.id} for ${body.clientSlug}`);
+    console.log(`[webhook] Created strategy ${strategy.id} for ${body.clientSlug} (source: ${body.source ?? "wcs"})`);
+
+    // Brainztem-sourced strategies get an instant deterministic deck so the
+    // trial arc ("Hour 6–24: the Strategy Presentation is built from the
+    // audit") never waits on a human or a Claude call. Hans can still
+    // regenerate with narrative enrichment from the studio.
+    let status = strategy.status;
+    if (body.source === "brainztem") {
+      try {
+        const model = buildDeckModel(body.wcsReport, {
+          clientName: body.clientName,
+          clientSlug: body.clientSlug,
+          tier: body.tier,
+          templateId: (body.templateId as TemplateId) ?? "signal",
+          source: "brainztem",
+          sandboxToken: body.sandboxToken,
+          catalog: await fetchRemoteCatalog(),
+        });
+        await updateStrategyHTML(strategy.id, renderDeck(model), "review");
+        status = "review";
+        console.log(`[webhook] Auto-rendered deck for ${body.clientSlug}`);
+      } catch (e) {
+        console.error(`[webhook] auto-render failed (record kept as draft): ${e}`);
+      }
+    }
 
     return NextResponse.json({
       ok: true,
       strategyId: strategy.id,
-      status: strategy.status,
+      status,
       new: true,
     });
   } catch (e) {

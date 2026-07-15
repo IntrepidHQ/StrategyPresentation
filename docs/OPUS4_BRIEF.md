@@ -12,7 +12,7 @@ A private, Hans-only web studio that:
 
 1. Receives a validated `WCSReport` JSON from WebsiteCreditScore.com via a signed webhook
 2. Uses Claude (Sonnet via the Anthropic API) to generate a complete strategy narrative on top of that data
-3. Renders a polished, client-facing HTML strategy presentation — styled after the Saunders Wood Works presentation system (Minerva Modern + Degular, dark/light toggle, animated sections)
+3. Renders a polished, client-facing HTML strategy presentation — styled after the reference presentation system (Minerva Modern + Degular, dark/light toggle, animated sections)
 4. Deploys it to `[client-slug].strategypresentation.com` on Vercel automatically
 5. Provides a local Lovable-style GUI (Next.js app, localhost only) where Hans can prompt Claude to edit any part of the rendered HTML, preview changes live in an iframe, and publish with one click
 6. Requires human review (Hans) before anything goes public
@@ -60,7 +60,7 @@ strategypresentation.com/
 │   ├── base-strategy.html       # The master HTML template (tokens replaced at gen time)
 │   ├── nonprofit-strategy.html  # Nonprofit/Ad Grant variant
 │   └── partials/
-│       ├── gate.js              # Access gate (port of Saunders gate.js, generalized)
+│       ├── gate.js              # Generalized access gate
 │       ├── shared-header.js     # Generalized header
 │       └── score-ring.js        # Animated WCS score ring component
 │
@@ -180,14 +180,14 @@ System prompt instructs Claude to:
 
 Inject `StrategyNarrative` into the base HTML template using token replacement:
 ```
-{{CLIENT_NAME}} → Matt Price / Saunders Wood Works LLC
+{{CLIENT_NAME}} → AbilitySC
 {{HERO_HEADLINE}} → narrative.heroHeadline
 {{OVERALL_SCORE}} → wcsReport.overall.score
 {{OVERALL_GRADE}} → wcsReport.overall.grade
 ... etc
 ```
 
-The final HTML file is a self-contained single file (no external JS deps other than Adobe Fonts CDN and Chart.js CDN, same as Saunders). It includes the gate.js access system, the shared header, and the WCS score visualization.
+The final HTML file is a self-contained single file (no external JS deps other than Adobe Fonts CDN and Chart.js CDN, same as the reference deck). It includes the gate.js access system, the shared header, and the WCS score visualization.
 
 ---
 
@@ -207,7 +207,7 @@ A Next.js app running at `localhost:3001`. Hans only. Never deployed.
 │  abilitysc       │                                      │
 │                  │                                      │
 │  [Prompt input]  │                                      │
-│  Tell Claude     │                                      │
+│  Edit instruction│                                      │
 │  what to change  │                                      │
 │                  │                                      │
 │  [Send ↗]        │                                      │
@@ -364,7 +364,7 @@ For now, secrets can be stored in `.env.local` files (which are gitignored) and 
 
 ## 7. The HTML Template System
 
-The base template (`templates/base-strategy.html`) is a parameterized version of the Saunders strategy HTML. It:
+The base template (`templates/base-strategy.html`) is a parameterized version of the reference strategy HTML. It:
 
 - Uses the same design tokens (Minerva Modern + Degular via Adobe Fonts `syk8hlp`)
 - Has the same gate.js access system (generalized — takes `{{GATE_PASSWORD}}` and `{{CLIENT_NAME}}` tokens)

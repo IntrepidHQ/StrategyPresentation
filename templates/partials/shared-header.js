@@ -8,13 +8,27 @@
   const domain = window.__SP_DOMAIN || "";
   const themeKey = "spTheme";
 
+  function getStoredTheme() {
+    try {
+      return localStorage.getItem(themeKey);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function setStoredTheme(theme) {
+    try {
+      localStorage.setItem(themeKey, theme);
+    } catch (error) {}
+  }
+
   function getTheme() {
-    return localStorage.getItem(themeKey) || document.documentElement.getAttribute("data-theme") || "dark";
+    return getStoredTheme() || document.documentElement.getAttribute("data-theme") || "dark";
   }
 
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(themeKey, theme);
+    setStoredTheme(theme);
     const label = document.getElementById("sp-header-theme-label");
     if (label) label.textContent = theme === "dark" ? "Light" : "Dark";
   }

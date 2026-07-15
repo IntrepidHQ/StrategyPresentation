@@ -1,0 +1,63 @@
+# SP CI — type-check, contract tests, build, and the accessibility QA
+# harness (all six deck templates + the landing page must stay axe-clean
+# on WCAG 2.1 A/AA rules).
+name: SP CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      STUDIO_PASSPHRASE: ci-only-passphrase
+      SP_CATALOG_REMOTE: "off" # hermetic: no cross-service fetches in CI
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Contract tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Chromium for QA
+        run: npx playwright install --with-deps chromium
+
+      - name: Render deck fixtures
+        run: npm run decks
+
+      - name: Deck QA (per-slide screenshots + axe, all 6 templates)
+        run: npm run qa:decks
+
+      - name: Landing QA (visual + axe + demo flow + host routing)
+        run: |
+          (cd apps/studio && npx next start -p 3199 &)
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3199/home > /dev/null && break
+            sleep 1
+          done
+          npm run qa:landing
+
+      - name: Upload QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-screenshots
+          path: |
+            out/decks/qa/
+            out/landing-qa/
+          retention-days: 14

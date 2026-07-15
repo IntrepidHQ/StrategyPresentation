@@ -28,7 +28,7 @@ RULES:
 - Never mention WCS, WebsiteCreditScore, AI, or automated analysis. The quality speaks for itself.
 - Never use the word "deliverable" — say "what we build."
 - Never use generic consulting speak ("synergies", "leverage", "holistic approach").
-- For nonprofits (tier === "nonprofit"): the Google Ad Grant section is the most important section. Frame the $120,000/year grant as the headline opportunity. Be specific about AbilitySC's eligibility.
+- For nonprofits (tier === "nonprofit"): the Google Ad Grant section is the most important section. Frame the $120,000/year grant as the headline opportunity. Be specific about the organization's eligibility based on the scan evidence.
 - Tone: confident, calm, and specific. Like a McKinsey partner who also ships code.
 - Use the WCS dimension scores as evidence for claims, but don't quote them mechanically. "The site's technical foundation is fragile" not "your technical score is 42."
 - The strategy should feel custom-written for this exact organization — because it is.

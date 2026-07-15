@@ -1,0 +1,222 @@
+/* ============================================================
+   SP Landing — strategypresentation.com
+   apps/studio/src/app/home/home.css
+
+   Scoped under .lp so it can coexist with the studio's
+   globals.css. Light (cream/ink/gold) is the default; dark
+   follows prefers-color-scheme. All text tokens hold WCAG AA
+   (>=4.5:1) against both --lp-bg and --lp-surface; --lp-gold is
+   reserved for large display text and graphics (>=3:1).
+   ============================================================ */
+
+.lp {
+  --lp-bg: #f4f0e8;
+  --lp-surface: #fdfbf6;
+  --lp-ink: #201a10;
+  --lp-muted: #57503f;
+  --lp-gold: #a8862f;
+  --lp-gold-strong: #6e5813;
+  --lp-on-gold: #ffffff;
+  --lp-line: #ddd4c0;
+  --lp-focus: #201a10;
+
+  min-height: 100vh;
+  background: var(--lp-bg);
+  color: var(--lp-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: clamp(1rem, 0.96rem + 0.25vw, 1.1rem);
+  line-height: 1.65;
+}
+
+@media (prefers-color-scheme: dark) {
+  .lp {
+    --lp-bg: #0d0c08;
+    --lp-surface: #17150e;
+    --lp-ink: #f2ecdd;
+    --lp-muted: #b5ac97;
+    --lp-gold: #e0bc70;
+    --lp-gold-strong: #ecd49a;
+    --lp-on-gold: #201a10;
+    --lp-line: #35301f;
+    --lp-focus: #ecd49a;
+  }
+}
+
+.lp *, .lp *::before, .lp *::after { box-sizing: border-box; }
+
+.lp :where(a, button, input, [tabindex]):focus-visible {
+  outline: 3px solid var(--lp-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.lp-visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+
+.lp-skip {
+  position: absolute; left: 1rem; top: -4rem; z-index: 60;
+  background: var(--lp-gold-strong); color: var(--lp-on-gold);
+  padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 700;
+  text-decoration: none; transition: top 0.2s ease;
+}
+.lp-skip:focus { top: 1rem; }
+
+.lp-wrap { width: min(1100px, 100% - 2.5rem); margin-inline: auto; }
+
+/* ── Header ── */
+.lp-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.1rem 0;
+}
+.lp-mark {
+  font-family: Fraunces, "Iowan Old Style", Georgia, serif;
+  font-weight: 600; font-size: 1.25rem; text-decoration: none; color: var(--lp-ink);
+}
+.lp-mark span { color: var(--lp-gold-strong); }
+.lp-nav { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+.lp-nav a {
+  color: var(--lp-muted); text-decoration: none; font-size: 0.95rem;
+  padding: 0.5rem 0.15rem; min-height: 44px; display: inline-flex; align-items: center;
+}
+.lp-nav a:hover { color: var(--lp-ink); }
+@media (max-width: 720px) { .lp-nav { display: none; } }
+
+/* ── Type ── */
+.lp-eyebrow {
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--lp-gold-strong); margin: 0 0 0.9rem;
+}
+.lp h1, .lp h2 {
+  font-family: Fraunces, "Iowan Old Style", Georgia, serif;
+  font-weight: 500; line-height: 1.12; margin: 0 0 1rem; text-wrap: balance;
+}
+.lp h1 { font-size: clamp(2.3rem, 1.4rem + 4vw, 4.2rem); }
+.lp h2 { font-size: clamp(1.7rem, 1.3rem + 1.8vw, 2.6rem); }
+.lp h3 { font-size: 1.12rem; margin: 0 0 0.4rem; }
+.lp-sub { font-size: clamp(1.05rem, 1rem + 0.5vw, 1.3rem); color: var(--lp-muted); max-width: 58ch; }
+.lp-muted { color: var(--lp-muted); }
+.lp-gold-i { font-style: italic; color: var(--lp-gold); }
+
+/* ── Sections ── */
+.lp-section { padding: clamp(3rem, 8vw, 5.5rem) 0; }
+.lp-section + .lp-section { border-top: 1px solid var(--lp-line); }
+.lp-hero { padding: clamp(3rem, 9vw, 6rem) 0 clamp(2.5rem, 6vw, 4rem); }
+
+.lp-card {
+  background: var(--lp-surface); border: 1px solid var(--lp-line);
+  border-radius: 14px; padding: 1.5rem;
+}
+.lp-grid-2 { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+.lp-grid-3 { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+
+/* ── Buttons ── */
+.lp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  background: var(--lp-gold-strong); color: var(--lp-on-gold);
+  border: 1px solid transparent; border-radius: 10px; cursor: pointer;
+  font-weight: 700; font-size: 1rem; text-decoration: none;
+  padding: 0.85rem 1.6rem; min-height: 48px;
+}
+.lp-btn:hover { filter: brightness(1.1); }
+.lp-btn[disabled] { opacity: 0.55; cursor: default; }
+.lp-btn-ghost {
+  background: transparent; color: var(--lp-ink); border-color: var(--lp-line);
+}
+.lp-btn-ghost:hover { border-color: var(--lp-gold); filter: none; }
+
+/* ── Demo widget ── */
+.lp-domain-form { display: flex; gap: 0.7rem; flex-wrap: wrap; margin: 1.6rem 0 0.6rem; }
+.lp-domain-input {
+  flex: 1 1 320px; min-height: 52px; padding: 0.8rem 1.1rem;
+  font-size: 1.05rem; color: var(--lp-ink); background: var(--lp-surface);
+  border: 1.5px solid var(--lp-line); border-radius: 10px;
+}
+.lp-domain-input::placeholder { color: var(--lp-muted); opacity: 0.8; }
+.lp-domain-input:focus { border-color: var(--lp-gold); outline-offset: 0; }
+.lp-fineprint { font-size: 0.88rem; color: var(--lp-muted); margin-top: 0.6rem; }
+
+.lp-status { margin-top: 1.4rem; font-weight: 600; }
+.lp-status[data-tone="error"] { color: #a3273b; }
+@media (prefers-color-scheme: dark) { .lp-status[data-tone="error"] { color: #ff9d9d; } }
+
+.lp-result { margin-top: 2rem; }
+.lp-result-banner {
+  border-left: 4px solid var(--lp-gold); background: var(--lp-surface);
+  border-radius: 0 10px 10px 0; padding: 0.9rem 1.2rem; margin-bottom: 1.1rem;
+}
+.lp-result-banner a { color: var(--lp-gold-strong); font-weight: 700; }
+
+.lp-tabs { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+.lp-tab {
+  border: 1.5px solid var(--lp-line); background: var(--lp-surface); color: var(--lp-ink);
+  border-radius: 999px; padding: 0.5rem 1.05rem; min-height: 44px;
+  font-size: 0.92rem; font-weight: 600; cursor: pointer;
+}
+.lp-tab[aria-pressed="true"] {
+  background: var(--lp-gold-strong); border-color: var(--lp-gold-strong); color: var(--lp-on-gold);
+}
+
+.lp-viewer {
+  width: 100%; aspect-ratio: 16 / 10; min-height: 420px;
+  border: 1px solid var(--lp-line); border-radius: 14px;
+  background: var(--lp-surface);
+}
+.lp-viewer-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-top: 0.8rem; }
+.lp-viewer-actions a { color: var(--lp-gold-strong); font-weight: 700; }
+
+.lp-claim { margin-top: 1.6rem; }
+.lp-claim form { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.lp-claim input[type="email"] {
+  flex: 1 1 260px; min-height: 48px; padding: 0.7rem 1rem; font-size: 1rem;
+  color: var(--lp-ink); background: var(--lp-surface);
+  border: 1.5px solid var(--lp-line); border-radius: 10px;
+}
+
+/* ── Steps ── */
+.lp-step-num {
+  font-family: Fraunces, Georgia, serif; font-size: 2rem; font-weight: 600;
+  color: var(--lp-gold); line-height: 1;
+}
+
+/* ── Template gallery ── */
+.lp-tcard {
+  display: block; text-decoration: none; color: inherit;
+  background: var(--lp-surface); border: 1px solid var(--lp-line);
+  border-radius: 14px; overflow: hidden;
+}
+.lp-tcard img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--lp-line); }
+.lp-tcard figcaption { padding: 1rem 1.2rem; }
+.lp-tcard:hover { border-color: var(--lp-gold); }
+.lp-tcard strong { font-family: Fraunces, Georgia, serif; font-size: 1.1rem; }
+
+/* ── FAQ ── */
+.lp-faq details {
+  background: var(--lp-surface); border: 1px solid var(--lp-line);
+  border-radius: 12px; padding: 0; margin-bottom: 0.7rem;
+}
+.lp-faq summary {
+  cursor: pointer; font-weight: 700; padding: 1rem 1.2rem;
+  list-style-position: inside; min-height: 44px;
+}
+.lp-faq details > p { margin: 0; padding: 0 1.2rem 1.1rem; color: var(--lp-muted); }
+
+/* ── Footer ── */
+.lp-footer {
+  border-top: 1px solid var(--lp-line);
+  padding: 2.2rem 0 3rem; color: var(--lp-muted); font-size: 0.92rem;
+}
+.lp-footer a { color: var(--lp-muted); }
+.lp-footer a:hover { color: var(--lp-ink); }
+.lp-footer-row { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+.lp-gold-rule {
+  height: 1px; border: none; margin: 0;
+  background: linear-gradient(to right, transparent, rgba(201, 164, 76, 0.5), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lp-tcard { transition: border-color 0.2s ease, transform 0.2s ease; }
+  .lp-tcard:hover { transform: translateY(-3px); }
+}

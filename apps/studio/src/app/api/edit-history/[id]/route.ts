@@ -4,6 +4,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from "next/server";
+import { isStudioAuthorized } from "@/lib/auth";
 import { getEditHistory } from "@/lib/db";
 import type { EditHistoryVM } from "@/lib/types";
 
@@ -11,8 +12,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  const auth = req.headers.get("x-studio-passphrase");
-  if (auth !== process.env.STUDIO_PASSPHRASE) {
+  if (!isStudioAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -4,11 +4,11 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from "next/server";
+import { isStudioAuthorized } from "@/lib/auth";
 import { listStrategies } from "@/lib/db";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const auth = req.headers.get("x-studio-passphrase");
-  if (auth !== process.env.STUDIO_PASSPHRASE) {
+  if (!isStudioAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -67,6 +67,35 @@ export interface WCSSource {
   domain?: string;
 }
 
+// Optional deep-tier report sections (present on higher WCS scan tiers)
+
+export interface WCSSourceCluster {
+  label: string;
+  summary: string;
+  count: number;
+}
+
+export interface WCSRiskMatrixItem {
+  risk: string;
+  likelihood: "low" | "medium" | "high";
+  impact: "low" | "medium" | "high";
+  mitigation: string;
+}
+
+export interface WCSBenchmarkGap {
+  dimension: DimensionKey;
+  current: string;
+  benchmark: string;
+  gap: string;
+}
+
+export interface WCSDecisionMemo {
+  verdict: string;
+  buy_side_summary: string;
+  watch_items: string[];
+  next_steps: string[];
+}
+
 export interface WCSReport {
   domain: string;
   company_name?: string;
@@ -83,18 +112,28 @@ export interface WCSReport {
   timeline?: WCSTimelineItem[];
   peers?: WCSPeer[];
   sources: WCSSource[];
+  source_clusters?: WCSSourceCluster[];
+  risk_matrix?: WCSRiskMatrixItem[];
+  benchmark_gaps?: WCSBenchmarkGap[];
+  decision_memo?: WCSDecisionMemo;
+  market_context?: string;
+  coverage_summary?: string;
   summary: string;
 }
 
 // ── Webhook payload (WCS → SP Studio) ────────────────────────
 
 export type StrategyTier = "standard" | "nonprofit";
+export type StrategySource = "wcs" | "brainztem" | "sp-demo";
 
 export interface WebhookPayload {
   wcsReport: WCSReport;
   clientName: string;       // e.g. "AbilitySC"
   clientSlug: string;       // e.g. "abilitysc" — becomes subdomain
   tier: StrategyTier;
+  templateId?: string;      // deck template (summit/signal/…); default signal
+  source?: StrategySource;  // which funnel sent it — drives the deck's CTA
+  sandboxToken?: string;    // Brainztem trial token — deck CTA deep-links back
   gatePassword?: string;    // if Hans pre-sets it; otherwise auto-generated
   gateSignedDate?: string;  // e.g. "May 9, 2026"
 }
@@ -166,6 +205,10 @@ export interface StrategyRecord {
   published_at: string | null;
   vercel_url: string | null;
   vercel_deploy_id: string | null;
+  // Deck-engine fields (nullable until migration 002 runs / for legacy rows)
+  template_id?: string | null;
+  source?: StrategySource | null;
+  sandbox_token?: string | null;
   created_at: string;
   updated_at: string;
 }

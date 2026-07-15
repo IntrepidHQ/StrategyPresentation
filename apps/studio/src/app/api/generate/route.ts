@@ -2,12 +2,18 @@
 //  SP Studio — Strategy Generation Endpoint
 //  apps/studio/src/app/api/generate/route.ts
 //
-//  Two-pass pipeline:
-//  1. Claude Opus → StrategyNarrative JSON
-//  2. Token replacement → final HTML
+//  Two engines:
+//  - "deck" (default): Claude narrative (optional) → DeckModel →
+//    slide-based template (summit/signal/editorial/monospace/
+//    gallery/beacon). Falls back to deterministic copy when no
+//    ANTHROPIC_API_KEY is configured, so local dev works offline.
+//  - "legacy": the original scroll-page pipeline
+//    (StrategyNarrative JSON → token replacement into
+//    templates/base-strategy.html or nonprofit-strategy.html).
 // ============================================================
 
 import { NextRequest, NextResponse } from "next/server";
+import { isStudioAuthorized } from "@/lib/auth";
 import { readFile } from "fs/promises";
 import path from "path";
 import {
@@ -20,6 +26,9 @@ import {
   generateStrategyNarrative,
   renderStrategyHTML,
 } from "@/lib/anthropic";
+import { buildDeckModel, fetchRemoteCatalog, renderDeck, TEMPLATE_IDS } from "@/lib/deck";
+import type { TemplateId } from "@/lib/deck";
+import type { StrategyNarrative } from "@/lib/types";
 
 // Template paths (relative to repo root, accessible at runtime)
 const REPO_ROOT = path.join(process.cwd(), "..", "..");
@@ -28,12 +37,11 @@ const PARTIAL_DIR = path.join(TEMPLATE_DIR, "partials");
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // Studio-only: verify local passphrase
-  const auth = req.headers.get("x-studio-passphrase");
-  if (auth !== process.env.STUDIO_PASSPHRASE) {
+  if (!isStudioAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { strategyId?: string };
+  let body: { strategyId?: string; engine?: "deck" | "legacy"; templateId?: string };
   try {
     body = await req.json();
   } catch {
@@ -43,6 +51,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   if (!body.strategyId) {
     return NextResponse.json({ error: "strategyId required" }, { status: 400 });
   }
+
+  const engine = body.engine === "legacy" ? "legacy" : "deck";
 
   // ── Load strategy record ──────────────────────────────────
   const strategy = await getStrategy(body.strategyId);
@@ -54,11 +64,63 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Generation already in progress" }, { status: 409 });
   }
 
+  // Explicit request wins, then the template stored on the record (from the
+  // webhook), then the house default.
+  const requested = body.templateId ?? strategy.template_id ?? "";
+  const templateId: TemplateId = (TEMPLATE_IDS as readonly string[]).includes(requested)
+    ? (requested as TemplateId)
+    : "signal";
+
   // ── Mark as generating ────────────────────────────────────
   await updateStrategyStatus(body.strategyId, "generating");
 
   try {
-    // ── Pass 1: Generate narrative ────────────────────────
+    if (engine === "deck") {
+      // ── Deck engine: optional narrative pass, then slides ──
+      let narrative: StrategyNarrative | null = null;
+      let pass1Tokens = 0;
+      if (process.env.ANTHROPIC_API_KEY) {
+        console.log(`[generate] deck — narrative pass for ${strategy.client_slug}`);
+        const result = await generateStrategyNarrative(
+          strategy.wcs_report,
+          strategy.client_name,
+          strategy.client_slug,
+          strategy.tier
+        );
+        narrative = result.narrative;
+        pass1Tokens = result.tokensUsed;
+        await updateStrategyNarrative(body.strategyId, narrative);
+      } else {
+        console.log(`[generate] deck — no ANTHROPIC_API_KEY, deterministic copy`);
+      }
+
+      const model = buildDeckModel(strategy.wcs_report, {
+        clientName: strategy.client_name,
+        clientSlug: strategy.client_slug,
+        tier: strategy.tier,
+        templateId,
+        source: strategy.source ?? "wcs",
+        sandboxToken: strategy.sandbox_token ?? undefined,
+        narrative,
+        catalog: await fetchRemoteCatalog(),
+      });
+      const html = renderDeck(model);
+
+      await updateStrategyHTML(body.strategyId, html, "review");
+      console.log(`[generate] deck complete — ${templateId} (${html.length} chars)`);
+
+      return NextResponse.json({
+        ok: true,
+        strategyId: body.strategyId,
+        status: "review",
+        engine,
+        templateId,
+        pass1Tokens,
+      });
+    }
+
+    // ── Legacy engine ─────────────────────────────────────
+    // Pass 1: Generate narrative
     console.log(`[generate] Pass 1 — narrative for ${strategy.client_slug}`);
     const { narrative, tokensUsed: pass1Tokens } = await generateStrategyNarrative(
       strategy.wcs_report,
@@ -70,7 +132,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await updateStrategyNarrative(body.strategyId, narrative);
     console.log(`[generate] Pass 1 complete — ${pass1Tokens} tokens`);
 
-    // ── Pass 2: Render HTML ───────────────────────────────
+    // Pass 2: Render HTML
     console.log(`[generate] Pass 2 — HTML render`);
     const templateFile =
       strategy.tier === "nonprofit"
@@ -94,6 +156,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       ok: true,
       strategyId: body.strategyId,
       status: "review",
+      engine,
       pass1Tokens,
     });
   } catch (e) {

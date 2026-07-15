@@ -1,30 +1,32 @@
 "use client";
 
-// ============================================================
-//  SP Studio — Dashboard
-//  apps/studio/src/app/page.tsx
-//
-//  Lists all strategy records. Hans's launchpad.
-// ============================================================
-
-import { useState, useEffect } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { StrategyCardVM } from "@/lib/types";
+import type { StrategyCardVM, StrategyStatus, StrategyTier } from "@/lib/types";
 
-const PASSPHRASE = process.env.NEXT_PUBLIC_STUDIO_PASSPHRASE ?? "";
+const STATUS_LABELS: Record<StrategyStatus, string> = {
+  draft: "Draft",
+  generating: "Generating",
+  generated: "Generated",
+  review: "Review",
+  published: "Published",
+};
+
+type StatusFilter = "all" | StrategyStatus;
 
 export default function Dashboard() {
   const [strategies, setStrategies] = useState<StrategyCardVM[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   useEffect(() => {
     async function loadStrategies() {
       try {
-        const res = await fetch("/api/strategies", {
-          headers: { "x-studio-passphrase": PASSPHRASE },
-        });
+        // Auth rides on the HttpOnly sp_studio_session cookie.
+        const res = await fetch("/api/strategies");
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
           throw new Error(data.error ?? `Failed to load strategies (${res.status})`);
@@ -40,40 +42,129 @@ export default function Dashboard() {
     loadStrategies();
   }, []);
 
+  const metrics = useMemo(() => {
+    const reviewCount = strategies.filter((strategy) => strategy.status === "review").length;
+    const publishedCount = strategies.filter((strategy) => strategy.status === "published").length;
+    const averageScore =
+      strategies.length === 0
+        ? 0
+        : Math.round(
+            strategies.reduce((total, strategy) => total + strategy.overallScore, 0) /
+              strategies.length,
+          );
+
+    return {
+      total: strategies.length,
+      reviewCount,
+      publishedCount,
+      averageScore,
+    };
+  }, [strategies]);
+
+  const visibleStrategies = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return strategies.filter((strategy) => {
+      const matchesStatus = statusFilter === "all" || strategy.status === statusFilter;
+      const matchesQuery =
+        normalizedQuery.length === 0 ||
+        strategy.clientName.toLowerCase().includes(normalizedQuery) ||
+        strategy.domain.toLowerCase().includes(normalizedQuery) ||
+        strategy.clientSlug.toLowerCase().includes(normalizedQuery);
+
+      return matchesStatus && matchesQuery;
+    });
+  }, [query, statusFilter, strategies]);
+
   return (
-    <div style={s.root}>
-      <header style={s.header}>
-        <div style={s.headerLeft}>
-          <span style={s.logo}>SP Studio</span>
-          <span style={s.logoSub}>strategypresentation.com</span>
+    <div className="app-shell">
+      <header className="studio-header">
+        <div className="brand-lockup">
+          <span className="brand-mark">SP</span>
+          <div>
+            <p className="brand-title">Strategy Presentation Studio</p>
+            <p className="brand-subtitle">AbilitySC scan workspace</p>
+          </div>
         </div>
-        <button onClick={() => setShowNew(true)} style={s.newBtn}>
-          + New Strategy
-        </button>
+        <div className="header-actions">
+          <button className="btn btn-primary" onClick={() => setShowNew(true)} type="button">
+            New Strategy
+          </button>
+        </div>
       </header>
 
-      <main style={s.main}>
-        {loading ? (
-          <p style={s.empty}>Loading…</p>
-        ) : loadError ? (
-          <div style={s.emptyState}>
-            <p style={s.emptyTitle}>Studio setup needs attention.</p>
-            <p style={s.emptySub}>{loadError}</p>
-          </div>
-        ) : strategies.length === 0 ? (
-          <div style={s.emptyState}>
-            <p style={s.emptyTitle}>No strategies yet.</p>
-            <p style={s.emptySub}>
-              Trigger one from WCS, or paste a WCS payload via{" "}
-              <code style={s.code}>POST /api/webhook</code> with the dev bypass header.
+      <main className="dashboard-main">
+        <section className="dashboard-hero">
+          <div>
+            <p className="eyebrow">Studio Queue</p>
+            <h1 className="dashboard-title">Build and review strategy scans.</h1>
+            <p className="dashboard-copy">
+              A focused review desk for turning WCS scan data into the private strategy presentation.
             </p>
           </div>
-        ) : (
-          <div style={s.grid}>
-            {strategies.map((s_) => (
-              <StrategyCard key={s_.id} strategy={s_} />
-            ))}
+        </section>
+
+        <section className="metric-grid" aria-label="Strategy metrics">
+          <MetricCard label="Strategies" value={metrics.total} detail="Total records" />
+          <MetricCard label="Review" value={metrics.reviewCount} detail="Ready to refine" />
+          <MetricCard label="Published" value={metrics.publishedCount} detail="Live presentations" />
+          <MetricCard
+            label="Average WCS"
+            value={metrics.averageScore || "--"}
+            detail={metrics.total === 0 ? "No scans yet" : "Across active scans"}
+          />
+        </section>
+
+        <section className="dashboard-toolbar" aria-label="Strategy filters">
+          <input
+            className="search-input"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search by organization or domain"
+            type="search"
+          />
+          <div className="segmented-control" role="tablist" aria-label="Status filter">
+            {(["all", "draft", "generated", "review", "published"] as StatusFilter[]).map(
+              (status) => (
+                <button
+                  className={`segment ${statusFilter === status ? "segment-active" : ""}`}
+                  key={status}
+                  onClick={() => setStatusFilter(status)}
+                  type="button"
+                >
+                  {status === "all" ? "All" : STATUS_LABELS[status]}
+                </button>
+              ),
+            )}
           </div>
+        </section>
+
+        {loading ? (
+          <div className="empty-state">
+            <p className="empty-title">Loading strategies...</p>
+          </div>
+        ) : loadError ? (
+          <div className="empty-state">
+            <div>
+              <p className="empty-title">Studio setup needs attention.</p>
+              <p className="empty-copy">{loadError}</p>
+            </div>
+          </div>
+        ) : visibleStrategies.length === 0 ? (
+          <div className="empty-state">
+            <div>
+              <p className="empty-title">No matching strategies.</p>
+              <p className="empty-copy">
+                Paste a WCS payload with the dev bypass header or adjust the current filters.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <section className="strategy-grid" aria-label="Strategies">
+            {visibleStrategies.map((strategy) => (
+              <StrategyCard key={strategy.id} strategy={strategy} />
+            ))}
+          </section>
         )}
       </main>
 
@@ -82,71 +173,62 @@ export default function Dashboard() {
   );
 }
 
-// ── Strategy card ─────────────────────────────────────────────
+function MetricCard({ label, value, detail }: { label: string; value: number | string; detail: string }) {
+  return (
+    <div className="metric-card">
+      <p className="metric-label">{label}</p>
+      <span className="metric-value">{value}</span>
+      <span className="metric-detail">{detail}</span>
+    </div>
+  );
+}
 
 function StrategyCard({ strategy }: { strategy: StrategyCardVM }) {
-  const statusColor: Record<string, string> = {
-    draft: "#6b7280",
-    generating: "#f59e0b",
-    generated: "#3b82f6",
-    review: "#8b5cf6",
-    published: "#10b981",
-  };
-
   return (
-    <Link href={`/studio/${strategy.id}`} style={s.card}>
-      <div style={s.cardTop}>
-        <span style={s.cardClient}>{strategy.clientName}</span>
-        <span
-          style={{
-            ...s.cardStatus,
-            background: statusColor[strategy.status] ?? "#6b7280",
-          }}
-        >
-          {strategy.status}
-        </span>
+    <Link className="strategy-card" href={`/studio/${strategy.id}`}>
+      <div>
+        <div className="card-topline">
+          <h2 className="card-title">{strategy.clientName}</h2>
+          <span className={`status-pill status-${strategy.status}`}>
+            {STATUS_LABELS[strategy.status]}
+          </span>
+        </div>
+        <p className="card-domain">{strategy.domain}</p>
+        <div className="card-meta">
+          <span className="score-pill">
+            {strategy.overallScore} / {strategy.overallGrade}
+          </span>
+          <span className="tier-pill">{strategy.tier}</span>
+        </div>
       </div>
-      <p style={s.cardDomain}>{strategy.domain}</p>
-      <div style={s.cardMeta}>
-        <span style={s.scoreChip}>
-          {strategy.overallScore} / {strategy.overallGrade}
-        </span>
-        <span
-          style={{
-            ...s.tierChip,
-            background: strategy.tier === "nonprofit" ? "#1e1a3a" : "#1a2e1a",
-            color: strategy.tier === "nonprofit" ? "#818cf8" : "#4ade80",
-          }}
-        >
-          {strategy.tier}
-        </span>
-      </div>
-      {strategy.vercelUrl && (
-        <p style={s.liveUrl}>{strategy.vercelUrl.replace("https://", "")}</p>
-      )}
-      <p style={s.cardDate}>
-        Created {new Date(strategy.createdAt).toLocaleDateString()}
-        {strategy.publishedAt && (
-          <> · Published {new Date(strategy.publishedAt).toLocaleDateString()}</>
+
+      <div className="card-footer">
+        <p className="next-action">{getNextAction(strategy)}</p>
+        {strategy.vercelUrl && (
+          <span className="date-line">{strategy.vercelUrl.replace("https://", "")}</span>
         )}
-      </p>
+        <span className="date-line">
+          Created {formatDate(strategy.createdAt)}
+          {strategy.publishedAt ? ` | Published ${formatDate(strategy.publishedAt)}` : ""}
+        </span>
+      </div>
     </Link>
   );
 }
 
-// ── New strategy modal (paste JSON manually for dev) ──────────
-
 function NewStrategyModal({ onClose }: { onClose: () => void }) {
   const [json, setJson] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [clientSlug, setClientSlug] = useState("");
-  const [tier, setTier] = useState<"standard" | "nonprofit">("standard");
+  const [clientName, setClientName] = useState("AbilitySC");
+  const [clientSlug, setClientSlug] = useState("abilitysc");
+  const [tier, setTier] = useState<StrategyTier>("nonprofit");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit() {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
       const wcsReport = JSON.parse(json);
       const res = await fetch("/api/webhook", {
@@ -160,7 +242,9 @@ function NewStrategyModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({ wcsReport, clientName, clientSlug, tier }),
       });
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error);
+      if (!data.ok) {
+        throw new Error(data.error);
+      }
       window.location.href = `/studio/${data.strategyId}`;
     } catch (e) {
       setError(String(e));
@@ -169,94 +253,94 @@ function NewStrategyModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div style={s.modalOverlay} onClick={onClose}>
-      <div style={s.modal} onClick={(e) => e.stopPropagation()}>
-        <h2 style={s.modalTitle}>New Strategy (Dev Paste)</h2>
-        <p style={s.modalSub}>Paste a WCS JSON report and set client metadata.</p>
-
-        {error && <p style={s.modalError}>{error}</p>}
-
-        <label style={s.label}>Client Name</label>
-        <input
-          style={s.input}
-          value={clientName}
-          onChange={(e) => setClientName(e.target.value)}
-          placeholder="AbilitySC"
-        />
-
-        <label style={s.label}>Client Slug (subdomain)</label>
-        <input
-          style={s.input}
-          value={clientSlug}
-          onChange={(e) => setClientSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-          placeholder="abilitysc"
-        />
-
-        <label style={s.label}>Tier</label>
-        <select
-          style={s.input}
-          value={tier}
-          onChange={(e) => setTier(e.target.value as "standard" | "nonprofit")}
-        >
-          <option value="standard">Standard</option>
-          <option value="nonprofit">Nonprofit</option>
-        </select>
-
-        <label style={s.label}>WCS Report JSON</label>
-        <textarea
-          style={{ ...s.input, height: "160px", resize: "vertical", fontFamily: "monospace", fontSize: "11px" }}
-          value={json}
-          onChange={(e) => setJson(e.target.value)}
-          placeholder='{"domain":"abilitysc.org","overall":{"score":72,...}}'
-        />
-
-        <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
-          <button onClick={onClose} style={s.cancelBtn}>Cancel</button>
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !json || !clientName || !clientSlug}
-            style={s.submitBtn}
-          >
-            {loading ? "Creating…" : "Create Strategy →"}
-          </button>
+    <div className="modal-overlay" onClick={onClose} role="presentation">
+      <form className="modal" onClick={(event) => event.stopPropagation()} onSubmit={handleSubmit}>
+        <div className="modal-header">
+          <p className="eyebrow">Import Scan</p>
+          <h2 className="modal-title">New strategy</h2>
+          <p className="modal-copy">Paste the WCS JSON and confirm the presentation slug.</p>
         </div>
-      </div>
+
+        <div className="modal-body form-grid">
+          {error && <div className="error-note">{error}</div>}
+
+          <label>
+            <span className="field-label">Organization name</span>
+            <input
+              className="field"
+              value={clientName}
+              onChange={(event) => setClientName(event.target.value)}
+              placeholder="AbilitySC"
+              required
+            />
+          </label>
+
+          <label>
+            <span className="field-label">Presentation slug</span>
+            <input
+              className="field"
+              value={clientSlug}
+              onChange={(event) =>
+                setClientSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+              }
+              placeholder="abilitysc"
+              required
+            />
+          </label>
+
+          <label>
+            <span className="field-label">Tier</span>
+            <select
+              className="select"
+              value={tier}
+              onChange={(event) => setTier(event.target.value as StrategyTier)}
+            >
+              <option value="nonprofit">Nonprofit</option>
+              <option value="standard">Standard</option>
+            </select>
+          </label>
+
+          <label>
+            <span className="field-label">WCS report JSON</span>
+            <textarea
+              className="textarea code-textarea"
+              value={json}
+              onChange={(event) => setJson(event.target.value)}
+              placeholder='{"domain":"abilitysc.org","overall":{"score":72,"grade":"C+"}}'
+              required
+            />
+          </label>
+
+          <div className="modal-actions">
+            <button className="btn btn-secondary btn-block" onClick={onClose} type="button">
+              Cancel
+            </button>
+            <button
+              className="btn btn-primary btn-block"
+              disabled={loading || !json.trim() || !clientName.trim() || !clientSlug.trim()}
+              type="submit"
+            >
+              {loading ? "Creating..." : "Create Strategy"}
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
 
-// ── Styles ────────────────────────────────────────────────────
-const s: Record<string, React.CSSProperties> = {
-  root: { minHeight: "100vh", background: "#0a0a0a", color: "#e5e5e5", fontFamily: "'Inter', system-ui, sans-serif" },
-  header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 32px", height: "56px", borderBottom: "1px solid #1e1e1e", background: "#111" },
-  headerLeft: { display: "flex", alignItems: "baseline", gap: "10px" },
-  logo: { fontSize: "18px", fontWeight: 700, color: "#fff", letterSpacing: "-0.02em" },
-  logoSub: { fontSize: "12px", color: "#555" },
-  newBtn: { padding: "8px 16px", background: "#C9A44C", border: "none", borderRadius: "8px", color: "#0a0a08", fontSize: "13px", fontWeight: 600, cursor: "pointer" },
-  main: { padding: "32px" },
-  empty: { color: "#555", textAlign: "center", paddingTop: "80px" },
-  emptyState: { textAlign: "center", paddingTop: "80px" },
-  emptyTitle: { color: "#888", fontSize: "18px", marginBottom: "8px" },
-  emptySub: { color: "#555", fontSize: "14px" },
-  code: { background: "#1a1a1a", padding: "2px 6px", borderRadius: "4px", fontFamily: "monospace", fontSize: "12px" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" },
-  card: { display: "block", background: "#111", border: "1px solid #1e1e1e", borderRadius: "12px", padding: "20px", textDecoration: "none", color: "inherit", transition: "border-color 0.15s" },
-  cardTop: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "6px" },
-  cardClient: { fontSize: "15px", fontWeight: 600, color: "#fff" },
-  cardStatus: { fontSize: "10px", padding: "2px 8px", borderRadius: "4px", color: "#fff", textTransform: "uppercase", letterSpacing: "0.06em", flexShrink: 0 },
-  cardDomain: { fontSize: "12px", color: "#555", marginBottom: "12px" },
-  cardMeta: { display: "flex", gap: "8px", marginBottom: "10px" },
-  scoreChip: { fontSize: "12px", padding: "2px 8px", background: "#1a2e1a", color: "#4ade80", borderRadius: "4px", fontWeight: 600 },
-  tierChip: { fontSize: "11px", padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase", letterSpacing: "0.06em" },
-  liveUrl: { fontSize: "11px", color: "#C9A44C", marginBottom: "8px" },
-  cardDate: { fontSize: "11px", color: "#444" },
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 },
-  modal: { background: "#111", border: "1px solid #2a2a2a", borderRadius: "16px", padding: "32px", width: "500px", maxWidth: "90vw", maxHeight: "90vh", overflowY: "auto" },
-  modalTitle: { fontSize: "18px", fontWeight: 700, color: "#fff", marginBottom: "6px" },
-  modalSub: { fontSize: "13px", color: "#666", marginBottom: "20px" },
-  modalError: { fontSize: "13px", color: "#f87171", background: "#3b0f0f", padding: "8px 12px", borderRadius: "6px", marginBottom: "16px" },
-  label: { display: "block", fontSize: "11px", color: "#666", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "6px", marginTop: "14px" },
-  input: { width: "100%", background: "#0a0a0a", border: "1px solid #2a2a2a", borderRadius: "8px", color: "#e5e5e5", fontSize: "13px", padding: "10px 12px", outline: "none", fontFamily: "inherit", boxSizing: "border-box" },
-  cancelBtn: { flex: 1, padding: "10px", background: "transparent", border: "1px solid #2a2a2a", borderRadius: "8px", color: "#888", fontSize: "13px", cursor: "pointer" },
-  submitBtn: { flex: 2, padding: "10px", background: "#C9A44C", border: "none", borderRadius: "8px", color: "#0a0a08", fontSize: "13px", fontWeight: 600, cursor: "pointer" },
-};
+function getNextAction(strategy: StrategyCardVM) {
+  if (strategy.status === "draft") return "Generate presentation HTML.";
+  if (strategy.status === "generating") return "Generation is in progress.";
+  if (strategy.status === "generated") return "Review and refine the presentation.";
+  if (strategy.status === "review") return "Ready for final review.";
+  return "Published and available behind the gate.";
+}
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}

@@ -7,12 +7,12 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from "next/server";
+import { isStudioAuthorized } from "@/lib/auth";
 import { getStrategy, updateStrategyHTML, saveEditHistory } from "@/lib/db";
 import { editStrategyHTML } from "@/lib/anthropic";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const auth = req.headers.get("x-studio-passphrase");
-  if (auth !== process.env.STUDIO_PASSPHRASE) {
+  if (!isStudioAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -76,8 +76,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 // ── Undo: revert to N edits ago ───────────────────────────────
 
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
-  const auth = req.headers.get("x-studio-passphrase");
-  if (auth !== process.env.STUDIO_PASSPHRASE) {
+  if (!isStudioAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

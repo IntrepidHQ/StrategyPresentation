@@ -1,58 +1,71 @@
 "use client";
 
-// ============================================================
-//  SP Studio — Login Page
-//  apps/studio/src/app/login/page.tsx
-// ============================================================
-
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [pass, setPass] = useState("");
   const [error, setError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // Set cookie and redirect — middleware will validate
-    document.cookie = `sp_studio_session=${pass}; path=/; samesite=strict`;
-    // Trigger a navigation to let middleware check
-    router.push("/");
-    // If middleware rejects, it'll redirect back here
-    setTimeout(() => {
-      if (window.location.pathname === "/login") setError(true);
-    }, 300);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passphrase: pass }),
+      });
+      if (!res.ok) {
+        setError(true);
+        return;
+      }
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError(true);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
-    <div style={s.root}>
-      <form onSubmit={handleSubmit} style={s.card}>
-        <p style={s.eyebrow}>Private</p>
-        <h1 style={s.title}>SP Studio</h1>
-        <p style={s.sub}>strategypresentation.com internal tool</p>
-        <input
-          type="password"
-          value={pass}
-          onChange={(e) => { setPass(e.target.value); setError(false); }}
-          placeholder="Passphrase"
-          style={{ ...s.input, borderColor: error ? "#f87171" : "#2a2a2a" }}
-          autoFocus
-        />
-        {error && <p style={s.err}>Incorrect passphrase</p>}
-        <button type="submit" style={s.btn}>Enter Studio</button>
+    <main className="login-root">
+      <form className="login-card" onSubmit={handleSubmit}>
+        <div className="login-card-inner">
+          <div className="brand-lockup">
+            <span className="brand-mark">SP</span>
+            <div>
+              <p className="brand-title">Strategy Presentation Studio</p>
+              <p className="brand-subtitle">Private review environment</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="eyebrow">Private</p>
+            <h1 className="login-title">Studio access</h1>
+            <p className="login-copy">Enter the studio passphrase.</p>
+          </div>
+
+          <input
+            autoFocus
+            className={`field ${error ? "danger-border" : ""}`}
+            onChange={(event) => {
+              setPass(event.target.value);
+              setError(false);
+            }}
+            placeholder="Passphrase"
+            type="password"
+            value={pass}
+          />
+          {error && <p className="login-error">Incorrect passphrase</p>}
+          <button className="btn btn-primary btn-block" disabled={submitting} type="submit">
+            {submitting ? "Checking..." : "Enter Studio"}
+          </button>
+        </div>
       </form>
-    </div>
+    </main>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  root: { minHeight: "100vh", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center" },
-  card: { background: "#111", border: "1px solid #1e1e1e", borderRadius: "16px", padding: "40px", width: "360px", display: "flex", flexDirection: "column", gap: "12px" },
-  eyebrow: { fontSize: "10px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#C9A44C", textAlign: "center", margin: 0 },
-  title: { fontSize: "24px", fontWeight: 700, color: "#fff", textAlign: "center", margin: 0, letterSpacing: "-0.02em" },
-  sub: { fontSize: "13px", color: "#555", textAlign: "center", margin: "0 0 8px" },
-  input: { background: "#0a0a0a", border: "1px solid", borderRadius: "8px", color: "#fff", fontSize: "14px", padding: "12px 16px", outline: "none", fontFamily: "inherit", letterSpacing: "0.06em" },
-  err: { fontSize: "12px", color: "#f87171", textAlign: "center", margin: 0 },
-  btn: { padding: "12px", background: "#C9A44C", border: "none", borderRadius: "8px", color: "#0a0a08", fontSize: "14px", fontWeight: 700, cursor: "pointer", letterSpacing: "0.04em" },
-};

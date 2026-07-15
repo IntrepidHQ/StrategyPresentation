@@ -1,17 +1,8 @@
 "use client";
 
-// ============================================================
-//  SP Studio — Strategy Editor
-//  apps/studio/src/app/studio/[id]/page.tsx
-//
-//  The Lovable-style local editor. Hans only. localhost:3001.
-//  Left: prompt input + edit history
-//  Right: live iframe preview
-// ============================================================
-
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 interface EditRecord {
   id: string;
@@ -33,10 +24,34 @@ interface StrategyMeta {
   vercelUrl: string | null;
 }
 
-const PASSPHRASE = process.env.NEXT_PUBLIC_STUDIO_PASSPHRASE ?? "";
+const PREVIEW_STORAGE_SHIM = `<script>
+(function () {
+  var store = {};
+  try {
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      value: {
+        getItem: function (key) {
+          return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null;
+        },
+        setItem: function (key, value) {
+          store[key] = String(value);
+        },
+        removeItem: function (key) {
+          delete store[key];
+        },
+        clear: function () {
+          store = {};
+        }
+      }
+    });
+  } catch (error) {}
+})();
+<\/script>`;
 
-function authHeader() {
-  return { "x-studio-passphrase": PASSPHRASE };
+// Auth rides on the HttpOnly sp_studio_session cookie; no header needed.
+function authHeader(): Record<string, string> {
+  return {};
 }
 
 export default function StudioEditor() {
@@ -44,11 +59,12 @@ export default function StudioEditor() {
   const id = params.id as string;
 
   const [meta, setMeta] = useState<StrategyMeta | null>(null);
-  const [currentHtml, setCurrentHtml] = useState<string>("");
+  const [currentHtml, setCurrentHtml] = useState("");
   const [editHistory, setEditHistory] = useState<EditRecord[]>([]);
   const [prompt, setPrompt] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [templateChoice, setTemplateChoice] = useState("signal");
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -56,12 +72,18 @@ export default function StudioEditor() {
   const [checklistDone, setChecklistDone] = useState<Record<string, boolean>>({});
 
   const promptRef = useRef<HTMLTextAreaElement>(null);
+  const previewHtml = useMemo(() => buildPreviewHtml(currentHtml), [currentHtml]);
 
-  // ── Load strategy ─────────────────────────────────────────
   useEffect(() => {
     fetchStrategy();
     fetchEditHistory();
   }, [id]);
+
+  useEffect(() => {
+    if (!successMsg) return;
+    const timeout = setTimeout(() => setSuccessMsg(null), 4000);
+    return () => clearTimeout(timeout);
+  }, [successMsg]);
 
   async function fetchStrategy() {
     const res = await fetch(`/api/strategy/${id}`, {
@@ -87,19 +109,23 @@ export default function StudioEditor() {
     setEditHistory(data.edits ?? []);
   }
 
-  // ── Generate HTML ─────────────────────────────────────────
   async function handleGenerate() {
     setIsGenerating(true);
     setError(null);
+
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { ...authHeader(), "Content-Type": "application/json" },
-        body: JSON.stringify({ strategyId: id }),
+        body: JSON.stringify(
+          templateChoice === "legacy"
+            ? { strategyId: id, engine: "legacy" }
+            : { strategyId: id, engine: "deck", templateId: templateChoice },
+        ),
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
-      setSuccessMsg(`Generated — ${data.pass1Tokens?.toLocaleString()} tokens used`);
+      setSuccessMsg(`Generated with ${data.pass1Tokens?.toLocaleString() ?? "local"} tokens`);
       await fetchStrategy();
     } catch (e) {
       setError(String(e));
@@ -108,7 +134,6 @@ export default function StudioEditor() {
     }
   }
 
-  // ── Submit edit prompt ────────────────────────────────────
   async function handleEdit() {
     if (!prompt.trim() || isEditing) return;
     setIsEditing(true);
@@ -126,7 +151,7 @@ export default function StudioEditor() {
       setCurrentHtml(data.html);
       setPrompt("");
       await fetchEditHistory();
-      setSuccessMsg(`Edit applied — ${data.tokensUsed?.toLocaleString()} tokens`);
+      setSuccessMsg(`Edit applied with ${data.tokensUsed?.toLocaleString() ?? "local"} tokens`);
     } catch (e) {
       setError(String(e));
     } finally {
@@ -135,7 +160,6 @@ export default function StudioEditor() {
     }
   }
 
-  // ── Undo ─────────────────────────────────────────────────
   async function handleUndo() {
     const res = await fetch(`/api/edit?strategyId=${id}&steps=1`, {
       method: "DELETE",
@@ -148,13 +172,13 @@ export default function StudioEditor() {
     }
     setCurrentHtml(data.html);
     await fetchEditHistory();
-    setSuccessMsg("Undone");
+    setSuccessMsg("Last edit undone");
   }
 
-  // ── Publish ───────────────────────────────────────────────
   async function handlePublish() {
     setIsPublishing(true);
     setError(null);
+
     try {
       const res = await fetch("/api/publish", {
         method: "POST",
@@ -173,561 +197,274 @@ export default function StudioEditor() {
     }
   }
 
-  // ── Keyboard shortcut: Cmd+Enter to submit ────────────────
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-      e.preventDefault();
+  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      event.preventDefault();
       handleEdit();
     }
   }
 
-  // ── Checklist items ───────────────────────────────────────
-  const CHECKLIST = [
-    { key: "password", label: `Gate password is set (${meta?.gatePassword ?? "—"})` },
-    { key: "client", label: `Client name is correct: "${meta?.clientName}"` },
-    { key: "score", label: `Score verified against WCS scan (${meta?.overallScore} / ${meta?.overallGrade})` },
-    { key: "nda", label: "NDA signed date is correct in the gate" },
-    { key: "investment", label: "Investment section reviewed and approved" },
-    { key: "no_tokens", label: 'No unreplaced {{tokens}} visible in preview' },
-  ];
-
-  const allChecked = CHECKLIST.every((c) => checklistDone[c.key]);
-
-  // ── Auto-dismiss success ──────────────────────────────────
-  useEffect(() => {
-    if (!successMsg) return;
-    const t = setTimeout(() => setSuccessMsg(null), 4000);
-    return () => clearTimeout(t);
-  }, [successMsg]);
-
   if (!meta) {
     return (
-      <div style={styles.loading}>
-        <p>Loading strategy...</p>
+      <div className="loading-state">
+        <p className="empty-title">Loading strategy...</p>
       </div>
     );
   }
 
+  const checklist = getChecklist(meta);
+  const allChecked = checklist.every((item) => checklistDone[item.key]);
+
   return (
-    <div style={styles.root}>
-      {/* ── Top bar ────────────────────────────────────────── */}
-      <header style={styles.topbar}>
-        <div style={styles.topbarLeft}>
-          <Link href="/" style={styles.backLink}>← Dashboard</Link>
-          <span style={styles.topbarDivider}>|</span>
-          <span style={styles.clientName}>{meta.clientName}</span>
-          <span style={styles.tierBadge}>{meta.tier}</span>
-          <span style={statusBadgeStyle(meta.status)}>{meta.status}</span>
+    <div className="editor-root">
+      <header className="editor-topbar">
+        <div className="topbar-left">
+          <Link className="back-link" href="/">
+            Dashboard
+          </Link>
+          <span className="topbar-divider" aria-hidden="true" />
+          <span className="organization-title">{meta.clientName}</span>
+          <span className="tier-pill">{meta.tier}</span>
+          <span className={`status-pill status-${meta.status}`}>{meta.status}</span>
         </div>
-        <div style={styles.topbarRight}>
-          <span style={styles.domain}>{meta.domain}</span>
-          <span style={styles.scoreChip}>{meta.overallScore} / {meta.overallGrade}</span>
+        <div className="topbar-right">
+          <span className="domain-text">{meta.domain}</span>
+          <span className="score-pill">
+            {meta.overallScore} / {meta.overallGrade}
+          </span>
           {meta.vercelUrl && (
-            <a href={meta.vercelUrl} target="_blank" rel="noreferrer" style={styles.liveLink}>
-              View Live ↗
+            <a className="btn btn-secondary" href={meta.vercelUrl} rel="noreferrer" target="_blank">
+              View live
             </a>
           )}
         </div>
       </header>
 
-      {/* ── Status bar ─────────────────────────────────────── */}
       {(error || successMsg) && (
-        <div style={error ? styles.errorBar : styles.successBar}>
-          {error ?? successMsg}
-          <button onClick={() => { setError(null); setSuccessMsg(null); }} style={styles.dismissBtn}>×</button>
+        <div className={`notice-bar ${error ? "notice-error" : "notice-success"}`}>
+          <span>{error ?? successMsg}</span>
+          <button
+            aria-label="Dismiss notice"
+            className="notice-close"
+            onClick={() => {
+              setError(null);
+              setSuccessMsg(null);
+            }}
+            type="button"
+          >
+            x
+          </button>
         </div>
       )}
 
-      {/* ── Main layout ────────────────────────────────────── */}
-      <div style={styles.main}>
-
-        {/* ── Left: Editor pane ──────────────────────────── */}
-        <aside style={styles.editorPane}>
-
-          {/* Generate button (if no HTML yet) */}
+      <div className="editor-main">
+        <aside className="editor-sidebar">
           {!currentHtml && (
-            <div style={styles.generateSection}>
-              <p style={styles.generateHint}>No HTML yet. Generate the strategy first.</p>
+            <section className="editor-panel">
+              <p className="panel-title">Generate presentation</p>
+              <p className="panel-copy">
+                No HTML exists for this scan yet. Generate the first strategy draft from the WCS data.
+              </p>
+              <label>
+                <span className="field-label">Template</span>
+                <select
+                  className="select"
+                  disabled={isGenerating}
+                  onChange={(event) => setTemplateChoice(event.target.value)}
+                  value={templateChoice}
+                >
+                  <option value="signal">Signal — dark modern SaaS</option>
+                  <option value="summit">Summit — light boardroom</option>
+                  <option value="editorial">Editorial — magazine</option>
+                  <option value="monospace">Monospace — technical</option>
+                  <option value="gallery">Gallery — airy minimal</option>
+                  <option value="beacon">Beacon — warm nonprofit</option>
+                  <option value="legacy">Legacy — scroll page</option>
+                </select>
+              </label>
               <button
-                onClick={handleGenerate}
+                className="btn btn-primary btn-block"
                 disabled={isGenerating}
-                style={styles.generateBtn}
+                onClick={handleGenerate}
+                type="button"
               >
-                {isGenerating ? "Generating… (1-2 min)" : "⚡ Generate Strategy"}
+                {isGenerating ? "Generating..." : "Generate Strategy"}
               </button>
-            </div>
+            </section>
           )}
 
-          {/* Prompt box */}
           {currentHtml && (
             <>
-              <div style={styles.promptSection}>
-                <label style={styles.promptLabel}>Tell Claude what to change</label>
-                <textarea
-                  ref={promptRef}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={`e.g. "Make the hero headline larger"\n"Change the accent color to navy"\n"Add a testimonial from Matt Price in section 3"`}
-                  style={styles.promptTextarea}
-                  rows={5}
-                  disabled={isEditing}
-                />
-                <div style={styles.promptActions}>
+              <section className="editor-panel">
+                <label>
+                  <span className="field-label">Edit instruction</span>
+                  <textarea
+                    className="textarea prompt-textarea"
+                    disabled={isEditing}
+                    onChange={(event) => setPrompt(event.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={
+                      "Tighten the Google Ad Grant section around the $120K opportunity.\nMake the executive summary more direct.\nReduce the investment options to two tiers."
+                    }
+                    ref={promptRef}
+                    rows={5}
+                    value={prompt}
+                  />
+                </label>
+                <div className="prompt-actions">
                   <button
-                    onClick={handleUndo}
+                    className="btn btn-secondary"
                     disabled={isEditing || editHistory.length === 0}
-                    style={styles.undoBtn}
+                    onClick={handleUndo}
                     title="Undo last edit"
+                    type="button"
                   >
-                    ↩ Undo
+                    Undo
                   </button>
                   <button
-                    onClick={handleEdit}
+                    className="btn btn-primary btn-block"
                     disabled={!prompt.trim() || isEditing}
-                    style={styles.sendBtn}
+                    onClick={handleEdit}
+                    type="button"
                   >
-                    {isEditing ? "Editing…" : "Send ⌘↩"}
+                    {isEditing ? "Applying..." : "Apply Edit"}
                   </button>
                 </div>
-              </div>
+              </section>
 
-              {/* Publish section */}
-              <div style={styles.publishSection}>
+              <section className="editor-panel">
                 {!showPublishChecklist ? (
                   <button
+                    className="btn btn-success btn-block"
                     onClick={() => setShowPublishChecklist(true)}
-                    style={styles.publishBtn}
+                    type="button"
                   >
-                    Publish →
+                    Publish
                   </button>
                 ) : (
-                  <div style={styles.checklist}>
-                    <p style={styles.checklistTitle}>Pre-publish checklist</p>
-                    {CHECKLIST.map((c) => (
-                      <label key={c.key} style={styles.checklistItem}>
+                  <div className="publish-checklist">
+                    <p className="panel-title">Pre-publish checklist</p>
+                    {checklist.map((item) => (
+                      <label className="checklist-row" key={item.key}>
                         <input
-                          type="checkbox"
-                          checked={!!checklistDone[c.key]}
-                          onChange={(e) =>
+                          checked={!!checklistDone[item.key]}
+                          onChange={(event) =>
                             setChecklistDone((prev) => ({
                               ...prev,
-                              [c.key]: e.target.checked,
+                              [item.key]: event.target.checked,
                             }))
                           }
+                          type="checkbox"
                         />
-                        <span>{c.label}</span>
+                        <span>{item.label}</span>
                       </label>
                     ))}
                     <button
-                      onClick={handlePublish}
+                      className="btn btn-success btn-block"
                       disabled={!allChecked || isPublishing}
-                      style={{
-                        ...styles.publishConfirmBtn,
-                        opacity: allChecked ? 1 : 0.4,
-                      }}
+                      onClick={handlePublish}
+                      type="button"
                     >
-                      {isPublishing ? "Publishing…" : `Publish to ${meta.clientSlug}.strategypresentation.com`}
+                      {isPublishing
+                        ? "Publishing..."
+                        : `Publish to ${meta.clientSlug}.strategypresentation.com`}
                     </button>
                     <button
+                      className="btn btn-ghost btn-block"
                       onClick={() => setShowPublishChecklist(false)}
-                      style={styles.cancelBtn}
+                      type="button"
                     >
                       Cancel
                     </button>
                   </div>
                 )}
-              </div>
+              </section>
             </>
           )}
 
-          {/* Edit history */}
           {editHistory.length > 0 && (
-            <div style={styles.historySection}>
-              <p style={styles.historyTitle}>Edit history</p>
-              {editHistory.map((edit) => (
-                <div key={edit.id} style={styles.historyItem}>
-                  <span style={styles.historyTime}>
-                    {new Date(edit.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                  <span style={styles.historyPrompt}>
-                    {edit.prompt.slice(0, 60)}{edit.prompt.length > 60 ? "…" : ""}
-                  </span>
-                  {edit.tokensUsed && (
-                    <span style={styles.historyTokens}>{edit.tokensUsed.toLocaleString()} tok</span>
-                  )}
-                </div>
-              ))}
-            </div>
+            <section className="history-section">
+              <p className="panel-title">Edit history</p>
+              <div className="history-list">
+                {editHistory.map((edit) => (
+                  <div className="history-item" key={edit.id}>
+                    <span className="history-time">
+                      {new Date(edit.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    <p className="history-prompt">
+                      {edit.prompt.slice(0, 80)}
+                      {edit.prompt.length > 80 ? "..." : ""}
+                    </p>
+                    {edit.tokensUsed && (
+                      <span className="history-tokens">{edit.tokensUsed.toLocaleString()}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
         </aside>
 
-        {/* ── Right: iframe preview ──────────────────────── */}
-        <main style={styles.previewPane}>
-          {currentHtml ? (
-            <iframe
-              srcDoc={currentHtml}
-              style={styles.iframe}
-              title="Strategy Preview"
-              sandbox="allow-scripts allow-same-origin"
-            />
-          ) : (
-            <div style={styles.emptyPreview}>
-              <p>Preview appears here after generation.</p>
+        <main className="preview-workspace">
+          <div className="preview-toolbar">
+            <p className="preview-title">Live preview</p>
+            <div className="status-line">
+              <span className="domain-text">{meta.clientSlug}.strategypresentation.com</span>
             </div>
-          )}
+          </div>
+          <div className="preview-shell">
+            {previewHtml ? (
+              <iframe
+                className="preview-frame"
+                sandbox="allow-scripts"
+                srcDoc={previewHtml}
+                title="Strategy presentation preview"
+              />
+            ) : (
+              <div className="empty-preview">
+                <p>Generate the presentation to load the preview.</p>
+              </div>
+            )}
+          </div>
         </main>
       </div>
 
-      {/* Publishing overlay */}
       {isPublishing && (
-        <div style={styles.publishingOverlay}>
-          <p>Deploying to Vercel…</p>
+        <div className="publishing-overlay">
+          <p>Deploying to Vercel...</p>
         </div>
       )}
     </div>
   );
 }
 
-// ── Status badge color ────────────────────────────────────────
-function statusBadgeStyle(status: string): React.CSSProperties {
-  const colors: Record<string, string> = {
-    draft: "#6b7280",
-    generating: "#f59e0b",
-    generated: "#3b82f6",
-    review: "#8b5cf6",
-    published: "#10b981",
-  };
-  return {
-    ...styles.statusBadge,
-    background: colors[status] ?? "#6b7280",
-  };
+function buildPreviewHtml(html: string) {
+  if (!html) return "";
+  if (html.includes("<head>")) return html.replace("<head>", `<head>${PREVIEW_STORAGE_SHIM}`);
+  if (/<html[^>]*>/i.test(html)) {
+    return html.replace(/(<html[^>]*>)/i, `$1${PREVIEW_STORAGE_SHIM}`);
+  }
+  return `${PREVIEW_STORAGE_SHIM}${html}`;
 }
 
-// ── Styles (CSS-in-JS, dark theme) ───────────────────────────
-const styles: Record<string, React.CSSProperties> = {
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100vh",
-    background: "#0a0a0a",
-    color: "#e5e5e5",
-    fontFamily: "'Inter', system-ui, sans-serif",
-    fontSize: "14px",
-    overflow: "hidden",
-  },
-  loading: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    background: "#0a0a0a",
-    color: "#888",
-  },
-  topbar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "0 20px",
-    height: "48px",
-    borderBottom: "1px solid #1e1e1e",
-    background: "#111",
-    flexShrink: 0,
-  },
-  topbarLeft: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-  topbarRight: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  },
-  backLink: {
-    color: "#888",
-    textDecoration: "none",
-    fontSize: "13px",
-  },
-  topbarDivider: {
-    color: "#333",
-  },
-  clientName: {
-    fontWeight: 600,
-    color: "#fff",
-  },
-  tierBadge: {
-    fontSize: "11px",
-    padding: "2px 8px",
-    background: "#1a1a2e",
-    color: "#818cf8",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-  },
-  statusBadge: {
-    fontSize: "11px",
-    padding: "2px 8px",
-    color: "#fff",
-    borderRadius: "4px",
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-  },
-  domain: {
-    color: "#666",
-    fontSize: "12px",
-  },
-  scoreChip: {
-    fontSize: "12px",
-    padding: "2px 8px",
-    background: "#1a2e1a",
-    color: "#4ade80",
-    borderRadius: "4px",
-    fontWeight: 600,
-  },
-  liveLink: {
-    fontSize: "12px",
-    color: "#C9A44C",
-    textDecoration: "none",
-  },
-  errorBar: {
-    padding: "10px 20px",
-    background: "#3b0f0f",
-    color: "#f87171",
-    fontSize: "13px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexShrink: 0,
-  },
-  successBar: {
-    padding: "10px 20px",
-    background: "#0f2b1a",
-    color: "#4ade80",
-    fontSize: "13px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexShrink: 0,
-  },
-  dismissBtn: {
-    background: "none",
-    border: "none",
-    color: "inherit",
-    cursor: "pointer",
-    fontSize: "16px",
-    lineHeight: 1,
-    padding: "0 4px",
-  },
-  main: {
-    display: "flex",
-    flex: 1,
-    overflow: "hidden",
-  },
-  editorPane: {
-    width: "320px",
-    flexShrink: 0,
-    borderRight: "1px solid #1e1e1e",
-    background: "#111",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-  },
-  generateSection: {
-    padding: "20px",
-    borderBottom: "1px solid #1e1e1e",
-  },
-  generateHint: {
-    color: "#666",
-    fontSize: "13px",
-    marginBottom: "12px",
-  },
-  generateBtn: {
-    width: "100%",
-    padding: "10px 16px",
-    background: "#C9A44C",
-    color: "#0a0a08",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-  promptSection: {
-    padding: "16px",
-    borderBottom: "1px solid #1e1e1e",
-  },
-  promptLabel: {
-    display: "block",
-    fontSize: "11px",
-    color: "#666",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    marginBottom: "8px",
-  },
-  promptTextarea: {
-    width: "100%",
-    background: "#0a0a0a",
-    border: "1px solid #2a2a2a",
-    borderRadius: "8px",
-    color: "#e5e5e5",
-    fontSize: "13px",
-    padding: "10px 12px",
-    resize: "none",
-    outline: "none",
-    fontFamily: "inherit",
-    lineHeight: 1.5,
-    boxSizing: "border-box",
-  },
-  promptActions: {
-    display: "flex",
-    gap: "8px",
-    marginTop: "8px",
-  },
-  undoBtn: {
-    padding: "8px 12px",
-    background: "transparent",
-    border: "1px solid #2a2a2a",
-    borderRadius: "6px",
-    color: "#888",
-    fontSize: "13px",
-    cursor: "pointer",
-  },
-  sendBtn: {
-    flex: 1,
-    padding: "8px 12px",
-    background: "#C9A44C",
-    border: "none",
-    borderRadius: "6px",
-    color: "#0a0a08",
-    fontSize: "13px",
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-  publishSection: {
-    padding: "16px",
-    borderBottom: "1px solid #1e1e1e",
-  },
-  publishBtn: {
-    width: "100%",
-    padding: "10px 16px",
-    background: "transparent",
-    border: "1px solid #10b981",
-    borderRadius: "8px",
-    color: "#10b981",
-    fontSize: "14px",
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-  checklist: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-  },
-  checklistTitle: {
-    fontSize: "11px",
-    color: "#666",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    marginBottom: "4px",
-  },
-  checklistItem: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "8px",
-    fontSize: "12px",
-    color: "#ccc",
-    cursor: "pointer",
-  },
-  publishConfirmBtn: {
-    width: "100%",
-    padding: "10px 16px",
-    background: "#10b981",
-    border: "none",
-    borderRadius: "8px",
-    color: "#fff",
-    fontSize: "13px",
-    fontWeight: 600,
-    cursor: "pointer",
-    marginTop: "8px",
-  },
-  cancelBtn: {
-    width: "100%",
-    padding: "6px",
-    background: "transparent",
-    border: "none",
-    color: "#666",
-    fontSize: "12px",
-    cursor: "pointer",
-  },
-  historySection: {
-    flex: 1,
-    overflowY: "auto",
-    padding: "12px 16px",
-  },
-  historyTitle: {
-    fontSize: "11px",
-    color: "#555",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    marginBottom: "10px",
-  },
-  historyItem: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "8px",
-    padding: "6px 0",
-    borderBottom: "1px solid #1a1a1a",
-  },
-  historyTime: {
-    fontSize: "11px",
-    color: "#555",
-    flexShrink: 0,
-    fontVariantNumeric: "tabular-nums",
-    paddingTop: "1px",
-  },
-  historyPrompt: {
-    fontSize: "12px",
-    color: "#888",
-    flex: 1,
-    lineHeight: 1.4,
-  },
-  historyTokens: {
-    fontSize: "10px",
-    color: "#444",
-    flexShrink: 0,
-  },
-  previewPane: {
-    flex: 1,
-    overflow: "hidden",
-    background: "#000",
-  },
-  iframe: {
-    width: "100%",
-    height: "100%",
-    border: "none",
-  },
-  emptyPreview: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100%",
-    color: "#333",
-    fontSize: "14px",
-  },
-  publishingOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.7)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#10b981",
-    fontSize: "18px",
-    fontWeight: 600,
-    zIndex: 9999,
-  },
-};
+function getChecklist(meta: StrategyMeta) {
+  return [
+    { key: "password", label: `Gate password is set (${meta.gatePassword ?? "not set"})` },
+    { key: "domain", label: `WCS scan domain matches ${meta.domain}` },
+    {
+      key: "score",
+      label: `Score has been reviewed (${meta.overallScore} / ${meta.overallGrade})`,
+    },
+    {
+      key: "grant",
+      label:
+        meta.tier === "nonprofit"
+          ? "$120K Google Ad Grant section is accurate"
+          : "Investment section is accurate",
+    },
+    { key: "tokens", label: "No unreplaced template tokens are visible" },
+  ];
+}

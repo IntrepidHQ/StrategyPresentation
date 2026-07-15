@@ -7,12 +7,12 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from "next/server";
+import { isStudioAuthorized } from "@/lib/auth";
 import { getStrategy, markStrategyPublished } from "@/lib/db";
 import { deleteDeployment, deployStrategy } from "@/lib/vercel-deploy";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const auth = req.headers.get("x-studio-passphrase");
-  if (auth !== process.env.STUDIO_PASSPHRASE) {
+  if (!isStudioAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

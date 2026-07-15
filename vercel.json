@@ -2,8 +2,13 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/saunders-strategy.html",
+      "destination": "/legacy/saunders-strategy.html",
       "has": [{ "type": "host", "value": "saunders.strategypresentation.com" }]
-    }
+    },
+    { "source": "/saunders-strategy.html", "destination": "/legacy/saunders-strategy.html" },
+    { "source": "/intake.html", "destination": "/legacy/intake.html" },
+    { "source": "/monday.html", "destination": "/legacy/monday.html" },
+    { "source": "/brain.html", "destination": "/legacy/brain.html" },
+    { "source": "/brain-editor.html", "destination": "/legacy/brain-editor.html" }
   ]
 }
