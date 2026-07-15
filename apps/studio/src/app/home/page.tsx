@@ -14,6 +14,7 @@ import DemoWidget from "./DemoWidget";
 import { SlideCounter } from "./SlideCounter";
 import { TemplateGallery } from "./TemplateGallery";
 import { particlePiece, particleRoyalty } from "./chess-art";
+import { DoodleCheers, DoodleDogRun, DoodleFeetUp, DoodleOnPhone, KingMark, NoteLifeBack, NoteWorkDone } from "./doodles";
 import { ChessHero } from "./ChessHero";
 
 const TEMPLATES = [
@@ -93,6 +94,7 @@ export default function LandingPage() {
 
       <header className="lp-header">
         <a className="lp-mark" href="/home">
+          <KingMark size={20} />
           Strategy<span>Presentation</span>
         </a>
         <nav aria-label="Site" className="lp-nav">
@@ -101,6 +103,13 @@ export default function LandingPage() {
           <a href="#faq">FAQ</a>
         </nav>
       </header>
+
+      <div className="lp-paper-frame" aria-hidden="true">
+        <span className="lp-edge lp-edge-t" />
+        <span className="lp-edge lp-edge-b" />
+        <span className="lp-edge lp-edge-l" />
+        <span className="lp-edge lp-edge-r" />
+      </div>
 
       <SlideCounter />
 
@@ -134,6 +143,8 @@ export default function LandingPage() {
             </div>
             <ChessHero />
           </div>
+          <div className="lp-doodle lp-doodle-worknote" aria-hidden="true"><NoteWorkDone /></div>
+          <div className="lp-doodle lp-doodle-phone" aria-hidden="true"><DoodleOnPhone /></div>
           <div className="lp-marks" aria-hidden="true">
             <span>✦</span>
             <span>©2026</span>
@@ -146,6 +157,7 @@ export default function LandingPage() {
         {/* ── 02 · The math — salary vs system ── */}
         <section className="lp-slide" id="math" data-slide-name="The math" aria-labelledby="math-h">
           <div className="lp-chess lp-chess-rook" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("rook", "sp-math") }} />
+          <div className="lp-doodle lp-doodle-feetup" aria-hidden="true"><DoodleFeetUp /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">The math</p>
             <h2 id="math-h">One salary, or one system.</h2>
@@ -168,6 +180,7 @@ export default function LandingPage() {
         {/* ── 03 · Live demo (column form) ── */}
         <section className="lp-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
           <div className="lp-chess lp-chess-royalty" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleRoyalty("sp-demo") }} />
+          <div className="lp-doodle lp-doodle-lifenote" aria-hidden="true"><NoteLifeBack /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
             <h2 id="demo-h">See your business the way we do.</h2>
@@ -197,6 +210,7 @@ export default function LandingPage() {
         {/* ── 05 · How it works ── */}
         <section className="lp-slide" id="how" data-slide-name="How it works" aria-labelledby="how-h">
           <div className="lp-chess lp-chess-bishop" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("bishop", "sp-how") }} />
+          <div className="lp-doodle lp-doodle-cheers" aria-hidden="true"><DoodleCheers /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">How it works</p>
             <h2 id="how-h">Scan. Pitch. Run.</h2>
@@ -223,6 +237,7 @@ export default function LandingPage() {
         {/* ── 06 · FAQ + close ── */}
         <section className="lp-slide lp-final" id="faq" data-slide-name="FAQ" aria-labelledby="faq-h">
           <div className="lp-chess lp-chess-queen" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("queen", "sp-faq") }} />
+          <div className="lp-doodle lp-doodle-dogrun" aria-hidden="true"><DoodleDogRun /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Fair questions</p>
             <h2 id="faq-h">FAQ.</h2>

@@ -358,8 +358,8 @@ function project(pts: P3[], rand: () => number, opts: { rotY: number; scale: num
     const persp = f / (f - z);
     const shade = Math.max(0, nx * LIGHT.x + ny * LIGHT.y + nz * LIGHT.z);
     const rim = Math.pow(1 - Math.min(1, Math.abs(nz)), 2.2); // grazing → glow
-    const o = Math.min(1, 0.05 + shade * 0.7 + rim * 0.55 + rand() * 0.03);
-    const r = (0.45 + shade * 0.6 + rim * 0.4) * persp * scale * 0.0045;
+    const o = Math.min(1, 0.06 + shade * 0.82 + rim * 0.6 + rand() * 0.02);
+    const r = (0.42 + shade * 0.55 + rim * 0.38) * persp * scale * 0.004;
     out.push({ x: cx + x * scale * persp, y: baseY - (y + 0.5) * scale * persp, z, r, o });
   }
   out.sort((a, b) => a.z - b.z); // far first, near paints on top

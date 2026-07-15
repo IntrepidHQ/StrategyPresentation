@@ -80,6 +80,12 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Stickiness = physics.** three.js Points + custom shader (diffuse + rim per particle) over cannon-es rigid bodies (cylinder colliders from piece base radii). Click → raycast proxy → impulse at hit point → topple/roll/collide → all-asleep or 9s → easeOut glide home. Progressive enhancement: server-rendered SVG stays for no-JS/no-WebGL/reduced-motion.
 - **Gotchas burned here:** `.lp-chess { pointer-events:none }` also killed canvas clicks (re-enable on the canvas); any new public/ asset must be added to the proxy's PUBLIC_PATHS or it 307s to /login; gl_PointSize needs px-scale ≈ viewportH × 0.0085 (a 1.0 factor fills the screen with blobs); headless Playwright needs `--use-angle=swiftshader --enable-unsafe-swiftshader` for WebGL.
 
+### Brand v2.2 — the human layer + the sheet itself (2026-07-15, Hans)
+- **Logo**: the king. Clean filled-vector silhouette (cross, orb, tapered body, plinth) in `doodles.tsx` `KingMark` + `src/app/icon.svg` (white on #1a2be0). currentColor so it sits anywhere.
+- **Doodle collage** (`doodles.tsx`): handwritten to-do notes (font stack 'Segoe Print'/'Bradley Hand'/'Chalkboard SE'/cursive — no webfont needed) with the WORK items scratched out by rough curved strokes ("the app did it") and a life-list left untouched; one-line stroke figures (feet up w/ coffee, laughing on phone, cheers, dog run) — 2.6px round-cap strokes, blob heads. Tilted 2-6°, opacities .8-.92, aria-hidden, most hidden <960px. NO stock photography — the line-work IS the brand's people.
+- **Rolled-blueprint edges**: fixed 9px strips on all four sides showing the paper color #efe6d4 with an ORGANIC torn inner edge (irregular node spacing + 2.5-6.5px varied depths, 260px repeat — regular sawtooth reads as rick-rack trim, avoid). html background = same paper so overscroll stays in-world. z-index 80, pointer-events none.
+- **Hero composition rule**: stage in DEPTH, not a lineup — far piece upstage-left, tall pair just off center, one piece downstage cropped by the frame edge (the crop = energy). Wide lens (fov 46-48) + low off-axis camera.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)

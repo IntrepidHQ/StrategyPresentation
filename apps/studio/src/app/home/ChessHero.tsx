@@ -18,11 +18,15 @@ import { particleChessCluster } from "./chess-art";
 
 type PieceMeta = { name: string; count: number; baseR: number; maxR: number };
 
-// Hero cast and staging: real-set relative heights, knight turned toward camera.
-const CAST: { name: string; x: number; scale: number; rotY: number }[] = [
-  { name: "bishop", x: -0.78, scale: 0.8, rotY: 0.4 },
-  { name: "queen", x: 0.0, scale: 1.0, rotY: 0 },
-  { name: "knight", x: 0.74, scale: 0.72, rotY: -2.35 },
+// Hero cast staged in DEPTH: rook far upstage, king tallest just off
+// center, queen forward, knight downstage-right and deliberately cropped
+// by the frame. Wide lens + low camera = the "walking past the board" shot.
+const CAST: { name: string; x: number; z: number; scale: number; rotY: number }[] = [
+  { name: "rook", x: -1.18, z: -0.62, scale: 0.6, rotY: 0.2 },
+  { name: "bishop", x: -0.66, z: 0.08, scale: 0.84, rotY: 0.4 },
+  { name: "king", x: 0.38, z: -0.42, scale: 1.12, rotY: 0.15 },
+  { name: "queen", x: -0.08, z: 0.05, scale: 1.0, rotY: 0 },
+  { name: "knight", x: 1.18, z: 0.68, scale: 0.92, rotY: -2.55 },
 ];
 
 async function loadPoints(url: string): Promise<Map<string, { meta: PieceMeta; pos: Float32Array; nor: Float32Array }>> {
@@ -55,8 +59,8 @@ const VERT = /* glsl */ `
     vec3 lightDir = normalize(vec3(-0.45, 0.55, 0.8));
     float diff = max(dot(normalize(mat3(modelMatrix) * normal), lightDir), 0.0);
     float rim = pow(1.0 - abs(n.z), 2.0);
-    vL = clamp(0.12 + diff * 0.72 + rim * 0.5, 0.0, 1.0);
-    gl_PointSize = (0.9 + vL * 1.6) * uScale * (300.0 / max(60.0, -mv.z * 100.0));
+    vL = clamp(0.07 + diff * 0.82 + rim * 0.55, 0.0, 1.0);
+    gl_PointSize = (0.8 + vL * 1.45) * uScale * (300.0 / max(60.0, -mv.z * 100.0));
     gl_Position = projectionMatrix * mv;
   }
 `;
@@ -66,8 +70,8 @@ const FRAG = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
-    float edge = smoothstep(0.5, 0.32, d);
-    gl_FragColor = vec4(vec3(1.0), (0.1 + vL * 0.9) * edge);
+    float edge = smoothstep(0.5, 0.44, d);
+    gl_FragColor = vec4(vec3(1.0), (0.16 + vL * 0.92) * edge);
   }
 `;
 
@@ -102,9 +106,9 @@ export function ChessHero() {
         renderer.domElement.setAttribute("aria-hidden", "true");
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(30, W() / H(), 0.1, 20);
-        camera.position.set(0, 0.62, 3.6);
-        camera.lookAt(0, 0.42, 0);
+        const camera = new THREE.PerspectiveCamera(48, W() / H(), 0.1, 20);
+        camera.position.set(-0.3, 0.58, 2.35);
+        camera.lookAt(0.22, 0.44, -0.1);
 
         // Physics
         const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.8, 0) });
@@ -117,7 +121,7 @@ export function ChessHero() {
           obj: import("three").Points;
           proxy: import("three").Mesh;
           body: import("cannon-es").Body;
-          home: { x: number; scale: number; rotY: number; h: number };
+          home: { x: number; z: number; scale: number; rotY: number; h: number };
         };
         const pieces: Piece[] = [];
 
@@ -158,7 +162,7 @@ export function ChessHero() {
           const body = new CANNON.Body({
             mass: 1.1,
             shape: new CANNON.Cylinder(data.meta.maxR * s * 0.72, data.meta.baseR * s * 0.95, h, 10),
-            position: new CANNON.Vec3(cast.x, half + 0.001, 0),
+            position: new CANNON.Vec3(cast.x, half + 0.001, cast.z),
             material: new CANNON.Material({ friction: 0.38, restitution: 0.32 }),
             angularDamping: 0.12,
             linearDamping: 0.06,
@@ -170,7 +174,7 @@ export function ChessHero() {
           body.sleep();
           world.addBody(body);
 
-          pieces.push({ obj, proxy, body, home: { x: cast.x, scale: s, rotY: cast.rotY, h } });
+          pieces.push({ obj, proxy, body, home: { x: cast.x, z: cast.z, scale: s, rotY: cast.rotY, h } });
         }
 
         // Piece-vs-piece contacts get a little bounce.
@@ -247,14 +251,14 @@ export function ChessHero() {
             const t = Math.min(1, (performance.now() - resetStart) / 1100);
             const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
             pieces.forEach((p, i) => {
-              p.obj.position.lerpVectors(resetFrom[i].p, new THREE.Vector3(p.home.x, p.home.h / 2 + 0.001, 0), e);
+              p.obj.position.lerpVectors(resetFrom[i].p, new THREE.Vector3(p.home.x, p.home.h / 2 + 0.001, p.home.z), e);
               p.obj.quaternion.slerpQuaternions(resetFrom[i].q, homeQ[i], e);
               p.proxy.position.copy(p.obj.position);
               p.proxy.quaternion.copy(p.obj.quaternion);
             });
             if (t >= 1) {
               pieces.forEach((p, i) => {
-                p.body.position.set(p.home.x, p.home.h / 2 + 0.001, 0);
+                p.body.position.set(p.home.x, p.home.h / 2 + 0.001, p.home.z);
                 p.body.quaternion.set(homeQ[i].x, homeQ[i].y, homeQ[i].z, homeQ[i].w);
                 p.body.velocity.setZero();
                 p.body.angularVelocity.setZero();
