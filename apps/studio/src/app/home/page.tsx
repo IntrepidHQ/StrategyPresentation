@@ -2,18 +2,21 @@
 //  SP Landing — strategypresentation.com
 //  apps/studio/src/app/home/page.tsx
 //
-//  The landing page IS a presentation (Hans: "I'd prefer if it
-//  was a presentation itself so that it really sells"): six
-//  full-viewport scroll-snap slides in the Voltage brand —
-//  brutalist electric blue, cream slabs, ink splashes, grain.
-//  See .claude/skills/design-mind/SKILL.md for the system.
+//  The landing IS a presentation: six full-viewport scroll-snap
+//  slides in the Blueprint brand — one electric blue drafting
+//  sheet, white line-work, particle chess pieces, paper grain.
+//  Copy speaks to the small-business owner debating their first
+//  hire; the answer it presents is Brainztem.
+//  See .claude/skills/design-mind/SKILL.md (Brand v2).
 // ============================================================
 
 import DemoWidget from "./DemoWidget";
 import { SlideCounter } from "./SlideCounter";
+import { TemplateGallery } from "./TemplateGallery";
+import { particleChessCluster, particlePiece } from "./chess-art";
 
 const TEMPLATES = [
-  { id: "voltage", name: "Voltage", blurb: "The house cut — electric blue brutalism, cream slabs, ink splashes." },
+  { id: "voltage", name: "Voltage", blurb: "The house cut — electric blue brutalism, cream slabs." },
   { id: "summit", name: "Summit", blurb: "Light boardroom — cream, navy, antique gold." },
   { id: "signal", name: "Signal", blurb: "Dark modern SaaS — near-black, electric blue." },
   { id: "editorial", name: "Editorial", blurb: "Magazine spread — stark white, didone display." },
@@ -24,16 +27,20 @@ const TEMPLATES = [
 
 const FAQ: { q: string; a: string }[] = [
   {
+    q: "Why not just make the hire?",
+    a: "Sometimes you should. But a first hire runs $45–65K a year plus management time, and most of what's drowning you — content, follow-ups, scheduling, keeping the website credible — is exactly what an AI operation does without sick days. Brainztem is $10,500 once, delivered in four milestones, and you try it free for 48 hours before paying anything.",
+  },
+  {
     q: "Where does the deck's data come from?",
     a: "Every deck is built from a WebsiteCreditScore scan: an AI research agent that reads the public record — your site, reviews, press, registries, technical signals — and scores ten weighted dimensions with cited sources. Nothing is invented; if we don't have a real scan, we say so and show you a clearly-labeled sample instead.",
   },
   {
     q: "Are the decks really accessible?",
-    a: "Yes — every template ships WCAG 2.1 AA: audited color contrast, full keyboard navigation, screen-reader-friendly structure, text alternatives for every chart, and all motion disabled when your system asks for reduced motion. We test each template with axe on every change.",
+    a: "Yes — every template ships WCAG 2.1 AA: audited color contrast, full keyboard navigation, screen-reader-friendly structure, and all motion disabled when your system asks for reduced motion. We test each template with axe on every change.",
   },
   {
     q: "Can I present offline, or send it as a file?",
-    a: "Every deck is one self-contained HTML file — no external requests, no tracking, no login. Present it from a laptop with no internet, email it, or host it anywhere. It also has an auto-play mode for kiosk-style playback.",
+    a: "Every deck is one self-contained HTML file — no external requests, no tracking, no login. Present it from a laptop with no internet, email it, or host it anywhere. It also has an auto-play mode.",
   },
   {
     q: "What does it cost?",
@@ -41,8 +48,7 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
-// Structured data for AEO/LLM-citation visibility: the product as a
-// SoftwareApplication (with the free-trial offer) and the on-page FAQ.
+// Structured data for AEO/LLM-citation visibility.
 const JSON_LD = [
   {
     "@context": "https://schema.org",
@@ -67,10 +73,10 @@ const JSON_LD = [
 ];
 
 const STATS = [
-  { n: "10", label: "weighted dimensions", sub: "scored 0–100 from the public record, every finding cited." },
-  { n: "7", label: "deck templates", sub: "one click flips the style; the evidence stays put." },
-  { n: "100%", label: "axe-clean, WCAG 2.1 AA", sub: "contrast, keyboard, screen readers, reduced motion — tested on every change." },
-  { n: "1", label: "URL to start", sub: "paste it; the scan and the deck do the rest." },
+  { n: "$54K", label: "a typical first hire, every year", sub: "salary alone — before taxes, tools, and the time to manage them." },
+  { n: "$10.5K", label: "your Brainztem build, once", sub: "an AI operation working your content, outreach, and follow-ups. Four milestones, pay as it's delivered." },
+  { n: "48H", label: "free trial, no card", sub: "a working instance built from your own website — chat with your crew before you spend a dollar." },
+  { n: "1", label: "URL to start", sub: "paste it below; the scan and the pitch do the rest." },
 ];
 
 export default function LandingPage() {
@@ -98,7 +104,7 @@ export default function LandingPage() {
 
       <nav className="lp-rail" aria-label="Slides">
         <a href="#cover"><span className="lp-vh">Cover</span></a>
-        <a href="#proof"><span className="lp-vh">The idea</span></a>
+        <a href="#math"><span className="lp-vh">The math</span></a>
         <a href="#demo"><span className="lp-vh">Live demo</span></a>
         <a href="#templates"><span className="lp-vh">Templates</span></a>
         <a href="#how"><span className="lp-vh">How it works</span></a>
@@ -106,23 +112,25 @@ export default function LandingPage() {
       </nav>
 
       <main id="main">
-        {/* ── 01 · Cover — cream slab, two-tone display, splash, marks band ── */}
+        {/* ── 01 · Cover — the first-hire question, chess cluster ── */}
         <section className="lp-slide lp-cover" id="cover" data-slide-name="Cover" aria-labelledby="cover-h">
-          <div className="lp-slide-inner">
-            <p className="lp-eyebrow">Pitch decks with receipts · est. 2026</p>
-            <h1 id="cover-h">
-              <span className="lp-ink">Strategy</span> <span className="lp-blue">Presentation</span>
-            </h1>
-            <p className="lp-lede">
-              Turn any website into a <em>boardroom-ready</em> pitch deck.
-            </p>
-            <p className="lp-support">
-              An AI research agent reads your public record and builds the evidence-backed
-              presentation your idea deserves — sourced, scored, and accessible. Free to try, one URL in.
-            </p>
-            <p className="lp-cover-cta">
-              <a className="lp-btn" href="#demo">Watch it build yours ↓</a>
-            </p>
+          <div className="lp-slide-inner lp-cover-grid">
+            <div>
+              <p className="lp-eyebrow">For the owner doing everything · strategypresentation.com</p>
+              <h1 id="cover-h">About that first&nbsp;hire.</h1>
+              <p className="lp-lede">
+                The assistant. The content writer. The ops person you&apos;re about to pay <em>every month, forever.</em>
+              </p>
+              <p className="lp-support">
+                Before you post the job: paste your website below. We&apos;ll scan your public record,
+                show you exactly where the business needs help, and pitch a different answer — one
+                system that does the work, built from your own site.
+              </p>
+              <p className="lp-cover-cta">
+                <a className="lp-btn" href="#demo">Show me ↓</a>
+              </p>
+            </div>
+            <div className="lp-chess lp-chess-hero" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleChessCluster("sp-hero") }} />
           </div>
           <div className="lp-marks" aria-hidden="true">
             <span>✦</span>
@@ -133,15 +141,15 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── 02 · The idea + proof stats (Brighter stat blocks) ── */}
-        <section className="lp-slide lp-blue-slide" id="proof" data-slide-name="The idea" aria-labelledby="proof-h">
+        {/* ── 02 · The math — salary vs system ── */}
+        <section className="lp-slide" id="math" data-slide-name="The math" aria-labelledby="math-h">
+          <div className="lp-chess lp-chess-rook" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("rook", "sp-math") }} />
           <div className="lp-slide-inner">
-            <p className="lp-eyebrow">The idea</p>
-            <h2 id="proof-h">Your website already wrote your pitch.</h2>
-            <p className="lp-support lp-support-light">
-              Every claim in an SP deck traces to the public record — a WebsiteCreditScore scan of
-              your legitimacy, reputation, design, UX, and technical health. Opinions argue.
-              <em> Evidence decides.</em>
+            <p className="lp-eyebrow">The math</p>
+            <h2 id="math-h">One salary, or one system.</h2>
+            <p className="lp-support">
+              You have momentum — and marketing, follow-ups, books, and a website nobody&apos;s
+              watching. The usual fix is a hire. <em>The better fix doesn&apos;t take a salary.</em>
             </p>
             <ul className="lp-stats">
               {STATS.map((s) => (
@@ -155,67 +163,64 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── 03 · Live demo (cream slab) ── */}
-        <section className="lp-slide lp-cream-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
+        {/* ── 03 · Live demo (column form) ── */}
+        <section className="lp-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
+          <div className="lp-chess lp-chess-pawn" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("pawn", "sp-demo") }} />
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
-            <h2 id="demo-h">See it in action.</h2>
-            <p className="lp-support">
-              Paste a URL. If we&apos;ve scanned it, you get a real deck from real data — otherwise a
-              clearly-labeled sample. No signup, no card.
-            </p>
-            <DemoWidget />
+            <h2 id="demo-h">See your business the way we do.</h2>
+            <div className="lp-demo-col">
+              <p className="lp-support">
+                Paste your URL. If we&apos;ve scanned it, you get a real pitch from real data —
+                otherwise a clearly-labeled sample. No signup, no card.
+              </p>
+              <DemoWidget />
+            </div>
           </div>
         </section>
 
-        {/* ── 04 · Templates ── */}
-        <section className="lp-slide lp-blue-slide" id="templates" data-slide-name="Templates" aria-labelledby="tpl-h">
+        {/* ── 04 · Templates — Lovable-style live previews ── */}
+        <section className="lp-slide" id="templates" data-slide-name="Templates" aria-labelledby="tpl-h">
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Templates</p>
-            <h2 id="tpl-h">Seven styles. One standard.</h2>
-            <p className="lp-support lp-support-light">
-              Responsive, ADA-compliant, single-file. Flip your deck between any of them — the
-              evidence stays, the voice changes.
+            <h2 id="tpl-h">Seven looks. One argument.</h2>
+            <p className="lp-support">
+              Every deck is responsive, ADA-compliant, and one self-contained file. Click any style
+              to walk through a live sample — <em>the previews are real decks, not pictures.</em>
             </p>
-            <ul className="lp-tgrid">
-              {TEMPLATES.map((t, i) => (
-                <li key={t.id}>
-                  <span className="lp-tnum" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-                  <strong>{t.name}</strong>
-                  <span className="lp-tblurb">{t.blurb}</span>
-                </li>
-              ))}
-            </ul>
+            <TemplateGallery templates={TEMPLATES} />
           </div>
         </section>
 
-        {/* ── 05 · How it works (cream slab, FusionForce numbered) ── */}
-        <section className="lp-slide lp-cream-slide" id="how" data-slide-name="How it works" aria-labelledby="how-h">
+        {/* ── 05 · How it works ── */}
+        <section className="lp-slide" id="how" data-slide-name="How it works" aria-labelledby="how-h">
+          <div className="lp-chess lp-chess-bishop" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("bishop", "sp-how") }} />
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">How it works</p>
-            <h2 id="how-h">Scan. Deck. Decide.</h2>
+            <h2 id="how-h">Scan. Pitch. Run.</h2>
             <ol className="lp-steps">
               <li>
                 <span className="lp-step-n" aria-hidden="true">01.</span>
-                <h3>Scan the public record</h3>
-                <p>Ten weighted dimensions — legitimacy, reputation, design, UX, transparency and more — every finding cited to a source.</p>
+                <h3>We scan your site</h3>
+                <p>Ten weighted dimensions from the public record — legitimacy, reputation, design, UX, technical health. Every finding cited.</p>
               </li>
               <li>
                 <span className="lp-step-n" aria-hidden="true">02.</span>
-                <h3>Get the deck, seven ways</h3>
-                <p>The same evidence renders into seven presentation styles, each keyboard-navigable and WCAG 2.1 AA, with auto-play for the room.</p>
+                <h3>You get the pitch</h3>
+                <p>A boardroom deck that shows exactly where the business needs help — and what fixing it is worth. Seven styles, one click apart.</p>
               </li>
               <li>
                 <span className="lp-step-n" aria-hidden="true">03.</span>
-                <h3>Present a plan, not a report</h3>
-                <p>Every deck ends with a costed build sheet and the route to a 90+ score — delivered as a running Brainztem instance, $10,500 across four milestones.</p>
+                <h3>Brainztem does the work</h3>
+                <p>Your own AI operation — content, outreach, follow-ups, ops — for $10,500 across four milestones. Try it free for 48 hours first. No salary, ever.</p>
               </li>
             </ol>
           </div>
         </section>
 
         {/* ── 06 · FAQ + close ── */}
-        <section className="lp-slide lp-blue-slide lp-final" id="faq" data-slide-name="FAQ" aria-labelledby="faq-h">
+        <section className="lp-slide lp-final" id="faq" data-slide-name="FAQ" aria-labelledby="faq-h">
+          <div className="lp-chess lp-chess-queen" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("queen", "sp-faq") }} />
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Fair questions</p>
             <h2 id="faq-h">FAQ.</h2>

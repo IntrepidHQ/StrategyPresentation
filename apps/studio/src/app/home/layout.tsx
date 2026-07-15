@@ -25,13 +25,13 @@ export const metadata: Metadata = {
 export default function HomeLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      {/* Voltage brand faces: Archivo Black (brutalist condensed display),
-          Fraunces italic (the didone counterpoint), Inter (body). System
-          fallbacks keep the page fine if fonts fail to load. */}
+      {/* Blueprint brand faces: Anton (condensed display), Instrument Serif
+          italic (the counterpoint), Inter (body). System fallbacks keep the
+          page fine if fonts fail to load. */}
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Inter:wght@400;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600;700;800&display=swap"
       />
       {children}
     </>

@@ -40,7 +40,8 @@ const STACK_CONDENSED = `Impact, Haettenschweiler, "Arial Narrow Bold", "Frankli
 const GRAIN_URI = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E")`;
 
 // Organic ink splashes (Voltage) — two hand-tuned blobs, tinted per use.
-const SPLASH_RED = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23ff3d00' d='M97 18c22-9 48 2 58 21 9 17-2 30 8 46 11 18 22 34 8 52-15 19-42 8-63 16-19 7-38 22-56 10-17-11-8-33-16-51-8-17-25-28-17-47C27 46 45 44 62 35c13-7 22-12 35-17Z'/%3E%3Ccircle fill='%23ff3d00' cx='178' cy='38' r='9'/%3E%3Ccircle fill='%23ff3d00' cx='24' cy='150' r='6'/%3E%3Ccircle fill='%23ff3d00' cx='170' cy='168' r='5'/%3E%3C/svg%3E")`;
+// Ink splash (was red — Hans: "lose that orange... go monochrome")
+const SPLASH_INK = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%230c0c0c' d='M97 18c22-9 48 2 58 21 9 17-2 30 8 46 11 18 22 34 8 52-15 19-42 8-63 16-19 7-38 22-56 10-17-11-8-33-16-51-8-17-25-28-17-47C27 46 45 44 62 35c13-7 22-12 35-17Z'/%3E%3Ccircle fill='%230c0c0c' cx='178' cy='38' r='9'/%3E%3Ccircle fill='%230c0c0c' cx='24' cy='150' r='6'/%3E%3Ccircle fill='%230c0c0c' cx='170' cy='168' r='5'/%3E%3C/svg%3E")`;
 const SPLASH_CREAM = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23f4eee1' d='M104 12c19-6 44-2 52 16 8 16-4 31 6 47 10 17 26 31 15 50-12 20-38 12-58 21-18 8-34 25-53 15-18-10-12-32-21-49-9-16-27-25-21-45 6-19 25-19 41-29 14-8 26-21 39-26Z'/%3E%3Ccircle fill='%23f4eee1' cx='182' cy='42' r='8'/%3E%3Ccircle fill='%23f4eee1' cx='20' cy='142' r='5'/%3E%3C/svg%3E")`;
 
 export const THEMES: Record<TemplateId, DeckTheme> = {
@@ -305,14 +306,14 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       #s-cover { background: #f4eee1; }
       #s-cover::before { content: none; } /* no ambient glow — hard edges only */
       #s-cover, #s-cover .lede { color: #0c0c0c; }
-      #s-cover .eyebrow { color: #b02800; }
+      #s-cover .eyebrow { color: #1a2be0; }
       #s-cover .muted { color: #3a3a34; }
       #s-cover h1 .hl-a { color: #0c0c0c; }
       #s-cover h1 .hl-b { color: #1a2be0; }
       #s-cover .slide-inner::after {
         content: ""; position: absolute; top: 4%; right: 2%;
         width: clamp(90px, 14vw, 180px); aspect-ratio: 1;
-        background: ${SPLASH_RED} no-repeat center / contain;
+        background: ${SPLASH_INK} no-repeat center / contain;
         pointer-events: none;
       }
       #s-cover .cover-constellation { color: #1a2be0; }
