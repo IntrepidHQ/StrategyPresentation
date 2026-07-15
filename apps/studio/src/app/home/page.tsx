@@ -16,7 +16,8 @@ import { TemplateGallery } from "./TemplateGallery";
 import { particleChessCluster, particlePiece } from "./chess-art";
 
 const TEMPLATES = [
-  { id: "voltage", name: "Voltage", blurb: "The house cut — electric blue brutalism, cream slabs." },
+  { id: "blueprint", name: "Blueprint", blurb: "The drafting sheet — blueprint grid, white line-work." },
+  { id: "voltage", name: "Voltage", blurb: "Electric blue brutalism, cream slabs, ink splashes." },
   { id: "summit", name: "Summit", blurb: "Light boardroom — cream, navy, antique gold." },
   { id: "signal", name: "Signal", blurb: "Dark modern SaaS — near-black, electric blue." },
   { id: "editorial", name: "Editorial", blurb: "Magazine spread — stark white, didone display." },
@@ -55,7 +56,7 @@ const JSON_LD = [
     "@type": "SoftwareApplication",
     name: "Strategy Presentation",
     description:
-      "Turns a WebsiteCreditScore credibility scan into an evidence-backed, WCAG-AA-accessible pitch deck in seven templates.",
+      "Turns a WebsiteCreditScore credibility scan into an evidence-backed, WCAG-AA-accessible pitch deck in eight templates.",
     url: "https://www.strategypresentation.com/",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
@@ -183,7 +184,7 @@ export default function LandingPage() {
         <section className="lp-slide" id="templates" data-slide-name="Templates" aria-labelledby="tpl-h">
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Templates</p>
-            <h2 id="tpl-h">Seven looks. One argument.</h2>
+            <h2 id="tpl-h">Eight looks. One argument.</h2>
             <p className="lp-support">
               Every deck is responsive, ADA-compliant, and one self-contained file. Click any style
               to walk through a live sample — <em>the previews are real decks, not pictures.</em>
@@ -207,7 +208,7 @@ export default function LandingPage() {
               <li>
                 <span className="lp-step-n" aria-hidden="true">02.</span>
                 <h3>You get the pitch</h3>
-                <p>A boardroom deck that shows exactly where the business needs help — and what fixing it is worth. Seven styles, one click apart.</p>
+                <p>A boardroom deck that shows exactly where the business needs help — and what fixing it is worth. Eight styles, one click apart.</p>
               </li>
               <li>
                 <span className="lp-step-n" aria-hidden="true">03.</span>

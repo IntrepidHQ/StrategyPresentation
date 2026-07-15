@@ -36,6 +36,7 @@ export const TEMPLATE_IDS = [
   "gallery",
   "beacon",
   "voltage",
+  "blueprint",
 ] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
