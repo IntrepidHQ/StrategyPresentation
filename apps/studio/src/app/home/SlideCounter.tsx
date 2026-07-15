@@ -14,12 +14,13 @@ export function SlideCounter() {
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
+          e.target.classList.add("in"); // scroll-reveal hook (one-way)
           const i = slides.indexOf(e.target as HTMLElement);
           const name = (e.target as HTMLElement).dataset.slideName ?? "";
           setLabel(`${String(i + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}${name ? ` — ${name}` : ""}`);
         }
       },
-      { threshold: 0.55 },
+      { threshold: 0.35 },
     );
     slides.forEach((s) => io.observe(s));
     return () => io.disconnect();

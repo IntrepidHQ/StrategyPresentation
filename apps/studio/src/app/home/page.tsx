@@ -14,6 +14,8 @@ import DemoWidget from "./DemoWidget";
 import { SlideCounter } from "./SlideCounter";
 import { TemplateGallery } from "./TemplateGallery";
 import { particlePiece, particleRoyalty } from "./chess-art";
+import { CheckerWave } from "./CheckerWave";
+import { PieceScene } from "./PieceScene";
 import { DoodleCheers, DoodleDogRun, DoodleFeetUp, DoodleOnPhone, KingMark, NoteLifeBack, NoteWorkDone } from "./doodles";
 import { ChessHero } from "./ChessHero";
 
@@ -28,10 +30,22 @@ const TEMPLATES = [
   { id: "beacon", name: "Beacon", blurb: "Warm and mission-driven — parchment, deep teal." },
 ];
 
-const FAQ: { q: string; a: string }[] = [
+const FAQ: { q: string; a: string; href?: string; linkText?: string }[] = [
   {
     q: "Why not just make the hire?",
     a: "Sometimes you should. But a first hire runs $45–65K a year plus management time, and most of what's drowning you — content, follow-ups, scheduling, keeping the website credible — is exactly what an AI operation does without sick days. Brainztem is $10,500 once, delivered in four milestones, and you try it free for 48 hours before paying anything.",
+  },
+  {
+    q: "What is WebsiteCreditScore?",
+    a: "The research engine behind every deck: an AI agent that reads a website's public record — legitimacy, reputation, design, UX, technical health — and grades ten weighted dimensions with cited sources. Every SP deck starts as a WCS scan.",
+    href: "https://www.websitecreditscore.com",
+    linkText: "Visit WebsiteCreditScore ↗",
+  },
+  {
+    q: "What is Brainztem?",
+    a: "The system the deck pitches: your own AI operation — a crew of agents working your content, outreach, follow-ups, and ops from one isolated instance. $10,500 across four milestones, and the 48-hour trial is free.",
+    href: "https://brainztem.com",
+    linkText: "Visit Brainztem ↗",
   },
   {
     q: "Where does the deck's data come from?",
@@ -160,7 +174,7 @@ export default function LandingPage() {
 
         {/* ── 02 · The math — salary vs system ── */}
         <section className="lp-slide" id="math" data-slide-name="The math" aria-labelledby="math-h">
-          <div className="lp-chess lp-chess-rook" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("rook", "sp-math") }} />
+          <PieceScene className="lp-chess-rook" cast={[{ name: "rook", x: 0, scale: 0.72, rotY: 0.3 }]} fallbackHtml={particlePiece("rook", "sp-math")} />
           <div className="lp-doodle lp-doodle-feetup" aria-hidden="true"><DoodleFeetUp /></div>
           <div className="lp-doodle lp-doodle-worknote" aria-hidden="true"><NoteWorkDone /></div>
           <div className="lp-slide-inner">
@@ -184,7 +198,7 @@ export default function LandingPage() {
 
         {/* ── 03 · Live demo (column form) ── */}
         <section className="lp-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
-          <div className="lp-chess lp-chess-royalty" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleRoyalty("sp-demo") }} />
+          <PieceScene className="lp-chess-royalty" cast={[{ name: "king", x: -0.42, scale: 1.0, rotY: 0.2 }, { name: "queen", x: 0.42, z: 0.15, scale: 0.9, rotY: -0.25 }]} fallbackHtml={particleRoyalty("sp-demo")} camZ={3.1} />
           <div className="lp-doodle lp-doodle-lifenote" aria-hidden="true"><NoteLifeBack /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
@@ -214,7 +228,7 @@ export default function LandingPage() {
 
         {/* ── 05 · How it works ── */}
         <section className="lp-slide" id="how" data-slide-name="How it works" aria-labelledby="how-h">
-          <div className="lp-chess lp-chess-bishop" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("bishop", "sp-how") }} />
+          <PieceScene className="lp-chess-bishop" cast={[{ name: "bishop", x: 0, scale: 0.8, rotY: 0.5 }]} fallbackHtml={particlePiece("bishop", "sp-how")} />
           <div className="lp-doodle lp-doodle-cheers" aria-hidden="true"><DoodleCheers /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">How it works</p>
@@ -241,7 +255,7 @@ export default function LandingPage() {
 
         {/* ── 06 · FAQ + close ── */}
         <section className="lp-slide lp-final" id="faq" data-slide-name="FAQ" aria-labelledby="faq-h">
-          <div className="lp-chess lp-chess-queen" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particlePiece("queen", "sp-faq") }} />
+          <PieceScene className="lp-chess-queen" cast={[{ name: "queen", x: 0, scale: 0.85, rotY: 0 }, { name: "pawn", x: 0.55, z: 0.25, scale: 0.42 }]} fallbackHtml={particlePiece("queen", "sp-faq")} camZ={2.9} />
           <div className="lp-doodle lp-doodle-dogrun" aria-hidden="true"><DoodleDogRun /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Fair questions</p>
@@ -250,7 +264,15 @@ export default function LandingPage() {
               {FAQ.map((item) => (
                 <details key={item.q}>
                   <summary>{item.q}</summary>
-                  <p>{item.a}</p>
+                  <p>
+                    {item.a}
+                    {item.href ? (
+                      <>
+                        {" "}
+                        <a href={item.href} rel="noopener" target="_blank">{item.linkText}</a>
+                      </>
+                    ) : null}
+                  </p>
                 </details>
               ))}
             </div>
@@ -273,6 +295,9 @@ export default function LandingPage() {
             </footer>
           </div>
         </section>
+
+        {/* Closing texture: the checkered particle wave. Pure decoration. */}
+        <CheckerWave />
       </main>
     </div>
   );

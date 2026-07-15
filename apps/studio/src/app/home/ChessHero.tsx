@@ -17,8 +17,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { particleChessCluster } from "./chess-art";
-
-type PieceMeta = { name: string; count: number; baseR: number; maxR: number };
+import { FRAG, VERT, loadPoints } from "./points-lib";
 
 const GLOBE_R = 0.9;
 const GLOBE_CENTER = { x: 0.42, y: -0.04, z: 0.0 };
@@ -37,56 +36,6 @@ const CAST: { name: string; deg: number; scale: number; spin: number }[] = [
   { name: "pawn", deg: 270, scale: 0.27, spin: 1.7 },
   { name: "knight", deg: 316, scale: 0.4, spin: 2.6 },
 ];
-
-async function loadPoints(url: string): Promise<Map<string, { meta: PieceMeta; pos: Float32Array; nor: Float32Array }>> {
-  const buf = await (await fetch(url)).arrayBuffer();
-  const dv = new DataView(buf);
-  const hlen = dv.getUint32(0, true);
-  const header = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hlen))) as { pieces: PieceMeta[] };
-  let off = 4 + hlen;
-  const out = new Map();
-  for (const meta of header.pieces) {
-    const pos = new Float32Array(meta.count * 3);
-    const i16 = new Int16Array(buf, off, meta.count * 3);
-    for (let i = 0; i < i16.length; i++) pos[i] = i16[i] / 20000;
-    off += i16.byteLength;
-    const nor = new Float32Array(meta.count * 3);
-    const i8 = new Int8Array(buf, off, meta.count * 3);
-    for (let i = 0; i < i8.length; i++) nor[i] = i8[i] / 127;
-    off += i8.byteLength;
-    out.set(meta.name, { meta, pos, nor });
-  }
-  return out;
-}
-
-// Crisp particle shaders: hard-edged sprites, strong light contrast, and a
-// per-point luminance attribute (globe checkerboard + piece shading).
-const VERT = /* glsl */ `
-  uniform float uScale;
-  attribute float aLum;
-  varying float vL;
-  void main() {
-    vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    vec3 lightDir = normalize(vec3(-0.4, 0.55, 0.82));
-    vec3 wn = normalize(mat3(modelMatrix) * normal);
-    float diff = max(dot(wn, lightDir), 0.0);
-    vec3 vn = normalize(normalMatrix * normal);
-    float rim = pow(1.0 - abs(vn.z), 2.2);
-    vL = clamp(aLum * (0.22 + diff * 0.85 + rim * 0.45), 0.0, 1.0);
-    gl_PointSize = (0.65 + vL * 1.15) * uScale * (300.0 / max(60.0, -mv.z * 100.0));
-    gl_Position = projectionMatrix * mv;
-  }
-`;
-const FRAG = /* glsl */ `
-  varying float vL;
-  void main() {
-    vec2 c = gl_PointCoord - 0.5;
-    float d = length(c);
-    if (d > 0.5) discard;
-    float edge = smoothstep(0.5, 0.46, d);
-    gl_FragColor = vec4(vec3(1.0), (0.1 + vL * 0.88) * edge);
-  }
-`;
 
 export function ChessHero() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -125,6 +74,13 @@ export function ChessHero() {
         camera.lookAt(GLOBE_CENTER.x, GLOBE_CENTER.y, 0);
 
         const center = new THREE.Vector3(GLOBE_CENTER.x, GLOBE_CENTER.y, GLOBE_CENTER.z);
+        let globePts: import("three").Points | null = null;
+        let spin = 0; // planet rotation angle (radians)
+        const SPIN_RATE = reduced ? 0 : 0.055;
+        const yAxis = new THREE.Vector3(0, 1, 0);
+        const spinQ = new THREE.Quaternion();
+        const tmpV = new THREE.Vector3();
+        const tmpQ = new THREE.Quaternion();
         const mats: { m: import("three").ShaderMaterial; mul: number }[] = [];
         const mkMat = (mul: number) => {
           const m = new THREE.ShaderMaterial({
@@ -170,7 +126,8 @@ export function ChessHero() {
           geo.setAttribute("position", new THREE.BufferAttribute(pos.slice(0, made * 3), 3));
           geo.setAttribute("normal", new THREE.BufferAttribute(nor.slice(0, made * 3), 3));
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum.slice(0, made), 1));
-          scene.add(new THREE.Points(geo, mkMat(0.5)));
+          globePts = new THREE.Points(geo, mkMat(0.5));
+          scene.add(globePts);
         }
 
         // ── Physics: central gravity toward the planet's core ──
@@ -238,13 +195,13 @@ export function ChessHero() {
             mass: 1,
             shape: new CANNON.Cylinder(data.meta.maxR * s * 0.72, data.meta.baseR * s * 0.95, h, 10),
             position: new CANNON.Vec3(bodyPos.x, bodyPos.y, bodyPos.z),
-            angularDamping: 0.15,
-            linearDamping: 0.08,
+            angularDamping: 0.35,
+            linearDamping: 0.22,
           });
           body.quaternion.set(q.x, q.y, q.z, q.w);
           body.allowSleep = true;
-          body.sleepSpeedLimit = 0.18;
-          body.sleepTimeLimit = 0.5;
+          body.sleepSpeedLimit = 0.28;
+          body.sleepTimeLimit = 0.4;
           body.sleep();
           world.addBody(body);
 
@@ -275,9 +232,9 @@ export function ChessHero() {
           if (!hits.length) return;
           const hit = hits[0];
           const piece = pieces.find((p) => p.proxy === hit.object)!;
-          pieces.forEach((p) => p.body.wakeUp());
+          piece.body.wakeUp(); // neighbors wake only on real contact
           const dir = ray.ray.direction;
-          const impulse = new CANNON.Vec3(dir.x * 2.2, dir.y * 2.2 + 0.5, dir.z * 2.2);
+          const impulse = new CANNON.Vec3(dir.x * 1.3, dir.y * 1.3 + 0.35, dir.z * 1.3);
           const rel = new CANNON.Vec3(
             hit.point.x - piece.body.position.x,
             hit.point.y - piece.body.position.y,
@@ -307,7 +264,25 @@ export function ChessHero() {
           raf = requestAnimationFrame(frame);
           const dt = Math.min(clock.getDelta(), 0.05);
 
+          spin += SPIN_RATE * dt;
+          spinQ.setFromAxisAngle(yAxis, spin);
+          if (globePts) {
+            // Geometry is baked in world space around `center`: rotating the
+            // object spins it about the ORIGIN, so re-anchor with p = c − R·c
+            // (world = R·x + (c − R·c) ⇒ rotation about c).
+            globePts.quaternion.copy(spinQ);
+            globePts.position.copy(center).sub(tmpV.copy(center).applyQuaternion(spinQ));
+          }
+
           if (!resetting) {
+            // Sleeping pieces ride the planet's rotation (kinematic re-home).
+            pieces.forEach((p, i) => {
+              if (p.body.sleepState !== 2) return;
+              tmpV.set(p.homeP.x - center.x, p.homeP.y - center.y, p.homeP.z - center.z).applyQuaternion(spinQ).add(center);
+              tmpQ.set(p.homeQ.x, p.homeQ.y, p.homeQ.z, p.homeQ.w).premultiply(spinQ);
+              p.body.position.set(tmpV.x, tmpV.y, tmpV.z);
+              p.body.quaternion.set(tmpQ.x, tmpQ.y, tmpQ.z, tmpQ.w);
+            });
             // Central gravity: every awake body falls toward the core.
             for (const p of pieces) {
               if (p.body.sleepState === 2 /* SLEEPING */) continue;
@@ -324,7 +299,7 @@ export function ChessHero() {
               p.proxy.position.copy(p.obj.position);
               p.proxy.quaternion.copy(p.obj.quaternion);
             }
-            if (lastPokeAt && (!anyAwake || performance.now() - lastPokeAt > 9000)) {
+            if (lastPokeAt && (!anyAwake || performance.now() - lastPokeAt > 6500)) {
               lastPokeAt = 0;
               beginReset();
             }
@@ -332,20 +307,19 @@ export function ChessHero() {
             const t = Math.min(1, (performance.now() - resetStart) / 1200);
             const e = 1 - Math.pow(1 - t, 3);
             pieces.forEach((p, i) => {
-              p.obj.position.lerpVectors(
-                resetFrom[i].p,
-                new THREE.Vector3(p.homeP.x, p.homeP.y, p.homeP.z),
-                e,
-              );
-              const hq = new THREE.Quaternion(p.homeQ.x, p.homeQ.y, p.homeQ.z, p.homeQ.w);
-              p.obj.quaternion.slerpQuaternions(resetFrom[i].q, hq, e);
+              tmpV.set(p.homeP.x - center.x, p.homeP.y - center.y, p.homeP.z - center.z).applyQuaternion(spinQ).add(center);
+              tmpQ.set(p.homeQ.x, p.homeQ.y, p.homeQ.z, p.homeQ.w).premultiply(spinQ);
+              p.obj.position.lerpVectors(resetFrom[i].p, tmpV, e);
+              p.obj.quaternion.slerpQuaternions(resetFrom[i].q, tmpQ, e);
               p.proxy.position.copy(p.obj.position);
               p.proxy.quaternion.copy(p.obj.quaternion);
             });
             if (t >= 1) {
               pieces.forEach((p) => {
-                p.body.position.copy(p.homeP);
-                p.body.quaternion.copy(p.homeQ);
+                tmpV.set(p.homeP.x - center.x, p.homeP.y - center.y, p.homeP.z - center.z).applyQuaternion(spinQ).add(center);
+                tmpQ.set(p.homeQ.x, p.homeQ.y, p.homeQ.z, p.homeQ.w).premultiply(spinQ);
+                p.body.position.set(tmpV.x, tmpV.y, tmpV.z);
+                p.body.quaternion.set(tmpQ.x, tmpQ.y, tmpQ.z, tmpQ.w);
                 p.body.velocity.setZero();
                 p.body.angularVelocity.setZero();
                 p.body.sleep();
