@@ -285,6 +285,35 @@ body {
   padding: 1.2rem clamp(1.25rem, 6vw, 5rem) 1.4rem;
 }
 
+/* ── The game HUD (turn / check / mate + reset) ── */
+.lp-game-hud {
+  position: absolute;
+  top: 2%;
+  left: 4%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.45rem 0.5rem 0.45rem 0.9rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  pointer-events: auto;
+}
+.lp-game-hud button {
+  background: #fff;
+  color: var(--ink);
+  border: 0;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.lp-game-hud button:hover { background: var(--muted); }
+
 /* ── Doodle collage: notes + one-line figures ── */
 .lp-doodle {
   position: absolute;
@@ -335,8 +364,8 @@ body {
   .lp-chess-hero {
     max-width: none;
     width: calc(100% + clamp(1.25rem, 6vw, 5rem)); /* run to the viewport edge */
-    margin: -6vh calc(-1 * clamp(1.25rem, 6vw, 5rem)) 0 0;
-    max-height: 82vh;
+    margin: -7vh calc(-1 * clamp(1.25rem, 6vw, 5rem)) 0 0;
+    max-height: 92vh;
   }
 }
 .lp-chess-hero .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
@@ -344,7 +373,7 @@ body {
 .lp-chess-hero.is-live .lp-chess-fallback { display: none; }
 /* "Click a piece" whisper under the live scene. */
 .lp-chess-hero.is-live::after {
-  content: "CLICK A PIECE";
+  content: "DRAG TO SPIN · CLICK A PIECE TO PLAY";
   position: absolute;
   bottom: -1.6rem;
   right: 0.5rem;
@@ -364,11 +393,6 @@ body {
 .lp-chess-bishop { right: 0; top: 12%; width: clamp(190px, 22vw, 320px); aspect-ratio: 1; opacity: 0.75; }
 .lp-chess-queen { right: 0; bottom: 18%; width: clamp(200px, 24vw, 350px); aspect-ratio: 1.1; opacity: 0.8; }
 @media (prefers-reduced-motion: no-preference) {
-  .lp-chess-hero { animation: lp-drift 26s ease-in-out infinite alternate; }
-  @keyframes lp-drift {
-    from { transform: translateY(-6px); }
-    to { transform: translateY(8px); }
-  }
 }
 
 /* Giant cropped slide name, edge-runner. */
@@ -421,7 +445,15 @@ body {
 .lp-stat-sub { font-size: 0.86rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
 
 /* ── Live demo: strictly a column ── */
-.lp-demo-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; max-width: 34rem; }
+.lp-demo-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; max-width: 34rem; }
+/* The label class name is legacy; these labels are intentionally visible. */
+.lp-demo-col label:not([hidden]), .lp-claim label:not([hidden]) {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.1rem;
+}
 .lp-demo-col .lp-domain-form {
   display: flex;
   flex-direction: column;
@@ -443,8 +475,19 @@ body {
 .lp-fineprint { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.04em; }
 
 /* Demo result area (banners, tabs, viewer) — blueprint skin. */
-.lp-result-banner { border: 1px solid var(--line); padding: 0.8rem 1rem; font-size: 0.9rem; margin: 0.8rem 0; }
-.lp-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.8rem 0; }
+/* Once a deck previews, the result area uses the wider column so the
+   iframe and template tabs breathe instead of staying input-narrow. */
+.lp-demo-col .lp-result { width: 100%; max-width: min(56rem, 92vw); margin-top: 1.4rem; }
+.lp-result-banner { border: 1px solid var(--line); padding: 0.9rem 1.1rem; font-size: 0.92rem; margin: 0 0 1.1rem; }
+.lp-scan-actions { display: block; margin-top: 0.9rem; }
+.lp-scan-actions .lp-btn:disabled { opacity: 0.6; cursor: default; }
+.lp-tabs { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0 0 1.1rem; }
+
+/* Claim form: labelled, generously spaced (input → email → trial). */
+.lp-claim { margin-top: 1.6rem; }
+.lp-claim form { display: flex; flex-direction: column; gap: 0.9rem; max-width: 34rem; }
+.lp-claim .lp-btn { width: 100%; text-align: center; }
+.lp-claim .lp-status { margin: 0.4rem 0 0; }
 .lp-tab {
   border: 1px solid #fff;
   background: transparent;
@@ -670,13 +713,17 @@ body {
   outline-offset: 3px;
 }
 
-/* ── Closing checker wave (under the footer) ── */
+/* ── Checker wave: a band ABOVE the footer, full-bleed within the FAQ
+   slide so it's always visible when you reach the close (not only after
+   scrolling past everything). ── */
+.lp-final { align-content: center; }
 .lp-wave {
   position: relative;
-  height: clamp(180px, 30vh, 320px);
+  height: clamp(140px, 20vh, 220px);
+  margin: 1.6rem 0;
   overflow: hidden;
-  scroll-snap-align: none;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 .lp-wave canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
 

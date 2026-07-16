@@ -34,6 +34,34 @@ export default function DemoWidget() {
   const [template, setTemplate] = useState("signal");
   const [email, setEmail] = useState("");
   const [claimState, setClaimState] = useState<"idle" | "busy" | "done" | "error">("idle");
+  const [scanning, setScanning] = useState(false);
+
+  // Run the scan right here (proxy to WCS), then flip to the live deck —
+  // no bounce to websitecreditscore.com.
+  async function runScanHere(target: string) {
+    if (scanning) return;
+    setScanning(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/demo/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: target }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok && data.scanId && data.status === "done") {
+        setResult({ mode: "scan", scanId: data.scanId, domain: data.domain, score: 0, grade: "", companyName: null });
+      } else if (data?.fallbackUrl) {
+        setError("Still building your scan — this can take a minute. Keep the sample below, or finish it on WebsiteCreditScore.");
+      } else {
+        setError(data?.error ?? "Couldn't run the scan — showing the sample below.");
+      }
+    } catch {
+      setError("Couldn't reach the scanner — showing the sample below.");
+    } finally {
+      setScanning(false);
+    }
+  }
 
   async function handleLookup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -130,12 +158,18 @@ export default function DemoWidget() {
             </div>
           ) : (
             <div className="lp-result-banner">
-              <strong>No fresh scan exists for {result.domain} yet</strong> — so here is the sample
-              deck, built from a real public scan of apple.com. Want yours?{" "}
-              <a href={result.scanUrl} rel="noopener" target="_blank">
-                Run a free scan of {result.domain}
-              </a>{" "}
-              and come back — the deck builds itself.
+              <strong>No fresh scan exists for {result.domain} yet.</strong> Below is the sample deck,
+              built from a real public scan of apple.com — or build yours right here.
+              <span className="lp-scan-actions">
+                <button
+                  className="lp-btn"
+                  type="button"
+                  disabled={scanning}
+                  onClick={() => runScanHere(result.domain)}
+                >
+                  {scanning ? `Scanning ${result.domain}…` : `Scan ${result.domain} now`}
+                </button>
+              </span>
             </div>
           )}
 

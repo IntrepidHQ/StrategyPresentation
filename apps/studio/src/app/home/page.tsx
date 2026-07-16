@@ -149,7 +149,7 @@ export default function LandingPage() {
               <p className="lp-eyebrow">For the owner doing everything · strategypresentation.com</p>
               <h1 id="cover-h">About that first&nbsp;hire.</h1>
               <p className="lp-lede">
-                The assistant. The content writer. The ops person you&apos;re about to pay <em>every month,{'\u00A0'}forever.</em>
+                The assistant. The content writer. The ops person you&apos;re about to pay <em>every month,{'\u00A0'}indefinitely.</em>
               </p>
               <p className="lp-support">
                 Before you post the job: paste your website below. We&apos;ll scan your public record,
@@ -198,7 +198,7 @@ export default function LandingPage() {
 
         {/* ── 03 · Live demo (column form) ── */}
         <section className="lp-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
-          <PieceScene className="lp-chess-royalty" cast={[{ name: "king", x: -0.42, scale: 1.0, rotY: 0.2 }, { name: "queen", x: 0.42, z: 0.15, scale: 0.9, rotY: -0.25 }]} fallbackHtml={particleRoyalty("sp-demo")} camZ={3.1} />
+          <PieceScene className="lp-chess-royalty" cast={[{ name: "king", x: -0.5, scale: 1.34, rotY: 0.2 }, { name: "queen", x: 0.52, z: 0.15, scale: 1.2, rotY: -0.25 }]} fallbackHtml={particleRoyalty("sp-demo")} camY={0.62} camZ={3.35} />
           <div className="lp-doodle lp-doodle-lifenote" aria-hidden="true"><NoteLifeBack /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
@@ -276,6 +276,7 @@ export default function LandingPage() {
                 </details>
               ))}
             </div>
+            <CheckerWave />
             <footer className="lp-footer">
               <div className="lp-footer-top">
                 <span className="lp-footer-brand">
@@ -295,9 +296,6 @@ export default function LandingPage() {
             </footer>
           </div>
         </section>
-
-        {/* Closing texture: the checkered particle wave. Pure decoration. */}
-        <CheckerWave />
       </main>
     </div>
   );
