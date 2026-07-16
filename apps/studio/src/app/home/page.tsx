@@ -16,7 +16,7 @@ import { TemplateGallery } from "./TemplateGallery";
 import { particlePiece, particleRoyalty } from "./chess-art";
 import { CheckerWave } from "./CheckerWave";
 import { PieceScene } from "./PieceScene";
-import { DoodleCheers, DoodleDogRun, DoodleFeetUp, DoodleOnPhone, KingMark, NoteLifeBack, NoteWorkDone } from "./doodles";
+import { KingMark, NoteLifeBack, NoteWorkDone } from "./doodles";
 import { ChessHero } from "./ChessHero";
 
 const TEMPLATES = [
@@ -162,7 +162,6 @@ export default function LandingPage() {
             </div>
             <ChessHero />
           </div>
-          <div className="lp-doodle lp-doodle-phone" aria-hidden="true"><DoodleOnPhone /></div>
           <div className="lp-marks" aria-hidden="true">
             <span>✦</span>
             <span>©2026</span>
@@ -175,7 +174,6 @@ export default function LandingPage() {
         {/* ── 02 · The math — salary vs system ── */}
         <section className="lp-slide" id="math" data-slide-name="The math" aria-labelledby="math-h">
           <PieceScene className="lp-chess-rook" cast={[{ name: "rook", x: 0, scale: 0.72, rotY: 0.3 }]} fallbackHtml={particlePiece("rook", "sp-math")} />
-          <div className="lp-doodle lp-doodle-feetup" aria-hidden="true"><DoodleFeetUp /></div>
           <div className="lp-doodle lp-doodle-worknote" aria-hidden="true"><NoteWorkDone /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">The math</p>
@@ -229,7 +227,6 @@ export default function LandingPage() {
         {/* ── 05 · How it works ── */}
         <section className="lp-slide" id="how" data-slide-name="How it works" aria-labelledby="how-h">
           <PieceScene className="lp-chess-bishop" cast={[{ name: "bishop", x: 0, scale: 0.8, rotY: 0.5 }]} fallbackHtml={particlePiece("bishop", "sp-how")} />
-          <div className="lp-doodle lp-doodle-cheers" aria-hidden="true"><DoodleCheers /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">How it works</p>
             <h2 id="how-h">Scan. Pitch. Run.</h2>
@@ -256,7 +253,6 @@ export default function LandingPage() {
         {/* ── 06 · FAQ + close ── */}
         <section className="lp-slide lp-final" id="faq" data-slide-name="FAQ" aria-labelledby="faq-h">
           <PieceScene className="lp-chess-queen" cast={[{ name: "queen", x: 0, scale: 0.85, rotY: 0 }, { name: "pawn", x: 0.55, z: 0.25, scale: 0.42 }]} fallbackHtml={particlePiece("queen", "sp-faq")} camZ={2.9} />
-          <div className="lp-doodle lp-doodle-dogrun" aria-hidden="true"><DoodleDogRun /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Fair questions</p>
             <h2 id="faq-h">FAQ.</h2>

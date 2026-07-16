@@ -41,7 +41,7 @@ const SCALES: Record<string, number> = {
   king: 0.27, queen: 0.26, bishop: 0.235, knight: 0.22, rook: 0.21, pawn: 0.165,
 };
 const SAMPLES: Record<string, number> = {
-  king: 1700, queen: 1700, bishop: 1500, knight: 1500, rook: 1400, pawn: 1050,
+  king: 2600, queen: 2600, bishop: 2300, knight: 2300, rook: 2100, pawn: 1600,
 };
 
 // Cell → spherical coordinates. Ranks are latitude bands between ±60°,
@@ -79,7 +79,8 @@ const GAME_VERT = /* glsl */ `
     vec3 col = base * (0.34 + diff * 0.72) * uBoost;
     col = mix(col, vec3(1.0), rim * uRim * (1.0 - aBlack)); // white silhouette
     vColor = col;
-    vA = clamp(aLum * (0.55 + diff * 0.5 + rim * 0.7), 0.28, 1.0);
+    // Mostly opaque so dense small points read as a solid surface, not haze.
+    vA = clamp(aLum * (0.7 + diff * 0.3 + rim * 0.4), 0.55, 1.0);
     gl_PointSize = uScale * (300.0 / max(60.0, -mv.z * 100.0));
     gl_Position = projectionMatrix * mv;
   }
@@ -91,7 +92,7 @@ const GAME_FRAG = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
-    float edge = smoothstep(0.5, 0.42, d); // near-hard disc
+    float edge = 1.0 - smoothstep(0.42, 0.5, d); // crisp disc, 1px feather
     gl_FragColor = vec4(vColor, vA * edge);
   }
 `;
@@ -145,7 +146,7 @@ export function ChessHero() {
         const H = () => host.clientHeight || 640;
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(W(), H());
         renderer.domElement.className = "lp-chess-canvas";
         renderer.domElement.setAttribute("aria-hidden", "true");
@@ -168,7 +169,7 @@ export function ChessHero() {
         const mkPieceMat = (col: import("three").Color = WHITE_ARMY, rim = 0.35) => {
           const m = new THREE.ShaderMaterial({
             uniforms: {
-              uScale: { value: H() * 0.0058 },
+              uScale: { value: H() * 0.0042 },
               uBoost: { value: 1 },
               uColor: { value: col.clone() },
               uRim: { value: rim },
@@ -207,11 +208,12 @@ export function ChessHero() {
               const r = Math.min(7, Math.floor(latIn / BAND));
               const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
               const light = (r + f) % 2 === 0;
-              if (!light && Math.random() > 0.1) continue;
-              l = light ? (Math.random() > 0.93 ? 1 : 0.9) : 0.22;
+              // Only the LIGHT squares carry particles — dark squares are open
+              // blue. No dim specks muddying them.
+              if (!light) continue;
+              l = Math.random() > 0.9 ? 1 : 0.92;
             } else {
-              if (Math.random() > 0.08) continue; // sparse polar caps
-              l = 0.14;
+              continue; // no polar caps — keep it clean
             }
             pos[i] = nx * GLOBE_R; pos[i + 1] = ny * GLOBE_R; pos[i + 2] = nz * GLOBE_R;
             nor[i] = nx; nor[i + 1] = ny; nor[i + 2] = nz;
@@ -223,9 +225,9 @@ export function ChessHero() {
           geo.setAttribute("normal", new THREE.BufferAttribute(nor.slice(0, made * 3), 3));
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum.slice(0, made), 1));
           geo.setAttribute("aBlack", new THREE.BufferAttribute(new Float32Array(made), 1));
-          const m = mkPieceMat(WHITE_ARMY, 0.22);
-          m.uniforms.uScale.value = H() * 0.0058 * 0.62;
-          m.userData.scaleMul = 0.62;
+          const m = mkPieceMat(WHITE_ARMY, 0.2);
+          m.uniforms.uScale.value = H() * 0.0042 * 0.66;
+          m.userData.scaleMul = 0.66;
           root.add(new THREE.Points(geo, m));
         }
 
@@ -276,7 +278,7 @@ export function ChessHero() {
         };
         const flyers: Flyer[] = [];
 
-        function pieceGeometry(type: string, scale: number) {
+        function pieceGeometry(type: string, scale: number, withFinial: boolean) {
           const data = points.get(type)!;
           const want = SAMPLES[type];
           const stride = Math.max(1, Math.floor(data.meta.count / want));
@@ -285,7 +287,7 @@ export function ChessHero() {
           // 0..1; centered geometry puts the tip at ~+scale/2.
           let topY = -Infinity;
           for (let k = 0; k < bodyN; k++) topY = Math.max(topY, data.pos[k * stride * 3 + 1]);
-          const finialN = Math.round(bodyN * 0.06) + 40;
+          const finialN = withFinial ? Math.round(bodyN * 0.05) + 30 : 0;
           const n = bodyN + finialN;
           const pos = new Float32Array(n * 3);
           const nor = new Float32Array(n * 3);
@@ -340,8 +342,9 @@ export function ChessHero() {
           visuals.length = 0;
           for (const p of game.pieces) {
             const scale = SCALES[p.type];
-            const geo = pieceGeometry(p.type, scale);
-            const mat = p.color === "black" ? mkPieceMat(BLACK_ARMY, 0.85) : mkPieceMat(WHITE_ARMY, 0.3);
+            // Black finial only on the dark army (white pieces stay clean white).
+            const geo = pieceGeometry(p.type, scale, p.color === "black");
+            const mat = p.color === "black" ? mkPieceMat(BLACK_ARMY, 0.9) : mkPieceMat(WHITE_ARMY, 0.28);
             const obj = new THREE.Points(geo, mat);
             const data = points.get(p.type)!;
             const proxy = new THREE.Mesh(
@@ -463,7 +466,7 @@ export function ChessHero() {
           if (promoted) {
             v.obj.geometry.dispose();
             v.scale = SCALES.queen;
-            v.obj.geometry = pieceGeometry("queen", v.scale);
+            v.obj.geometry = pieceGeometry("queen", v.scale, v.piece.color === "black");
           }
           const { posLocal, q } = frameFor(v.piece.file, v.piece.rank, v.piece.color, v.scale);
           if (reduced) placeAtCell(v);
@@ -631,13 +634,13 @@ export function ChessHero() {
           renderer.setSize(W(), H());
           camera.aspect = W() / H();
           camera.updateProjectionMatrix();
-          const base = H() * 0.0075;
+          const base = H() * 0.0042;
           for (const m of allMats) {
             const mul = (m.userData.scaleMul as number) ?? 1;
             m.uniforms.uScale.value = base * mul;
           }
-          selRing.m.uniforms.uScale.value = base;
-          moveRings.forEach((r) => (r.m.uniforms.uScale.value = base));
+          selRing.m.uniforms.uScale.value = H() * 0.0075;
+          moveRings.forEach((r) => (r.m.uniforms.uScale.value = H() * 0.0075));
         };
         ro = new ResizeObserver(onResize);
         ro.observe(host);
