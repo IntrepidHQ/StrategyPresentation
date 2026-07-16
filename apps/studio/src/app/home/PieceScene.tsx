@@ -9,7 +9,7 @@
 // ============================================================
 
 import { useEffect, useRef, useState } from "react";
-import { FRAG, VERT, loadPoints } from "./points-lib";
+import { FRAG, VERT, densify, loadPoints } from "./points-lib";
 
 export type SceneCast = { name: string; x: number; z?: number; scale: number; rotY?: number };
 
@@ -83,7 +83,8 @@ export function PieceScene({
         const pieces: Piece[] = [];
 
         for (const c of cast) {
-          const data = points.get(c.name)!;
+          // 2× the stored samples (tangential densify) — near-solid surfaces.
+          const data = densify(points.get(c.name)!, 2);
           const s = c.scale;
           const h = s;
           const half = h / 2;
