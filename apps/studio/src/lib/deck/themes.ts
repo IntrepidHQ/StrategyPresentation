@@ -69,12 +69,41 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       "--font-body": STACK_SANS,
     },
     css: `
-      .slide-inner { text-align: left; }
+      /* THE BOARDROOM MEMO — centered, double-ruled, a ledger not a website.
+         No boxes anywhere: hairline rules carry the structure. */
       .eyebrow { font-variant-caps: all-small-caps; letter-spacing: 0.22em; }
       h1, h2 { font-weight: 600; }
-      .cover-layout h1 { border-top: 3px double var(--accent); padding-top: 1.2rem; }
-      .card, .flag-list li, .bs-item, .crew-list li { box-shadow: 0 1px 0 var(--line); }
-      #s-cover .cover-marks { font-variant-caps: all-small-caps; border-top: 3px double var(--accent); }
+
+      /* Cover: one centered column, formal rules above AND below the title,
+         the score a modest medallion beneath — an engraved title page. */
+      .cover-layout { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 1.4rem; }
+      .cover-layout h1 {
+        border-top: 3px double var(--accent); border-bottom: 3px double var(--accent);
+        padding: 1.2rem 0.5rem;
+      }
+      .cover-layout .lede, .cover-layout .muted { margin-inline: auto; }
+      .score-ring { width: min(180px, 46vw); }
+      .score-ring circle { stroke-width: 6; }
+      #s-cover .cover-marks { font-variant-caps: all-small-caps; border-top: 3px double var(--accent); justify-content: center; }
+
+      /* Ledger rows: strengths/risks/crew are ruled entries, not cards. */
+      .flag-list, .crew-list { gap: 0; }
+      .flag-list li, .crew-list li {
+        background: transparent; border: 0; border-radius: 0; box-shadow: none;
+        border-top: 1px solid var(--line); padding: 1.05rem 0.2rem;
+      }
+      .flag-list li:last-child, .crew-list li:last-child { border-bottom: 1px solid var(--line); }
+      .flag-list.is-risks li { border-left: 0; }
+      .flag-list.is-risks li h3::before { content: "▸ "; color: var(--bad); }
+      .flag-list li h3 { font-family: var(--font-display); }
+      .card { background: transparent; border: 0; border-radius: 0; box-shadow: none; border-top: 3px double var(--accent); }
+
+      /* Hairline meters with a serif ledger table. */
+      .dim-bar { height: 4px; border-radius: 0; background: var(--line); }
+      .dim-bar > span { background: var(--accent-strong); border-radius: 0; }
+      .scorecard th[scope="row"] { font-family: var(--font-display); font-weight: 600; }
+      .milestone .amount { font-family: var(--font-display); }
+      .btn-cta { border-radius: 3px; }
     `,
   },
 
@@ -102,18 +131,47 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       "--font-body": STACK_SANS,
     },
     css: `
+      /* THE PRODUCT DASHBOARD — glassy cards, glow, pills. It should feel
+         like the SaaS it's selling: live, lit, metric-forward. */
       h1, h2 { font-weight: 800; letter-spacing: -0.02em; }
       #s-cover {
         background:
           radial-gradient(60rem 30rem at 80% -10%, rgba(127,177,255,0.14), transparent 60%),
           radial-gradient(40rem 26rem at 0% 110%, rgba(127,177,255,0.10), transparent 60%);
       }
-      .eyebrow::before { content: "// "; color: var(--muted); }
       .btn-cta { border-radius: 999px; }
       #s-cover h1::after {
         content: ""; display: block; width: 6rem; height: 4px; margin-top: 1.1rem;
         background: linear-gradient(90deg, var(--accent), transparent); border-radius: 2px;
       }
+
+      /* Eyebrows are status chips. */
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 0.5em;
+        padding: 0.34em 0.95em; border: 1px solid var(--line); border-radius: 999px;
+        background: rgba(127, 177, 255, 0.08);
+      }
+      .eyebrow::before {
+        content: ""; width: 0.5em; height: 0.5em; border-radius: 50%;
+        background: var(--accent); box-shadow: 0 0 8px var(--accent);
+      }
+
+      /* Glass cards with a lit top edge. */
+      .card, .flag-list li, .bs-item, .crew-list li {
+        background: linear-gradient(180deg, rgba(127,177,255,0.07), transparent 55%), var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: 0 24px 48px -36px rgba(127, 177, 255, 0.55);
+      }
+      .flag-list.is-risks li { box-shadow: 0 24px 48px -36px rgba(255, 139, 139, 0.4); }
+
+      /* Metrics glow: gradient meters, lit ring. */
+      .dim-bar { height: 8px; background: rgba(127, 177, 255, 0.12); }
+      .dim-bar > span {
+        background: linear-gradient(90deg, #4f8ce0, var(--accent-strong));
+        box-shadow: 0 0 12px rgba(127, 177, 255, 0.55);
+      }
+      .score-ring .ring-value { filter: drop-shadow(0 0 7px rgba(127, 177, 255, 0.7)); }
+      .milestone .amount { color: var(--accent-strong); }
     `,
   },
 
@@ -141,7 +199,10 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       "--font-body": STACK_SERIF,
     },
     css: `
-      h1 { font-size: clamp(2.6rem, 1.6rem + 4.6vw, 5.2rem); font-weight: 500; }
+      /* THE MAGAZINE SPREAD — italic didone display, a drop cap, numbered
+         ruled entries, hairline frames. Print, not product. */
+      h1 { font-size: clamp(2.6rem, 1.6rem + 4.6vw, 5.2rem); font-weight: 500; font-style: italic; }
+      h2 { font-weight: 500; font-style: italic; }
       .slide-inner > .eyebrow, .slide-inner > h2 { border-top: 4px solid var(--text); padding-top: 0.8rem; }
       .eyebrow { color: var(--text); }
       .slide::after {
@@ -151,6 +212,44 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       }
       .phase-num { color: var(--accent); font-style: italic; }
       #s-cover .slide-inner { outline: 1px solid var(--text); outline-offset: clamp(0.8rem, 2vw, 1.8rem); }
+
+      /* A thin, elegant score ring — jewelry, not gauge. */
+      .score-ring circle { stroke-width: 4; }
+
+      /* Drop cap opens the executive summary. */
+      #s-exec-summary .grid-2 > div:first-child p:first-of-type::first-letter {
+        float: left; font-family: var(--font-display); color: var(--accent);
+        font-size: 3.6em; line-height: 0.8; padding: 0.06em 0.12em 0 0;
+      }
+
+      /* Findings as numbered index entries — rules, folios, no boxes. */
+      .flag-list { counter-reset: flag; gap: 0; }
+      .flag-list li {
+        counter-increment: flag;
+        background: transparent; border: 0; border-radius: 0; box-shadow: none;
+        border-top: 1px solid var(--text); padding: 1rem 0.2rem 1rem 3.4rem;
+        position: relative;
+      }
+      .flag-list li::before {
+        content: counter(flag, decimal-leading-zero);
+        position: absolute; left: 0.1rem; top: 0.85rem;
+        font-family: var(--font-display); font-style: italic; font-size: 1.7rem;
+        color: var(--accent);
+      }
+      .flag-list.is-risks li { border-left: 0; }
+      .flag-list li h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.25rem; }
+      .crew-list { gap: 0; grid-template-columns: 1fr; }
+      .crew-list li {
+        background: transparent; border: 0; border-radius: 0;
+        border-top: 1px solid var(--line); padding: 0.85rem 0.2rem;
+      }
+      .card { background: transparent; border: 1px solid var(--text); border-radius: 0; box-shadow: 6px 6px 0 var(--line); }
+
+      /* Ink meters: square, ruled. */
+      .dim-bar { height: 8px; border-radius: 0; background: transparent; border: 1px solid var(--text); }
+      .dim-bar > span { background: var(--text); border-radius: 0; }
+      .milestone .amount { font-style: italic; }
+      .btn-cta { border-radius: 0; }
     `,
   },
 
@@ -178,6 +277,8 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       "--font-body": STACK_MONO,
     },
     css: `
+      /* THE TERMINAL SESSION — every slide is a window with a titlebar,
+         a prompt, hatched meters, dashed rules, a live cursor. */
       body { font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem); }
       h1 { font-size: clamp(1.8rem, 1.2rem + 2.8vw, 3.2rem); letter-spacing: -0.01em; }
       .eyebrow::before { content: "[ "; } .eyebrow::after { content: " ]"; }
@@ -185,9 +286,48 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
         background-image: linear-gradient(var(--line) 1px, transparent 1px);
         background-size: 100% 4.5rem;
         background-attachment: local;
+        padding-bottom: clamp(5rem, 9vh, 6.5rem);
       }
-      .card, .flag-list li, .bs-item, .crew-list li { background: color-mix(in srgb, var(--surface) 92%, transparent); }
+
+      /* vim status bar along the bottom of every slide (decorative — the real
+         title is in the h2; the corners up top belong to the deck chrome). */
+      .slide::after {
+        content: "-- NORMAL --  " attr(data-title) "  ·  :" attr(data-folio);
+        position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+        padding: 0.5rem 1.1rem;
+        font-size: 0.72rem; letter-spacing: 0.06em; text-transform: lowercase;
+        color: var(--muted); border-top: 1px solid var(--line);
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
+        pointer-events: none;
+      }
+
+      /* Prompt + live cursor on the cover. */
+      #s-cover h1::before { content: "$ "; color: var(--accent); }
+      #s-cover h1::after { content: "▌"; color: var(--accent); animation: ms-blink 1.1s steps(2) infinite; }
+      @keyframes ms-blink { 50% { opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { #s-cover h1::after { animation: none; } }
+      h2::before { content: "## "; color: var(--accent); }
+
+      /* Dashed machine furniture. */
+      .card, .flag-list li, .bs-item, .crew-list li {
+        background: color-mix(in srgb, var(--surface) 92%, transparent);
+        border: 1px dashed var(--line); border-radius: 0;
+      }
+      .flag-list.is-risks li { border-left: 3px solid var(--bad); }
+
+      /* Hatched progress meters — dot-matrix, not pill. */
+      .dim-bar {
+        height: 12px; border-radius: 0;
+        background: repeating-linear-gradient(90deg, var(--line) 0 5px, transparent 5px 9px);
+      }
+      .dim-bar > span {
+        border-radius: 0;
+        background: repeating-linear-gradient(90deg, var(--accent) 0 7px, color-mix(in srgb, var(--accent) 45%, transparent) 7px 9px);
+      }
+      .score-ring circle { stroke-linecap: butt; }
+      .score-ring .ring-track { stroke-dasharray: 4 5; }
       .btn-cta::before { content: "> "; }
+      .btn-cta { border-radius: 0; }
     `,
   },
 
@@ -215,24 +355,54 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       "--font-body": STACK_SANS,
     },
     css: `
+      /* THE EXHIBITION — centered, monumental, almost furniture-free.
+         The score is the artwork; hairlines do the rest. */
       .slide { padding-block: clamp(5rem, 12vh, 8rem); }
       h1 { font-size: clamp(2.6rem, 1.5rem + 5vw, 5.6rem); font-weight: 500; letter-spacing: -0.03em; }
       h2 { font-weight: 500; }
-      .eyebrow { letter-spacing: 0.3em; }
-      .slide-inner { width: min(980px, 100%); }
+      .eyebrow { letter-spacing: 0.34em; }
+      .slide-inner { width: min(980px, 100%); position: relative; z-index: 1; }
+
+      /* Center the room: headers + ledes centered, reading matter left. */
+      .slide-inner > .eyebrow, .slide-inner > h2, .slide-inner > h1 { text-align: center; }
+      .slide-inner > .lede, .slide-inner > .muted, .slide-inner > .invest-total { text-align: center; margin-inline: auto; }
+
+      /* Cover: one centered column, the ring the centerpiece beneath the
+         title — sized to stay fully in frame on short viewports. */
+      .cover-layout { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 1rem; }
+      .cover-layout .lede, .cover-layout .muted { margin-inline: auto; }
+      #s-cover .lede { font-size: 1.15rem; }
+      .score-ring { width: min(210px, 28vh); }
+      .score-ring circle { stroke-width: 5; }
+      #s-cover .score-ring-wrap { position: relative; }
       #s-cover .score-ring-wrap::before {
         content: ""; position: absolute; z-index: -1;
-        width: 22rem; height: 22rem; border-radius: 50%;
+        width: min(20rem, 44vh); aspect-ratio: 1; border-radius: 50%;
         background: color-mix(in srgb, var(--accent) 9%, transparent);
       }
-      #s-cover .score-ring-wrap { position: relative; }
+      #s-cover h1 { font-size: clamp(2.2rem, 1.4rem + 3.6vw, 4.2rem); }
+      #s-cover .cover-marks { justify-content: center; }
+
+      /* No boxes in the gallery — hairline plinths only. */
+      .card, .flag-list li, .bs-item, .crew-list li {
+        background: transparent; border: 0; border-radius: 0; box-shadow: none;
+        border-top: 1px solid var(--line); text-align: left;
+      }
+      .flag-list { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 1.6rem 3rem; }
+      .flag-list.is-risks li { border-left: 0; border-top-color: var(--bad); }
+      .dim-bar { height: 3px; border-radius: 0; background: var(--line); }
+      .dim-bar > span { background: var(--accent); border-radius: 0; }
+
+      /* Giant ghost folio stays — the wall label. */
       .slide:not(#s-cover)::before {
         content: attr(data-folio) / ""; position: absolute; right: 0.02em; top: -0.12em;
         z-index: 0; pointer-events: none; font-family: var(--font-display);
         font-size: clamp(7rem, 20vw, 18rem); line-height: 1; font-weight: 500;
         color: color-mix(in srgb, var(--accent) 7%, transparent);
       }
-      .slide-inner { position: relative; z-index: 1; }
+      .milestone { text-align: center; }
+      .milestone .amount { font-size: 2.2rem; }
+      .btn-cta { border-radius: 999px; padding-inline: 2.4rem; }
     `,
   },
 
@@ -260,16 +430,45 @@ export const THEMES: Record<TemplateId, DeckTheme> = {
       "--font-body": STACK_HUMANIST,
     },
     css: `
+      /* THE SUNRISE — warm, rounded, human. The cover mirrors (score sunrise
+         on the LEFT, words on the right); everything sits on soft pillows. */
       h1, h2 { font-weight: 700; }
       #s-cover {
         background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)), var(--bg) 55%);
       }
-      .card, .flag-list li, .bs-item, .crew-list li { border-radius: var(--radius); }
+
+      /* Mirrored cover: rtl flips the grid order, children restore ltr. */
+      .cover-layout { direction: rtl; grid-template-columns: 0.9fr 1.1fr; }
+      .cover-layout > * { direction: ltr; }
+      #s-cover .score-ring-wrap { position: relative; }
+      #s-cover .score-ring-wrap::before {
+        content: ""; position: absolute; z-index: -1; bottom: -18%;
+        width: 24rem; height: 12rem; border-radius: 12rem 12rem 0 0;
+        background: radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%);
+      }
+
+      /* Soft pillows: generous radius + warm elevation. */
+      .card, .flag-list li, .bs-item, .crew-list li {
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        box-shadow: 0 12px 28px -20px rgba(20, 96, 90, 0.45);
+      }
+      .flag-list.is-risks li { border-left: 6px solid var(--bad); }
       .phase-num {
         background: color-mix(in srgb, var(--accent) 12%, transparent);
         border-radius: 50%; width: 3.4rem; height: 3.4rem;
         display: grid; place-items: center; font-size: 1.6rem;
       }
+
+      /* Chapter headers sit centered, like a program. */
+      .slide-inner > .eyebrow { display: block; text-align: center; }
+      .slide-inner > h2 { text-align: center; }
+      .slide-inner > .lede { margin-inline: auto; text-align: center; }
+
+      /* Round, warm meters. */
+      .dim-bar { height: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); }
+      .score-ring .ring-track { stroke: color-mix(in srgb, var(--accent) 18%, transparent); }
+      .btn-cta { border-radius: 999px; padding-inline: 2.2rem; }
       #s-cover::after {
         content: ""; position: absolute; left: 50%; bottom: -26vh; translate: -50% 0;
         width: 120vh; height: 120vh; border-radius: 50%; pointer-events: none;
