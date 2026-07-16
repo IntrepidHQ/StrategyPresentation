@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from "next/server";
 const PUBLIC_PATHS = [
   "/login",
   "/home",
+  "/blog",        // public marketing blog (index + /blog/[slug])
   "/templates",   // template gallery thumbnails (public/)
   "/icon.svg",
   "/api/webhook",

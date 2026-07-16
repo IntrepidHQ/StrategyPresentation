@@ -1,0 +1,464 @@
+/* ============================================================
+   SP Blog — "Blueprint" chrome, white-sheet articles
+   apps/studio/src/app/blog/blog.css
+
+   The blog lives on the same electric-blue drafting sheet as
+   the landing page (grid + grain, Anton × Instrument Serif ×
+   Inter), but long-form articles are printed on WHITE paper
+   sheets with dark ink — 1,500 words of light-on-blue is a
+   legibility tax nobody should pay.
+
+   Contrast (WCAG-verified):
+     white on blue #1a2be0            8.5:1  (AAA)
+     #cfd2f7 muted on blue            5.8:1
+     ink #14161f on white            17.8:1
+     #4b5166 meta on white            7.6:1
+     link #1a2be0 on white            8.5:1
+   ============================================================ */
+
+.bp {
+  --blue: #1a2be0;
+  --ink: #14161f;
+  --paper: #ffffff;
+  --muted: #cfd2f7;          /* muted on blue */
+  --ink-muted: #4b5166;      /* muted on paper */
+  --line: rgba(255, 255, 255, 0.35);
+  --line-ink: rgba(20, 22, 31, 0.18);
+  --font-display: "Anton", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  --font-serif: "Instrument Serif", Didot, Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: #fff;
+  background-color: var(--blue);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Paper grain over the blue — same zero-request texture as the landing. */
+.bp::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+}
+
+html:has(.bp) {
+  background: #1a2be0;
+}
+
+/* ── Skip link ── */
+.bp-skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  color: var(--ink);
+  padding: 0.7rem 1.2rem;
+  font-weight: 700;
+}
+.bp-skip:focus { left: 0.75rem; top: 0.75rem; }
+
+/* ── Fixed header (same register as the landing page) ── */
+.bp-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem max((100vw - 1120px) / 2, clamp(1.25rem, 6vw, 5rem));
+  background: color-mix(in srgb, var(--blue) 90%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.bp-mark {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.bp-mark svg { flex: none; }
+.bp-mark span { color: var(--muted); }
+.bp-nav { display: flex; gap: clamp(0.9rem, 3vw, 2rem); }
+.bp-nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+}
+.bp-nav a:hover,
+.bp-nav a:focus-visible,
+.bp-nav a[aria-current="true"] { border-bottom-color: #fff; }
+
+/* ── Main column ── */
+.bp-main {
+  width: min(1120px, 100%);
+  margin-inline: auto;
+  padding: 6.5rem clamp(1.25rem, 6vw, 5rem) 3rem;
+  position: relative;
+  z-index: 1;
+}
+/* The article column reads best narrower than the index grid. */
+.bp-main-article { width: min(920px, 100%); }
+
+/* ── Breadcrumbs ── */
+.bp-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: baseline;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 2rem;
+}
+.bp-crumbs a { color: #fff; text-decoration: none; border-bottom: 1px solid var(--line); }
+.bp-crumbs a:hover, .bp-crumbs a:focus-visible { border-bottom-color: #fff; }
+.bp-crumbs [aria-current] { color: var(--muted); letter-spacing: 0.08em; }
+
+/* ── Index hero ── */
+.bp-hero { margin: 0 0 2.6rem; }
+.bp-eyebrow {
+  margin: 0 0 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.bp-hero h1 {
+  text-wrap: balance;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0.005em;
+  font-size: clamp(2.8rem, 1.4rem + 6vw, 6rem);
+  margin: 0 0 1.1rem;
+  color: #fff;
+}
+.bp-lede {
+  text-wrap: balance;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.3rem, 1rem + 1.6vw, 2rem);
+  line-height: 1.25;
+  margin: 0;
+  max-width: 46rem;
+  color: #fff;
+}
+
+/* ── Post cards: white sheets pinned to the blueprint ── */
+.bp-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(1.1rem, 2.5vw, 1.8rem);
+  grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr));
+}
+.bp-card {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 1.5rem 1.5rem 1.6rem;
+  border: 2px solid #fff;
+  box-shadow: 8px 8px 0 rgba(6, 8, 40, 0.45);
+}
+.bp-card:hover, .bp-card:focus-visible {
+  translate: -2px -2px;
+  box-shadow: 12px 12px 0 rgba(6, 8, 40, 0.5);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bp-card { transition: translate 0.18s ease, box-shadow 0.18s ease; }
+}
+.bp-card-tags {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.bp-card h2, .bp-card h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.6rem);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+.bp-card:hover h2, .bp-card:hover h3 { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.bp-card-desc { margin: 0; font-size: 0.9rem; line-height: 1.55; color: #333a4d; text-wrap: pretty; }
+.bp-card-meta { margin: 0.2rem 0 0; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted); }
+
+/* ── Index CTA band ── */
+.bp-cta {
+  margin: 3rem 0 0;
+  border: 1px solid var(--line);
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem 2rem;
+}
+.bp-cta h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2.1rem);
+  margin: 0 0 0.5rem;
+}
+.bp-cta p { margin: 0; color: var(--muted); max-width: 34rem; font-size: 0.95rem; line-height: 1.6; }
+
+/* ── The article sheet ── */
+.bp-sheet {
+  background: var(--paper);
+  color: var(--ink);
+  padding: clamp(1.6rem, 5vw, 4rem) clamp(1.4rem, 6vw, 5rem) clamp(2rem, 5vw, 3.6rem);
+  box-shadow: 12px 12px 0 rgba(6, 8, 40, 0.45);
+}
+.bp-article-head { margin: 0 0 1.8rem; }
+.bp-article-tags {
+  margin: 0 0 1rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.bp-sheet h1 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+  font-size: clamp(1.9rem, 1.2rem + 3.4vw, 3.4rem);
+  margin: 0 0 1rem;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.bp-article-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* Answer-first box — the 2–3 sentence direct answer under the H1. */
+.bp-answer {
+  border-left: 6px solid var(--blue);
+  background: #eef0fd;
+  padding: 1.1rem 1.3rem 1.2rem;
+  margin: 0 0 2.2rem;
+}
+.bp-answer-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.bp-answer p:last-child {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* Long-form body typography. */
+.bp-body { font-size: 1.02rem; line-height: 1.75; }
+.bp-body > * { margin: 0 0 1.15rem; }
+.bp-body p { text-wrap: pretty; color: #1d2130; }
+.bp-body h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: clamp(1.35rem, 1.1rem + 1.2vw, 1.9rem);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  margin: 2.4rem 0 0.9rem;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.bp-body h2::before {
+  content: "";
+  display: block;
+  width: 3.5rem;
+  height: 4px;
+  background: var(--blue);
+  margin-bottom: 0.7rem;
+}
+.bp-body h3 {
+  font-size: 1.08rem;
+  font-weight: 800;
+  margin: 1.8rem 0 0.6rem;
+  color: var(--ink);
+}
+.bp-body a { color: var(--blue); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.bp-body a:hover { text-decoration-thickness: 2px; }
+.bp-body strong { color: var(--ink); }
+.bp-body ul, .bp-body ol { padding-left: 1.4rem; }
+.bp-body li { margin-bottom: 0.55rem; }
+.bp-body li::marker { color: var(--blue); font-weight: 700; }
+.bp-body blockquote {
+  border-left: 4px solid var(--line-ink);
+  margin: 0 0 1.15rem;
+  padding: 0.2rem 0 0.2rem 1.2rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: #2a2f42;
+}
+.bp-body hr { border: 0; border-top: 1px solid var(--line-ink); margin: 2rem 0; }
+.bp-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.92em;
+  background: #eef0fd;
+  padding: 0.1em 0.35em;
+}
+
+/* FAQ block on the sheet. */
+.bp-faq { margin-top: 2.6rem; border-top: 1px solid var(--line-ink); padding-top: 1.6rem; }
+.bp-faq h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 1.5rem;
+  margin: 0 0 1.2rem;
+  color: var(--ink);
+}
+.bp-faq-item { border: 1px solid var(--line-ink); padding: 1rem 1.2rem 1.1rem; margin-bottom: -1px; }
+.bp-faq-item h3 { margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 800; letter-spacing: 0.02em; }
+.bp-faq-item p { margin: 0; font-size: 0.94rem; line-height: 1.65; color: #1d2130; text-wrap: pretty; }
+
+/* CTA band inside the sheet — ink slab, drafting title-block energy. */
+.bp-article-cta {
+  margin-top: 2.6rem;
+  background: var(--ink);
+  color: #fff;
+  padding: 1.5rem 1.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem 2rem;
+}
+.bp-article-cta-title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 1.35rem;
+  margin: 0 0 0.4rem;
+}
+.bp-article-cta p { margin: 0; font-size: 0.92rem; line-height: 1.6; max-width: 32rem; color: #d9dcef; }
+
+/* ── Related ── */
+.bp-related { margin-top: 3rem; }
+.bp-related h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.2rem);
+  margin: 0 0 1.4rem;
+  color: #fff;
+}
+.bp-grid-related { grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); }
+
+/* ── Buttons + footer ── */
+.bp-btn {
+  display: inline-block;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 1rem 1.6rem;
+  border: 2px solid #fff;
+  cursor: pointer;
+  border-radius: 0;
+  white-space: nowrap;
+}
+.bp-btn:hover { background: transparent; color: #fff; }
+.bp-article-cta .bp-btn:hover { background: var(--ink); color: #fff; }
+
+.bp-footer { margin-top: 3.5rem; border-top: 1px solid var(--line); padding-top: 1.4rem; display: grid; gap: 0.9rem; }
+.bp-footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.8rem 2rem; }
+.bp-footer-brand {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: var(--font-display); text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.04em;
+}
+.bp-footer-brand span { color: var(--muted); }
+.bp-footer-links { display: inline-flex; flex-wrap: wrap; gap: 1.2rem 1.6rem; }
+.bp-footer-links a {
+  color: #fff; text-decoration: none; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  border-bottom: 2px solid transparent; padding-bottom: 2px;
+}
+.bp-footer-links a:hover, .bp-footer-links a:focus-visible { border-bottom-color: #fff; }
+.bp-footer-meta { margin: 0; font-size: 0.75rem; letter-spacing: 0.04em; color: var(--muted); }
+
+.bp :where(a, button):focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.bp-sheet :where(a):focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* ── Small screens ── */
+@media (max-width: 720px) {
+  .bp-nav { gap: 0.9rem; }
+  .bp-nav a { font-size: 0.68rem; letter-spacing: 0.12em; }
+  .bp-main { padding-top: 5.5rem; }
+  .bp-crumbs [aria-current] {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+  .bp-sheet { box-shadow: 6px 6px 0 rgba(6, 8, 40, 0.45); }
+}
