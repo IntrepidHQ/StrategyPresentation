@@ -81,13 +81,13 @@ export function CheckerWave() {
         renderer.domElement.setAttribute("aria-hidden", "true");
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(32, W() / H(), 0.1, 40);
-        camera.position.set(0, 1.15, 4.4);
+        const camera = new THREE.PerspectiveCamera(52, W() / H(), 0.1, 40);
+        camera.position.set(0, 1.0, 3.4);
         camera.lookAt(0, -0.15, 0);
 
         // Particle cloth: NX×NY grid, checkered by cell parity.
-        const NX = 190, NY = 64;
-        const SPAN_X = 9.5, SPAN_Y = 3.1;
+        const NX = 340, NY = 62;
+        const SPAN_X = 20, SPAN_Y = 3.0;
         const N = NX * NY;
         const pos = new Float32Array(N * 3);
         const lum = new Float32Array(N);
