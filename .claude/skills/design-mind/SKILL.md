@@ -117,6 +117,13 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Paper wears at the CORNERS, not the edges.** Gradient-masked edge strips read as gradients (Hans hated them). Real paper: 4 corner blotches in the sheet color with a feTurbulence-torn edge, plus one subtle diagonal fold crease + a faint radial wrinkle. Fixed to the viewport.
 - Full-wrap 8-file board can't be truly square (columns fixed at 45° lon); widening rank bands to ±66° is the most squaring you get.
 
+### Density pass + the invisible-mobile bug (2026-07-16, Hans)
+- **Density is the cheapest realism upgrade.** `densify()` in points-lib clones each stored point with a small jitter TANGENT to the surface (perpendicular to its normal) — extra particles stay ON the piece instead of fuzzing it. Hero pieces 5.2K/4.6K/4.2K/2.8K samples, vignettes 2×, globe 30K→52K + brighter lum (0.96) + tighter grooves (1.15°). Same small uniform point size; density carries the solidity.
+- **Reveal thresholds must assume tall slides.** SlideCounter added `.in` at intersection ratio 0.35 — on phones a slide is ~3× the viewport so 0.35 NEVER fires and children sat at opacity 0 forever ("nothing but negative space", Hans). Fix: reveal at ANY intersection; gate only the counter label on ratio ≥0.35 OR intersectionRect covering ≥55% of the viewport.
+- **Phones: kill the 100vh floor on content slides.** `min-height: 0` below 720px (cover keeps its full viewport); decorative pieces tuck into corners at ~0.45 opacity behind the content layer; drop doodle notes that would sit on a form.
+- **Gameplay: the piece IS the target.** Clicking an enemy piece you can legally capture executes the capture — aiming at the small square disc under it was fiddly.
+- **Trial-as-product shell (brainztem):** a trial should look like the buyer's OWN app — left sidebar with THEIR logo/accent (prefilled from brand hints, confirmed in a 3-click guided setup), not marketing chrome; the in-app chrome (checklists/docks) must be gated to app routes so public trials stay clean.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
