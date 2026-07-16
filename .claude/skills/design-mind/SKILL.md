@@ -109,6 +109,14 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Copy:** "forever" reads as a threat about the app, not the hire — Hans changed it to "indefinitely."
 - **CheckerWave belongs above the footer** (inside the last slide), not as a trailing section only visible after scrolling past everything.
 
+### Chess quality + real-paper (2026-07-16, Hans)
+- **Two-color particle armies + black finial ball.** All-white pieces read flat; give each army a uColor (white vs dark-slate) and a pure-BLACK finial ball at each piece's tip (a small particle sphere with an aBlack flag). Dark army needs a strong silhouette rim (uRim ~0.85) or it vanishes on the blue.
+- **Crisp = uniform small particles, NO size-by-brightness.** The blur was `gl_PointSize = (0.65 + vL*1.15)*…`. Fix: constant small point size; carry shading with per-particle brightness + a near-hard sprite edge (smoothstep 0.5→0.42) + density. "Smaller, same size, shade by nearness."
+- **Dumb-on-purpose AI is the right call for a hero toy.** Black = instant random legal move (slight capture bias) so visitors crush it; human plays White only; ~260ms reply feels snappy.
+- **Load phases svg→boot→live** so a refresh never flashes the previous illustration; boot shows a quiet placeholder, the static SVG is for no-WebGL only.
+- **Paper wears at the CORNERS, not the edges.** Gradient-masked edge strips read as gradients (Hans hated them). Real paper: 4 corner blotches in the sheet color with a feTurbulence-torn edge, plus one subtle diagonal fold crease + a faint radial wrinkle. Fixed to the viewport.
+- Full-wrap 8-file board can't be truly square (columns fixed at 45° lon); widening rank bands to ±66° is the most squaring you get.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
