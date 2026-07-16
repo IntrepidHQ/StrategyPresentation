@@ -118,16 +118,16 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      <div className="lp-tears" aria-hidden="true">
-        <span className="lp-tear lp-tear-h" style={{ top: 0, left: "6%", width: "17vw" }} />
-        <span className="lp-tear lp-tear-h" style={{ top: 0, left: "58%", width: "11vw" }} />
-        <span className="lp-tear lp-tear-v" style={{ top: "48vh", left: 0, height: "17vh" }} />
-        <span className="lp-tear lp-tear-v lp-tear-vr" style={{ top: "128vh", right: 0, height: "13vh" }} />
-        <span className="lp-tear lp-tear-v" style={{ top: "236vh", left: 0, height: "15vh" }} />
-        <span className="lp-tear lp-tear-v lp-tear-vr" style={{ top: "338vh", right: 0, height: "16vh" }} />
-        <span className="lp-tear lp-tear-v" style={{ top: "452vh", left: 0, height: "12vh" }} />
-        <span className="lp-tear lp-tear-h lp-tear-hb" style={{ bottom: 0, left: "14%", width: "15vw" }} />
-        <span className="lp-tear lp-tear-h lp-tear-hb" style={{ bottom: 0, left: "70%", width: "12vw" }} />
+      {/* Real-paper wear: the four corners rub through to the sheet's true
+          color, plus a soft fold-crease and a light wrinkle. Fixed so it reads
+          as the physical sheet you're reading on. */}
+      <div className="lp-paper" aria-hidden="true">
+        <span className="lp-corner lp-corner-tl" />
+        <span className="lp-corner lp-corner-tr" />
+        <span className="lp-corner lp-corner-bl" />
+        <span className="lp-corner lp-corner-br" />
+        <span className="lp-fold" />
+        <span className="lp-wrinkle" />
       </div>
 
       <SlideCounter />

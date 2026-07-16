@@ -36,30 +36,39 @@
   background-attachment: fixed;
 }
 
-/* ── Worn blueprint edges ──
-   Not a fully torn sheet — occasional worn patches (~1/6 of each edge)
-   where the paper color shows through. Absolutely positioned in the
-   DOCUMENT so they scroll with the page: the top tears leave as you
-   scroll; the bottom ones only appear at the end. Tapered ends via mask. */
+/* ── Real-paper wear ── Corners rub through to the sheet's true color
+   (that's where paper wears first), with a torn/turbulent edge — not a
+   gradient. Plus a soft fold-crease and a faint wrinkle so the blue reads
+   as a physical sheet, not a flat fill. Fixed to the viewport. */
 .lp { position: relative; }
-.lp-tears { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
-.lp-tear { position: absolute; }
-.lp-tear-h {
-  height: 9px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='9'%3E%3Cpath d='M0 0 H260 V3.5 L247 5 L241 3.2 L229 6.2 L214 4 L207 6.5 L193 3 L178 5.5 L171 4.2 L156 6.8 L149 3.4 L133 5.2 L119 3.8 L108 6.4 L94 4.6 L82 6 L74 3.2 L60 5.8 L47 3.6 L38 6.6 L24 4.2 L12 5.4 L0 3.8 Z' fill='%23efe6d4'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+.lp-paper { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
+.lp-corner {
+  position: absolute;
+  width: clamp(70px, 9vw, 150px);
+  aspect-ratio: 1;
+  /* Paper-colored corner blotch with a turbulence-torn inner edge. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cdefs%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='2' seed='4'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='22'/%3E%3C/filter%3E%3C/defs%3E%3Cpath filter='url(%23r)' fill='%23efe6d4' d='M0 0 H150 C110 24 62 44 44 70 C30 92 20 112 0 150 Z'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
-.lp-tear-hb { transform: scaleY(-1); }
-.lp-tear-v {
-  width: 9px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='260'%3E%3Cpath d='M0 0 V260 H3.5 L5 247 L3.2 241 L6.2 229 L4 214 L6.5 207 L3 193 L5.5 178 L4.2 171 L6.8 156 L3.4 149 L5.2 133 L3.8 119 L6.4 108 L4.6 94 L6 82 L3.2 74 L5.8 60 L3.6 47 L6.6 38 L4.2 24 L5.4 12 L3.8 0 Z' fill='%23efe6d4'/%3E%3C/svg%3E");
-  background-repeat: repeat-y;
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+.lp-corner-tl { top: -2px; left: -2px; }
+.lp-corner-tr { top: -2px; right: -2px; transform: scaleX(-1); }
+.lp-corner-bl { bottom: -2px; left: -2px; transform: scaleY(-1); }
+.lp-corner-br { bottom: -2px; right: -2px; transform: scale(-1, -1); }
+/* One diagonal fold-crease: a hair of highlight beside a hair of shadow. */
+.lp-fold {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(115deg, transparent calc(38% - 1px), rgba(255,255,255,0.06) 38%, transparent calc(38% + 2px)),
+    linear-gradient(115deg, transparent 38%, rgba(0,0,0,0.05) calc(38% + 2px), transparent calc(38% + 4px));
 }
-.lp-tear-vr { transform: scaleX(-1); }
+/* A soft crumple — very low-contrast off-center shading. */
+.lp-wrinkle {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60vw 80vh at 78% 18%, rgba(255,255,255,0.04), transparent 60%),
+    radial-gradient(50vw 70vh at 12% 82%, rgba(0,0,0,0.05), transparent 62%);
+}
 
 /* Paper grain over everything — decorative, zero requests. */
 .lp::after {
@@ -371,6 +380,17 @@ body {
 .lp-chess-hero .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
 .lp-chess-hero .lp-chess-fallback { position: absolute; inset: 0; }
 .lp-chess-hero.is-live .lp-chess-fallback { display: none; }
+/* Quiet loading placeholder — a faint globe outline, never the old cluster. */
+.lp-chess-boot {
+  position: absolute; inset: 0; display: grid; place-items: center;
+}
+.lp-chess-boot::before {
+  content: ""; width: 62%; aspect-ratio: 1; border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  animation: lp-boot-pulse 1.4s ease-in-out infinite;
+}
+@keyframes lp-boot-pulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.6; } }
+@media (prefers-reduced-motion: reduce) { .lp-chess-boot::before { animation: none; } }
 /* "Click a piece" whisper under the live scene. */
 .lp-chess-hero.is-live::after {
   content: "DRAG TO SPIN · CLICK A PIECE TO PLAY";
@@ -388,7 +408,9 @@ body {
 .lp-piece-scene .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
 .lp-piece-scene .lp-chess-fallback { position: absolute; inset: 0; opacity: 0.5; }
 .lp-piece-scene.is-live .lp-chess-fallback { display: none; }
-.lp-chess-rook { right: 0; bottom: 4%; width: clamp(200px, 24vw, 340px); aspect-ratio: 1; opacity: 0.75; }
+/* Math slide: lift the rook into the open space above the stat blocks so it's
+   not hidden behind them. */
+.lp-chess-rook { right: 1%; top: 8%; bottom: auto; width: clamp(190px, 22vw, 320px); aspect-ratio: 1; opacity: 0.8; }
 .lp-chess-royalty { right: 1%; bottom: 6%; width: clamp(260px, 30vw, 440px); aspect-ratio: 1.15; opacity: 0.85; }
 .lp-chess-bishop { right: 0; top: 12%; width: clamp(190px, 22vw, 320px); aspect-ratio: 1; opacity: 0.75; }
 .lp-chess-queen { right: 0; bottom: 18%; width: clamp(200px, 24vw, 350px); aspect-ratio: 1.1; opacity: 0.8; }

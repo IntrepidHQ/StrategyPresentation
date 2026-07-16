@@ -46,35 +46,53 @@ const SAMPLES: Record<string, number> = {
 
 // Cell → spherical coordinates. Ranks are latitude bands between ±60°,
 // files wrap the longitude; file 3.5 faces the camera at spin 0.
-const latDeg = (r: number) => -52.5 + 15 * r;
+// Board bands. A full 8-file wrap fixes columns at 45° of longitude; to make
+// the CENTER cells read squarer we widen the 8 rank bands to ±66° latitude
+// (16.5° each) so equatorial cells are closer to square than the old ±60°.
+const LAT_SPAN = 66;
+const BAND = (2 * LAT_SPAN) / 8; // 16.5°
+const latDeg = (r: number) => -LAT_SPAN + BAND / 2 + BAND * r;
 const lonDeg = (f: number) => (f - 3.5) * 45;
 
-// Piece shaders with a selection-boost uniform.
+// Piece shaders. Crisp, uniform, SMALL particles (no size-by-brightness →
+// no blur); shading is carried by per-particle color + a bright silhouette
+// rim, and by sampling density. uColor tints the army (white vs dark); aBlack
+// marks the pure-black finial ball on every piece's tip. uRim lifts the dark
+// army's edge so it reads on the blue sheet.
 const GAME_VERT = /* glsl */ `
   uniform float uScale;
   uniform float uBoost;
+  uniform vec3 uColor;
+  uniform float uRim;
   attribute float aLum;
-  varying float vL;
+  attribute float aBlack;
+  varying vec3 vColor;
+  varying float vA;
   void main() {
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     vec3 lightDir = normalize(vec3(-0.4, 0.55, 0.82));
     vec3 wn = normalize(mat3(modelMatrix) * normal);
     float diff = max(dot(wn, lightDir), 0.0);
     vec3 vn = normalize(normalMatrix * normal);
-    float rim = pow(1.0 - abs(vn.z), 2.2);
-    vL = clamp(aLum * (0.22 + diff * 0.85 + rim * 0.45) * uBoost, 0.0, 1.2);
-    gl_PointSize = (0.65 + min(vL, 1.0) * 1.15) * uScale * (300.0 / max(60.0, -mv.z * 100.0));
+    float rim = pow(1.0 - abs(vn.z), 3.0);
+    vec3 base = mix(uColor, vec3(0.015), aBlack);   // black finial
+    vec3 col = base * (0.34 + diff * 0.72) * uBoost;
+    col = mix(col, vec3(1.0), rim * uRim * (1.0 - aBlack)); // white silhouette
+    vColor = col;
+    vA = clamp(aLum * (0.55 + diff * 0.5 + rim * 0.7), 0.28, 1.0);
+    gl_PointSize = uScale * (300.0 / max(60.0, -mv.z * 100.0));
     gl_Position = projectionMatrix * mv;
   }
 `;
 const GAME_FRAG = /* glsl */ `
-  varying float vL;
+  varying vec3 vColor;
+  varying float vA;
   void main() {
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
-    float edge = smoothstep(0.5, 0.46, d);
-    gl_FragColor = vec4(vec3(1.0), (0.1 + min(vL, 1.0) * 0.9) * edge);
+    float edge = smoothstep(0.5, 0.42, d); // near-hard disc
+    gl_FragColor = vec4(vColor, vA * edge);
   }
 `;
 // Highlight rings: simple pulsing points.
@@ -102,12 +120,16 @@ const RING_FRAG = /* glsl */ `
 export function ChessHero() {
   const hostRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
+  // svg = static fallback (SSR / no-WebGL); boot = JS loading the globe;
+  // live = interactive board. The 3-piece SVG only shows on svg.
+  const [phase, setPhase] = useState<"svg" | "boot" | "live">("svg");
   const [hud, setHud] = useState("LOADING BOARD…");
   const resetRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
+    setPhase("boot"); // JS is running — hide the static cluster immediately
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let disposed = false;
     let raf = 0;
@@ -141,9 +163,16 @@ export function ChessHero() {
         scene.add(root);
 
         const allMats: import("three").ShaderMaterial[] = [];
-        const mkPieceMat = () => {
+        const WHITE_ARMY = new THREE.Color(1, 1, 1);
+        const BLACK_ARMY = new THREE.Color(0.16, 0.18, 0.34); // dark slate, rim-lit
+        const mkPieceMat = (col: import("three").Color = WHITE_ARMY, rim = 0.35) => {
           const m = new THREE.ShaderMaterial({
-            uniforms: { uScale: { value: H() * 0.0075 }, uBoost: { value: 1 } },
+            uniforms: {
+              uScale: { value: H() * 0.0058 },
+              uBoost: { value: 1 },
+              uColor: { value: col.clone() },
+              uRim: { value: rim },
+            },
             vertexShader: GAME_VERT,
             fragmentShader: GAME_FRAG,
             transparent: true,
@@ -168,21 +197,21 @@ export function ChessHero() {
             const lat = (Math.asin(ny) * 180) / Math.PI;
             const lon = (Math.atan2(nx, nz) * 180) / Math.PI; // matches lonDeg mapping
             let l: number;
-            if (Math.abs(lat) <= 60) {
+            if (Math.abs(lat) <= LAT_SPAN) {
               // Groove lines between cells so the 8×8 board reads clearly.
-              const latIn = lat + 60;
-              const dLat = Math.abs(latIn / 15 - Math.round(latIn / 15)) * 15;
+              const latIn = lat + LAT_SPAN;
+              const dLat = Math.abs(latIn / BAND - Math.round(latIn / BAND)) * BAND;
               const lonIn = lon + 180;
               const dLon = Math.abs(lonIn / 45 - Math.round(lonIn / 45)) * 45 * Math.cos((lat * Math.PI) / 180);
-              if (Math.min(dLat, dLon) < 1.1) continue;
-              const r = Math.min(7, Math.floor(latIn / 15));
+              if (Math.min(dLat, dLon) < 1.4) continue;
+              const r = Math.min(7, Math.floor(latIn / BAND));
               const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
               const light = (r + f) % 2 === 0;
-              if (!light && Math.random() > 0.13) continue;
-              l = light ? (Math.random() > 0.93 ? 1 : 0.88) : 0.24;
+              if (!light && Math.random() > 0.1) continue;
+              l = light ? (Math.random() > 0.93 ? 1 : 0.9) : 0.22;
             } else {
-              if (Math.random() > 0.1) continue; // sparse polar caps
-              l = 0.16;
+              if (Math.random() > 0.08) continue; // sparse polar caps
+              l = 0.14;
             }
             pos[i] = nx * GLOBE_R; pos[i + 1] = ny * GLOBE_R; pos[i + 2] = nz * GLOBE_R;
             nor[i] = nx; nor[i + 1] = ny; nor[i + 2] = nz;
@@ -193,9 +222,10 @@ export function ChessHero() {
           geo.setAttribute("position", new THREE.BufferAttribute(pos.slice(0, made * 3), 3));
           geo.setAttribute("normal", new THREE.BufferAttribute(nor.slice(0, made * 3), 3));
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum.slice(0, made), 1));
-          const m = mkPieceMat();
-          m.uniforms.uScale.value = H() * 0.0075 * 0.5;
-          m.userData.scaleMul = 0.5;
+          geo.setAttribute("aBlack", new THREE.BufferAttribute(new Float32Array(made), 1));
+          const m = mkPieceMat(WHITE_ARMY, 0.22);
+          m.uniforms.uScale.value = H() * 0.0058 * 0.62;
+          m.userData.scaleMul = 0.62;
           root.add(new THREE.Points(geo, m));
         }
 
@@ -246,15 +276,22 @@ export function ChessHero() {
         };
         const flyers: Flyer[] = [];
 
-        function pieceGeometry(type: string, scale: number, color: "white" | "black") {
+        function pieceGeometry(type: string, scale: number) {
           const data = points.get(type)!;
           const want = SAMPLES[type];
           const stride = Math.max(1, Math.floor(data.meta.count / want));
-          const n = Math.floor(data.meta.count / stride);
+          const bodyN = Math.floor(data.meta.count / stride);
+          // Top of the piece (for the black finial ball). Data y is normalized
+          // 0..1; centered geometry puts the tip at ~+scale/2.
+          let topY = -Infinity;
+          for (let k = 0; k < bodyN; k++) topY = Math.max(topY, data.pos[k * stride * 3 + 1]);
+          const finialN = Math.round(bodyN * 0.06) + 40;
+          const n = bodyN + finialN;
           const pos = new Float32Array(n * 3);
           const nor = new Float32Array(n * 3);
-          const lum = new Float32Array(n).fill(color === "black" ? 0.42 : 0.92);
-          for (let k = 0; k < n; k++) {
+          const lum = new Float32Array(n).fill(0.92);
+          const blk = new Float32Array(n);
+          for (let k = 0; k < bodyN; k++) {
             const src = k * stride * 3;
             pos[k * 3] = data.pos[src] * scale;
             pos[k * 3 + 1] = data.pos[src + 1] * scale - scale / 2;
@@ -263,10 +300,27 @@ export function ChessHero() {
             nor[k * 3 + 1] = data.nor[src + 1];
             nor[k * 3 + 2] = data.nor[src + 2];
           }
+          // Black finial: a small solid ball of pure-black particles at the tip.
+          const cy = topY * scale - scale / 2 + scale * 0.05;
+          const rad = scale * 0.1;
+          for (let k = 0; k < finialN; k++) {
+            const o = bodyN + k;
+            const u = Math.random() * 2 - 1;
+            const th = Math.random() * Math.PI * 2;
+            const s = Math.sqrt(1 - u * u) * (0.55 + Math.random() * 0.45);
+            const nx = s * Math.cos(th), ny = u, nz = s * Math.sin(th);
+            pos[o * 3] = nx * rad;
+            pos[o * 3 + 1] = cy + ny * rad;
+            pos[o * 3 + 2] = nz * rad;
+            nor[o * 3] = nx; nor[o * 3 + 1] = ny; nor[o * 3 + 2] = nz;
+            lum[o] = 1;
+            blk[o] = 1;
+          }
           const geo = new THREE.BufferGeometry();
           geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
           geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum, 1));
+          geo.setAttribute("aBlack", new THREE.BufferAttribute(blk, 1));
           return geo;
         }
 
@@ -286,8 +340,8 @@ export function ChessHero() {
           visuals.length = 0;
           for (const p of game.pieces) {
             const scale = SCALES[p.type];
-            const geo = pieceGeometry(p.type, scale, p.color);
-            const mat = mkPieceMat();
+            const geo = pieceGeometry(p.type, scale);
+            const mat = p.color === "black" ? mkPieceMat(BLACK_ARMY, 0.85) : mkPieceMat(WHITE_ARMY, 0.3);
             const obj = new THREE.Points(geo, mat);
             const data = points.get(p.type)!;
             const proxy = new THREE.Mesh(
@@ -399,9 +453,9 @@ export function ChessHero() {
           visuals.splice(idx, 1);
         }
 
-        function doMove(m: Move) {
-          if (!selected) return;
-          const v = selected;
+        let aiTimer: ReturnType<typeof setTimeout> | null = null;
+
+        function commitMove(v: Vis, m: Move) {
           if (m.capture) launchCapture(m.capture);
           const fromP = v.obj.position.clone();
           const fromQ = v.obj.quaternion.clone();
@@ -409,19 +463,41 @@ export function ChessHero() {
           if (promoted) {
             v.obj.geometry.dispose();
             v.scale = SCALES.queen;
-            v.obj.geometry = pieceGeometry("queen", v.scale, v.piece.color);
+            v.obj.geometry = pieceGeometry("queen", v.scale);
           }
           const { posLocal, q } = frameFor(v.piece.file, v.piece.rank, v.piece.color, v.scale);
-          if (reduced) {
-            placeAtCell(v);
-          } else {
-            v.anim = { from: fromP, to: posLocal, qFrom: fromQ, qTo: q, t: 0 };
-          }
-          clearHighlights();
+          if (reduced) placeAtCell(v);
+          else v.anim = { from: fromP, to: posLocal, qFrom: fromQ, qTo: q, t: 0 };
           setHud(statusText(game));
         }
 
+        // Black is a deliberately dumb opponent: it plays a random legal move,
+        // almost instantly, so a person crushes it. Prefers captures a little
+        // just so it isn't lifeless.
+        function playAi() {
+          if (game.result || game.turn !== "black") return;
+          const movers = visuals.filter((v) => v.piece.color === "black" && v.piece.alive);
+          const options: { v: Vis; m: Move }[] = [];
+          for (const v of movers) for (const m of legalMoves(game, v.piece)) options.push({ v, m });
+          if (!options.length) return;
+          const caps = options.filter((o) => o.m.capture);
+          const pool = caps.length && Math.random() < 0.5 ? caps : options;
+          const pick = pool[Math.floor(Math.random() * pool.length)];
+          commitMove(pick.v, pick.m);
+        }
+
+        function doMove(m: Move) {
+          if (!selected) return;
+          commitMove(selected, m);
+          clearHighlights();
+          if (!game.result && game.turn === "black") {
+            if (aiTimer) clearTimeout(aiTimer);
+            aiTimer = setTimeout(playAi, 260); // snappy but readable
+          }
+        }
+
         resetRef.current = () => {
+          if (aiTimer) clearTimeout(aiTimer);
           clearHighlights();
           for (const fl of flyers) {
             root.remove(fl.obj);
@@ -437,6 +513,7 @@ export function ChessHero() {
         setHud(statusText(game));
         host.appendChild(renderer.domElement);
         setReady(true);
+        setPhase("live");
 
         // ── Pointer: drag to rotate, click/tap to play ──
         let spin = 0;
@@ -458,7 +535,7 @@ export function ChessHero() {
           const dx = ev.clientX - downX;
           if (!dragging && Math.abs(dx) + Math.abs(ev.clientY - downY) > 7) dragging = true;
           if (dragging) {
-            spin = spin0 + dx * 0.006;
+            spin = spin0 + dx * 0.009;
             lastInteract = performance.now();
             el.style.cursor = "grabbing";
           }
@@ -484,7 +561,8 @@ export function ChessHero() {
           }
           const v = visuals.find((x) => x.proxy === hits[0].object)!;
           if (game.result) return;
-          if (v.piece.color !== game.turn) {
+          // Human plays White only; Black is the auto opponent.
+          if (v.piece.color !== "white" || game.turn !== "white") {
             clearHighlights();
             return;
           }
@@ -502,7 +580,7 @@ export function ChessHero() {
           time += dt;
 
           // Idle spin only when nothing is selected and the player is idle.
-          if (!reduced && !selected && performance.now() - lastInteract > 6000) {
+          if (!reduced && !selected && performance.now() - lastInteract > 3500) {
             spin += 0.045 * dt;
           }
           root.rotation.y = spin;
@@ -510,7 +588,7 @@ export function ChessHero() {
           // Move animation: arc between squares with a lift.
           for (const v of visuals) {
             if (!v.anim) continue;
-            v.anim.t = Math.min(1, v.anim.t + dt / 0.45);
+            v.anim.t = Math.min(1, v.anim.t + dt / 0.3);
             const e = 1 - Math.pow(1 - v.anim.t, 3);
             v.obj.position.lerpVectors(v.anim.from, v.anim.to, e);
             const lift = Math.sin(Math.PI * e) * 0.12;
@@ -578,7 +656,7 @@ export function ChessHero() {
         };
       } catch {
         setHud("");
-        // WebGL/fetch failed — the SVG fallback simply stays.
+        setPhase("svg"); // WebGL/fetch failed — restore the static fallback
       }
     })();
 
@@ -592,9 +670,13 @@ export function ChessHero() {
   }, []);
 
   return (
-    <div ref={hostRef} className={`lp-chess lp-chess-hero${ready ? " is-live" : ""}`}>
-      {/* Server-rendered fallback — hidden once the board is live. */}
-      <div className="lp-chess-fallback" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleChessCluster("sp-hero") }} />
+    <div ref={hostRef} className={`lp-chess lp-chess-hero${ready ? " is-live" : ""} lp-phase-${phase}`}>
+      {/* Static 3-piece cluster: only for SSR / no-WebGL (phase svg). */}
+      {phase === "svg" ? (
+        <div className="lp-chess-fallback" aria-hidden="true" dangerouslySetInnerHTML={{ __html: particleChessCluster("sp-hero") }} />
+      ) : null}
+      {/* While the globe loads, a quiet placeholder ring — never the old cluster. */}
+      {phase === "boot" ? <div className="lp-chess-boot" aria-hidden="true" /> : null}
       {ready ? (
         <div className="lp-game-hud">
           <span aria-live="polite">{hud}</span>
