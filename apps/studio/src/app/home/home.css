@@ -474,8 +474,66 @@ body {
 }
 .lp-stat-sub { font-size: 0.86rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
 
-/* ── Live demo: strictly a column ── */
+/* ── Live demo: two columns — the form on the left, the deck living in a
+   phone on the right. Stacks to one column below 960px. ── */
+.lp-demo-grid {
+  display: grid;
+  gap: clamp(1.6rem, 3.5vw, 3.5rem);
+  align-items: start;
+  margin-top: 0.4rem;
+}
+@media (min-width: 960px) {
+  .lp-demo-grid { grid-template-columns: minmax(0, 1fr) auto; }
+}
 .lp-demo-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; max-width: 34rem; }
+
+/* The phone: a hard-edged handset with the deck at true mobile size (375px
+   design width scaled down). No rounded corners — this is the blueprint. */
+.lp-demo-phone-col { display: grid; gap: 0.6rem; justify-items: center; }
+.lp-phone {
+  width: 300px;
+  height: 649px; /* 300 × 812/375 */
+  border: 2px solid #fff;
+  background: var(--ink);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 10px 10px 0 rgba(6, 8, 40, 0.45);
+}
+.lp-phone::before {
+  /* speaker slit — enough phone-ness, zero skeuomorphism */
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  translate: -50% 0;
+  width: 64px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  z-index: 2;
+  pointer-events: none;
+}
+.lp-phone-frame {
+  width: 375px;
+  height: 812px;
+  border: 0;
+  display: block;
+  background: var(--ink);
+  transform: scale(0.78933); /* 296/375 — fills the 296px inner width */
+  transform-origin: top left;
+}
+.lp-phone-caption {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  max-width: 300px;
+  text-wrap: balance;
+}
+.lp-demo-phone-col .lp-viewer-actions { margin: 0; }
+/* 300px fits every real viewport (≥320px), so the scale stays exact. */
 /* The label class name is legacy; these labels are intentionally visible. */
 .lp-demo-col label:not([hidden]), .lp-claim label:not([hidden]) {
   display: block;

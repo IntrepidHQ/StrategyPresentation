@@ -15,6 +15,9 @@ import { createClient } from "@supabase/supabase-js";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
 import { cleanDomain } from "@/lib/wcs-scans";
 import { supabaseServiceKey, supabaseUrl } from "@/lib/db";
+import { absoluteDeckUrl, notifyBrainztem } from "@/lib/notify";
+
+const TEMPLATE_IDS = new Set(["blueprint", "voltage", "summit", "signal", "editorial", "monospace", "gallery", "beacon"]);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -23,7 +26,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: false, error: "Rate limit reached." }, { status: 429 });
   }
 
-  let body: { email?: string; domain?: string; source?: string; scanId?: string };
+  let body: { email?: string; domain?: string; source?: string; scanId?: string; template?: string };
   try {
     body = await req.json();
   } catch {
@@ -72,5 +75,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
   console.log(`[demo/claim] lead: ${email} (${lead.domain ?? "no domain"}, ${lead.source})`);
-  return NextResponse.json({ ok: true });
+
+  // Email the lead alert to relax@brainztem.com + the deck to the prospect,
+  // FROM relax@brainztem.com (via the Brainztem bridge — it owns the Resend
+  // key). Awaited so serverless doesn't kill the send, but fail-soft: the
+  // lead is already stored either way.
+  const template = TEMPLATE_IDS.has(body.template ?? "") ? body.template : "signal";
+  const sent = await notifyBrainztem({
+    kind: "claim",
+    domain: lead.domain ?? "",
+    email,
+    scanId: lead.scan_id ?? undefined,
+    deckUrl: absoluteDeckUrl({ source: lead.source as "scan" | "sample", scanId: lead.scan_id, template }),
+  });
+  return NextResponse.json({ ok: true, emailed: sent?.prospectEmailed ?? false });
 }

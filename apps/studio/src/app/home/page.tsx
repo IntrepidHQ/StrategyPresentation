@@ -201,13 +201,13 @@ export default function LandingPage() {
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
             <h2 id="demo-h">See your business the way we do.</h2>
-            <div className="lp-demo-col">
-              <p className="lp-support">
-                Paste your URL. If we&apos;ve scanned it, you get a real pitch from real data —
-                otherwise a clearly-labeled sample. No signup, no card.
-              </p>
-              <DemoWidget />
-            </div>
+            <p className="lp-support">
+              Paste your URL. If we&apos;ve scanned it, you get a real pitch from real data —
+              otherwise a clearly-labeled sample. No signup, no card.
+            </p>
+            {/* Two columns: the form on the left, the deck living in a phone
+                on the right — the preview IS the pitch. */}
+            <DemoWidget />
           </div>
         </section>
 
