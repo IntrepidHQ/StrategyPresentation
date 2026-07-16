@@ -124,6 +124,12 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Gameplay: the piece IS the target.** Clicking an enemy piece you can legally capture executes the capture — aiming at the small square disc under it was fiddly.
 - **Trial-as-product shell (brainztem):** a trial should look like the buyer's OWN app — left sidebar with THEIR logo/accent (prefilled from brand hints, confirmed in a 3-click guided setup), not marketing chrome; the in-app chrome (checklists/docks) must be gated to app routes so public trials stay clean.
 
+### Template signatures — structure beats tokens (2026-07-16, Hans: "they all seem to have similar design elements but should each be unique")
+- **A theme is an ARCHITECTURE, not a palette.** Token swaps over one layout always read as the same deck. Real differentiation levers (all CSS-only over fixed markup): cover composition (centered memo / mirrored / monumental / two-col), furniture system (cards vs ruled ledger rows vs hairline plinths vs dashed terminal boxes), meter style (pill / hairline / hatched dot-matrix / inked square), ring treatment (small medallion / thin jewelry / glowing / monumental), and one signature gesture each (drop cap, vim status bar, status-chip eyebrows, sunrise arc).
+- **Useful mechanics burned in:** `.cover-layout { direction: rtl }` + children `ltr` mirrors a fixed-markup grid; CSS `stroke-width`/`stroke-dasharray` override SVG presentation attributes (restyle charts per theme without touching markup); `::first-letter` drop cap needs float + line-height 0.8; a decorative per-slide chrome line lives at the BOTTOM (vim status bar) because the deck runtime owns both top corners; counters (`counter(flag, decimal-leading-zero)`) turn any list into numbered index entries.
+- **Fit the cover to short viewports**: monumental center-column covers must size the ring in vh (min(210px, 28vh)) or it crops at 800px.
+- The 8 signatures: Summit=boardroom memo (centered, double rules, ledger), Signal=product dashboard (chips, glass, glow), Editorial=magazine (italic didone, drop cap, numbered rules), Monospace=terminal (vim bar, $ prompt + blinking cursor, hatched bars), Gallery=exhibition (centered monumental, hairline plinths), Beacon=sunrise (mirrored cover, pillowed cards), Voltage=print-shop brutalism, Blueprint=drafting sheet. All axe-clean AA.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
