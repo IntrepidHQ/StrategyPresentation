@@ -103,6 +103,12 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Optical grid alignment**: background-position-x: calc(max((100vw − 1120px)/2, pad)) pins a major gridline to the content edge — the grid must belong to the type.
 - Deck iframes: html/body overflow-x clip (previews had a horizontal scrollbar).
 
+### Playable chess + seamless data (2026-07-16, Hans)
+- **The hero is a full playable game** now (sphere-chess.ts rules engine + ChessHero WebGL): 8 ranks × 8 wrapping longitude files on the particle planet, armies on opposite hemispheres, legal move gen + check/mate, click-to-select highlights legal squares, great-circle move animation, capture-launch, drag-to-spin, HUD + reset. Physics lesson from the prior pass held: wake only the clicked body.
+- **Data seams belong on HTTP, not shared DBs.** SP was reading a *copied* scans table and dead-ending on scans it hadn't copied (ford.com lived only in WCS's DB). Fix: WCS exposes GET /api/scan/{id} + /api/scan/latest; SP's wcs-scans falls back to those over HTTP (wcs-remote.ts) — SP now sees every scan WCS has, wherever stored. Deck endpoint degrades to the labeled sample instead of "Scan not found." SP /api/demo/scan runs the scan inline (proxy WCS start + drain its SSE stream) so users never bounce.
+- **Copy:** "forever" reads as a threat about the app, not the hire — Hans changed it to "indefinitely."
+- **CheckerWave belongs above the footer** (inside the last slide), not as a trailing section only visible after scrolling past everything.
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)
