@@ -345,7 +345,9 @@ body {
 @media (max-width: 959px) {
   .lp-doodle-phone, .lp-doodle-feetup, .lp-doodle-cheers, .lp-doodle-dogrun { display: none; }
   .lp-doodle-worknote { display: none; }
-  .lp-doodle-lifenote { width: 130px; top: auto; bottom: 4%; right: 4%; }
+  /* On phones the slide hugs its content, so the note would sit ON the
+     form — drop it rather than crowd the CTA. */
+  .lp-doodle-lifenote { display: none; }
 }
 
 /* Doodle micro-animation (reduced-motion: off). */
@@ -416,10 +418,10 @@ body {
 .lp-piece-scene.is-live .lp-chess-fallback { display: none; }
 /* Math slide: lift the rook into the open space above the stat blocks so it's
    not hidden behind them. */
-.lp-chess-rook { right: 1%; top: 8%; bottom: auto; width: clamp(190px, 22vw, 320px); aspect-ratio: 1; opacity: 0.8; }
-.lp-chess-royalty { right: 1%; bottom: 6%; width: clamp(260px, 30vw, 440px); aspect-ratio: 1.15; opacity: 0.85; }
-.lp-chess-bishop { right: 0; top: 12%; width: clamp(190px, 22vw, 320px); aspect-ratio: 1; opacity: 0.75; }
-.lp-chess-queen { right: 0; bottom: 18%; width: clamp(200px, 24vw, 350px); aspect-ratio: 1.1; opacity: 0.8; }
+.lp-chess-rook { right: 1%; top: 8%; bottom: auto; width: clamp(230px, 27vw, 410px); aspect-ratio: 1; opacity: 0.92; }
+.lp-chess-royalty { right: 1%; bottom: 6%; width: clamp(300px, 36vw, 560px); aspect-ratio: 1.15; opacity: 0.95; }
+.lp-chess-bishop { right: 0; top: 12%; width: clamp(230px, 27vw, 410px); aspect-ratio: 1; opacity: 0.9; }
+.lp-chess-queen { right: 0; bottom: 18%; width: clamp(240px, 29vw, 440px); aspect-ratio: 1.1; opacity: 0.92; }
 @media (prefers-reduced-motion: no-preference) {
 }
 
@@ -472,8 +474,66 @@ body {
 }
 .lp-stat-sub { font-size: 0.86rem; line-height: 1.5; color: var(--muted); text-wrap: pretty; }
 
-/* ── Live demo: strictly a column ── */
+/* ── Live demo: two columns — the form on the left, the deck living in a
+   phone on the right. Stacks to one column below 960px. ── */
+.lp-demo-grid {
+  display: grid;
+  gap: clamp(1.6rem, 3.5vw, 3.5rem);
+  align-items: start;
+  margin-top: 0.4rem;
+}
+@media (min-width: 960px) {
+  .lp-demo-grid { grid-template-columns: minmax(0, 1fr) auto; }
+}
 .lp-demo-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; max-width: 34rem; }
+
+/* The phone: a hard-edged handset with the deck at true mobile size (375px
+   design width scaled down). No rounded corners — this is the blueprint. */
+.lp-demo-phone-col { display: grid; gap: 0.6rem; justify-items: center; }
+.lp-phone {
+  width: 300px;
+  height: 649px; /* 300 × 812/375 */
+  border: 2px solid #fff;
+  background: var(--ink);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 10px 10px 0 rgba(6, 8, 40, 0.45);
+}
+.lp-phone::before {
+  /* speaker slit — enough phone-ness, zero skeuomorphism */
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  translate: -50% 0;
+  width: 64px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  z-index: 2;
+  pointer-events: none;
+}
+.lp-phone-frame {
+  width: 375px;
+  height: 812px;
+  border: 0;
+  display: block;
+  background: var(--ink);
+  transform: scale(0.78933); /* 296/375 — fills the 296px inner width */
+  transform-origin: top left;
+}
+.lp-phone-caption {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  max-width: 300px;
+  text-wrap: balance;
+}
+.lp-demo-phone-col .lp-viewer-actions { margin: 0; }
+/* 300px fits every real viewport (≥320px), so the scale stays exact. */
 /* The label class name is legacy; these labels are intentionally visible. */
 .lp-demo-col label:not([hidden]), .lp-claim label:not([hidden]) {
   display: block;
@@ -764,4 +824,14 @@ body {
   .lp-counter { bottom: 0.7rem; right: 0.7rem; }
   .lp h1 { font-size: clamp(2.4rem, 12vw, 3.4rem); }
   .lp h2 { font-size: clamp(1.8rem, 9vw, 2.7rem); }
+  /* Slides hug their content on phones — a 100vh floor on every section
+     turns short sections into empty blue screens. The cover keeps it. */
+  .lp-slide { min-height: 0; padding-top: 4.5rem; padding-bottom: 3.5rem; }
+  .lp-cover { min-height: 100vh; min-height: 100dvh; }
+  /* Decorative pieces tuck into the corners at low opacity instead of
+     shoving the text around (they're behind the content layer). */
+  .lp-chess-rook { width: 190px; right: -10%; top: 2%; opacity: 0.5; }
+  .lp-chess-royalty { width: 250px; right: -14%; bottom: 1%; opacity: 0.45; }
+  .lp-chess-bishop { width: 190px; right: -10%; top: 4%; opacity: 0.45; }
+  .lp-chess-queen { width: 200px; right: -8%; bottom: 4%; opacity: 0.45; }
 }

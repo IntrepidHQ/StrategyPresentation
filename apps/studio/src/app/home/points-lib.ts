@@ -36,6 +36,39 @@ export function loadPoints(url = "/chess-points.bin"): Promise<Map<string, Piece
   return cache;
 }
 
+/**
+ * Densify a sampled point cloud: emit `factor`× points by cloning each source
+ * point with a small jitter TANGENT to the surface (perpendicular to its
+ * normal), so the extra particles stay ON the piece instead of fuzzing it.
+ * This is how the art gets denser than the 4.2K points stored in the .bin.
+ */
+export function densify(data: PieceData, factor: number, jitter = 0.006): PieceData {
+  const f = Math.max(1, Math.round(factor));
+  if (f === 1) return data;
+  const n = data.meta.count * f;
+  const pos = new Float32Array(n * 3);
+  const nor = new Float32Array(n * 3);
+  for (let i = 0; i < data.meta.count; i++) {
+    const s = i * 3;
+    const nx = data.nor[s], ny = data.nor[s + 1], nz = data.nor[s + 2];
+    // Tangent basis around the normal.
+    let tx = -ny, ty = nx, tz = 0;
+    const tl = Math.hypot(tx, ty, tz) || 1;
+    tx /= tl; ty /= tl; tz /= tl;
+    const bx = ny * tz - nz * ty, by = nz * tx - nx * tz, bz = nx * ty - ny * tx;
+    for (let k = 0; k < f; k++) {
+      const d = (i * f + k) * 3;
+      const a = k === 0 ? 0 : Math.random() * Math.PI * 2;
+      const r = k === 0 ? 0 : Math.sqrt(Math.random()) * jitter;
+      pos[d] = data.pos[s] + (tx * Math.cos(a) + bx * Math.sin(a)) * r;
+      pos[d + 1] = data.pos[s + 1] + (ty * Math.cos(a) + by * Math.sin(a)) * r;
+      pos[d + 2] = data.pos[s + 2] + (tz * Math.cos(a) + bz * Math.sin(a)) * r;
+      nor[d] = nx; nor[d + 1] = ny; nor[d + 2] = nz;
+    }
+  }
+  return { meta: { ...data.meta, count: n }, pos, nor };
+}
+
 // Crisp particle shaders: hard-edged sprites, strong light contrast, and a
 // per-point luminance attribute.
 export const VERT = /* glsl */ `

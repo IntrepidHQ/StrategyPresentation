@@ -14,13 +14,20 @@ export function SlideCounter() {
       (entries) => {
         for (const e of entries) {
           if (!e.isIntersecting) continue;
+          // Reveal at ANY intersection: on phones a slide can be 3× the
+          // viewport, so a high ratio never arrives and content would stay
+          // hidden (opacity 0) forever.
           e.target.classList.add("in"); // scroll-reveal hook (one-way)
+          // The counter label needs more commitment: a decent ratio, or (for
+          // tall slides) the slide actually covering most of the screen.
+          const covers = e.intersectionRect.height >= window.innerHeight * 0.55;
+          if (e.intersectionRatio < 0.35 && !covers) continue;
           const i = slides.indexOf(e.target as HTMLElement);
           const name = (e.target as HTMLElement).dataset.slideName ?? "";
           setLabel(`${String(i + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}${name ? ` — ${name}` : ""}`);
         }
       },
-      { threshold: 0.35 },
+      { threshold: [0.02, 0.35, 0.6] },
     );
     slides.forEach((s) => io.observe(s));
     return () => io.disconnect();

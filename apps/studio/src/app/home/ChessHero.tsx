@@ -23,7 +23,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { particleChessCluster } from "./chess-art";
-import { loadPoints } from "./points-lib";
+import { type PieceData, densify, loadPoints } from "./points-lib";
 import {
   type GamePiece,
   type GameState,
@@ -40,8 +40,10 @@ const CENTER = { x: 0.34, y: -0.02, z: 0 };
 const SCALES: Record<string, number> = {
   king: 0.27, queen: 0.26, bishop: 0.235, knight: 0.22, rook: 0.21, pawn: 0.165,
 };
+// Beyond the 4.2K points stored per piece in the .bin — the loader densifies
+// tangentially, so the white army reads as a near-solid lit surface.
 const SAMPLES: Record<string, number> = {
-  king: 2600, queen: 2600, bishop: 2300, knight: 2300, rook: 2100, pawn: 1600,
+  king: 5200, queen: 5200, bishop: 4600, knight: 4600, rook: 4200, pawn: 2800,
 };
 
 // Cell → spherical coordinates. Ranks are latitude bands between ±60°,
@@ -80,7 +82,7 @@ const GAME_VERT = /* glsl */ `
     col = mix(col, vec3(1.0), rim * uRim * (1.0 - aBlack)); // white silhouette
     vColor = col;
     // Mostly opaque so dense small points read as a solid surface, not haze.
-    vA = clamp(aLum * (0.7 + diff * 0.3 + rim * 0.4), 0.55, 1.0);
+    vA = clamp(aLum * (0.78 + diff * 0.3 + rim * 0.4), 0.62, 1.0);
     gl_PointSize = uScale * (300.0 / max(60.0, -mv.z * 100.0));
     gl_Position = projectionMatrix * mv;
   }
@@ -185,7 +187,7 @@ export function ChessHero() {
 
         // ── The planet, checkered to MATCH the playing field ──
         {
-          const N = 30000;
+          const N = 52000; // dense enough that light squares read WHITE
           const pos = new Float32Array(N * 3);
           const nor = new Float32Array(N * 3);
           const lum = new Float32Array(N);
@@ -204,14 +206,14 @@ export function ChessHero() {
               const dLat = Math.abs(latIn / BAND - Math.round(latIn / BAND)) * BAND;
               const lonIn = lon + 180;
               const dLon = Math.abs(lonIn / 45 - Math.round(lonIn / 45)) * 45 * Math.cos((lat * Math.PI) / 180);
-              if (Math.min(dLat, dLon) < 1.4) continue;
+              if (Math.min(dLat, dLon) < 1.15) continue;
               const r = Math.min(7, Math.floor(latIn / BAND));
               const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
               const light = (r + f) % 2 === 0;
               // Only the LIGHT squares carry particles — dark squares are open
               // blue. No dim specks muddying them.
               if (!light) continue;
-              l = Math.random() > 0.9 ? 1 : 0.92;
+              l = Math.random() > 0.9 ? 1 : 0.96;
             } else {
               continue; // no polar caps — keep it clean
             }
@@ -278,8 +280,20 @@ export function ChessHero() {
         };
         const flyers: Flyer[] = [];
 
+        // Densified point clouds, built once per piece type.
+        const dense = new Map<string, PieceData>();
+        function denseData(type: string): PieceData {
+          let d = dense.get(type);
+          if (!d) {
+            const src = points.get(type)!;
+            d = densify(src, Math.ceil(SAMPLES[type] / src.meta.count));
+            dense.set(type, d);
+          }
+          return d;
+        }
+
         function pieceGeometry(type: string, scale: number, withFinial: boolean) {
-          const data = points.get(type)!;
+          const data = denseData(type);
           const want = SAMPLES[type];
           const stride = Math.max(1, Math.floor(data.meta.count / want));
           const bodyN = Math.floor(data.meta.count / stride);
@@ -564,6 +578,17 @@ export function ChessHero() {
           }
           const v = visuals.find((x) => x.proxy === hits[0].object)!;
           if (game.result) return;
+          // Clicking an enemy piece you can legally take = take it. (Aiming at
+          // the tiny square disc under a piece is fiddly; the piece IS the target.)
+          if (selected && v.piece.color === "black") {
+            const cap = legalMoves(game, selected.piece).find(
+              (m) => m.file === v.piece.file && m.rank === v.piece.rank,
+            );
+            if (cap) {
+              doMove(cap);
+              return;
+            }
+          }
           // Human plays White only; Black is the auto opponent.
           if (v.piece.color !== "white" || game.turn !== "white") {
             clearHighlights();

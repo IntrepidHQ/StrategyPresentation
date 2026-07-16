@@ -96,6 +96,7 @@ export default function DemoWidget() {
           domain: result.domain,
           source: result.mode,
           scanId: result.mode === "scan" ? result.scanId : undefined,
+          template, // the deck email links the exact look they're previewing
         }),
       });
       const data = await res.json();
@@ -112,12 +113,17 @@ export default function DemoWidget() {
       : `/api/demo/deck?source=sample&template=${template}`
     : null;
 
+  // The phone on the right always has a deck in it: theirs once looked up,
+  // the auto-playing sample before that — the preview IS the pitch.
+  const phoneSrc = deckSrc ?? `/api/demo/deck?source=sample&template=${template}&autoplay=1`;
+
   const trialHref = result
     ? `https://brainztem.com/?domain=${encodeURIComponent(result.domain)}&utm_source=strategypresentation&utm_medium=landing&utm_campaign=see-it-in-action`
     : "https://brainztem.com/?utm_source=strategypresentation&utm_medium=landing";
 
   return (
-    <div id="demo">
+    <div className="lp-demo-grid" id="demo-widget">
+      <div className="lp-demo-col">
       <form className="lp-domain-form" onSubmit={handleLookup}>
         <label className="lp-visually-hidden" htmlFor="lp-domain">
           Your website domain
@@ -187,27 +193,10 @@ export default function DemoWidget() {
             ))}
           </div>
 
-          {deckSrc && (
-            <>
-              <iframe
-                className="lp-viewer"
-                sandbox="allow-scripts allow-same-origin"
-                src={deckSrc}
-                title={`Strategy presentation preview — ${template} template`}
-              />
-              <p className="lp-viewer-actions">
-                <a href={deckSrc} rel="noopener" target="_blank">
-                  Open full screen ↗
-                </a>
-                <span className="lp-muted">Arrow keys move between slides.</span>
-              </p>
-            </>
-          )}
-
           <div className="lp-claim">
             {claimState === "done" ? (
               <p className="lp-status">
-                Got it — we&apos;ll send your deck link and follow up personally.
+                Sent — your deck is on its way from relax@brainztem.com. We&apos;ll follow up personally.
               </p>
             ) : (
               <form onSubmit={handleClaim}>
@@ -238,6 +227,30 @@ export default function DemoWidget() {
           </div>
         </div>
       )}
+      </div>
+
+      {/* ── The preview, as a phone, to the right of the form ── */}
+      <div className="lp-demo-phone-col">
+        <div className="lp-phone">
+          <iframe
+            className="lp-phone-frame"
+            key={phoneSrc}
+            sandbox="allow-scripts allow-same-origin"
+            src={phoneSrc}
+            title={`Strategy presentation preview (mobile) — ${template} template`}
+          />
+        </div>
+        <p className="lp-phone-caption" aria-live="polite">
+          {result?.mode === "scan"
+            ? `${result.domain} · ${template} — tap or use arrow keys`
+            : `Sample deck (real apple.com scan) · ${template}`}
+        </p>
+        <p className="lp-viewer-actions">
+          <a href={deckSrc ?? phoneSrc} rel="noopener" target="_blank">
+            Open full screen ↗
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

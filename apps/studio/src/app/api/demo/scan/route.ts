@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
 import { cleanDomain } from "@/lib/wcs-scans";
 import { remoteScanStatus, remoteStartScan } from "@/lib/wcs-remote";
+import { notifyBrainztem } from "@/lib/notify";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -74,6 +75,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // under the 300s function cap for the final status probe.
   await driveScan(scanId, 270_000);
   const status = (await remoteScanStatus(scanId))?.status ?? "pending";
+
+  // Lead alert to relax@brainztem.com — someone cared enough to run a scan.
+  await notifyBrainztem({ kind: "scan", domain, scanId });
 
   return NextResponse.json({
     ok: true,
