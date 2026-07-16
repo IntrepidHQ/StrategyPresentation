@@ -40,11 +40,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   let isSample = false;
 
   if (params.get("source") === "scan" && params.get("id")) {
+    // getScanById checks SP's shared copy, then WCS over HTTP. If the scan
+    // still can't be resolved (e.g. still processing), never dead-end on a
+    // raw error — present the clearly-labeled sample so the flow keeps moving.
     const hit = await getScanById(params.get("id")!);
-    if (!hit) {
-      return new NextResponse("Scan not found or not finished.", { status: 404 });
+    if (hit) {
+      report = hit.report;
+    } else {
+      report = sampleReport as unknown as WCSReport;
+      isSample = true;
     }
-    report = hit.report;
   } else {
     report = sampleReport as unknown as WCSReport;
     isSample = true;

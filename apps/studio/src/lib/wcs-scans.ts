@@ -13,6 +13,7 @@
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import type { WCSReport } from "./types";
+import { remoteLatestByDomain, remoteScanById } from "./wcs-remote";
 
 const SCAN_FRESHNESS_DAYS = 7; // matches WCS's own domain cache window
 
@@ -59,7 +60,7 @@ export async function getRecentScanByDomain(rawDomain: string): Promise<ScanHit 
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1);
-    if (error || !data?.length || !data[0].result) return null;
+    if (error || !data?.length || !data[0].result) return remoteLatestByDomain(domain);
     return {
       scanId: data[0].id,
       domain: data[0].domain,
@@ -67,14 +68,14 @@ export async function getRecentScanByDomain(rawDomain: string): Promise<ScanHit 
       completedAt: data[0].completed_at ?? data[0].created_at ?? null,
     };
   } catch {
-    return null;
+    return remoteLatestByDomain(domain);
   }
 }
 
 export async function getScanById(scanId: string): Promise<ScanHit | null> {
-  const supabase = wcsClient();
-  if (!supabase) return null;
   if (!/^[0-9a-f-]{36}$/i.test(scanId)) return null;
+  const supabase = wcsClient();
+  if (!supabase) return remoteScanById(scanId);
 
   try {
     const { data, error } = await supabase
@@ -83,7 +84,8 @@ export async function getScanById(scanId: string): Promise<ScanHit | null> {
       .eq("id", scanId)
       .eq("status", "done")
       .limit(1);
-    if (error || !data?.length || !data[0].result) return null;
+    // Not in SP's shared copy? Ask WCS directly (it owns the real data).
+    if (error || !data?.length || !data[0].result) return remoteScanById(scanId);
     return {
       scanId: data[0].id,
       domain: data[0].domain,
@@ -91,6 +93,6 @@ export async function getScanById(scanId: string): Promise<ScanHit | null> {
       completedAt: data[0].completed_at ?? data[0].created_at ?? null,
     };
   } catch {
-    return null;
+    return remoteScanById(scanId);
   }
 }
