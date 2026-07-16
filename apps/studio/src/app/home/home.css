@@ -36,12 +36,13 @@
   background-attachment: fixed;
 }
 
-/* ── Real-paper wear ── Corners rub through to the sheet's true color
-   (that's where paper wears first), with a torn/turbulent edge — not a
-   gradient. Plus a soft fold-crease and a faint wrinkle so the blue reads
-   as a physical sheet, not a flat fill. Fixed to the viewport. */
+/* ── Real-paper wear ── The corners rub through to the sheet's true color.
+   They're anchored to the SHEET (the whole document), not the viewport, so
+   the top corners sit at the top of the page and scroll away, and the bottom
+   corners only appear when you reach the very bottom — like real paper.
+   The soft fold + wrinkle stay as fixed ambient shading. */
 .lp { position: relative; }
-.lp-paper { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
+.lp-paper { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
 .lp-corner {
   position: absolute;
   aspect-ratio: 1;
@@ -57,16 +58,17 @@
 .lp-corner-tr { top: -1px; right: -1px; width: clamp(46px, 6vw, 96px); transform: scaleX(-1); }
 .lp-corner-bl { bottom: -1px; left: -1px; width: clamp(60px, 7.5vw, 118px); transform: scaleY(-1); }
 .lp-corner-br { bottom: -1px; right: -1px; width: clamp(38px, 5vw, 78px); transform: scale(-1, -1); }
-/* One diagonal fold-crease: a hair of highlight beside a hair of shadow. */
+/* One diagonal fold-crease: a hair of highlight beside a hair of shadow.
+   Fixed = consistent ambient texture on every screen (unlike the corners). */
 .lp-fold {
-  position: absolute; inset: 0;
+  position: fixed; inset: 0;
   background:
     linear-gradient(115deg, transparent calc(38% - 1px), rgba(255,255,255,0.06) 38%, transparent calc(38% + 2px)),
     linear-gradient(115deg, transparent 38%, rgba(0,0,0,0.05) calc(38% + 2px), transparent calc(38% + 4px));
 }
-/* A soft crumple — very low-contrast off-center shading. */
+/* A soft crumple — very low-contrast off-center shading, fixed to the view. */
 .lp-wrinkle {
-  position: absolute; inset: 0;
+  position: fixed; inset: 0;
   background:
     radial-gradient(60vw 80vh at 78% 18%, rgba(255,255,255,0.04), transparent 60%),
     radial-gradient(50vw 70vh at 12% 82%, rgba(0,0,0,0.05), transparent 62%);
