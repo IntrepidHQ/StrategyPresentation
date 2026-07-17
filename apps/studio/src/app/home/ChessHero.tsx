@@ -41,10 +41,14 @@ const SCALES: Record<string, number> = {
   king: 0.27, queen: 0.26, bishop: 0.235, knight: 0.22, rook: 0.21, pawn: 0.165,
 };
 // Beyond the 4.2K points stored per piece in the .bin — the loader densifies
-// tangentially, so the white army reads as a near-solid lit surface.
+// tangentially, so the armies read as SOLID lit surfaces (tight jitter +
+// ~2× the old sample counts; per-point size is dialed down to compensate).
 const SAMPLES: Record<string, number> = {
-  king: 5200, queen: 5200, bishop: 4600, knight: 4600, rook: 4200, pawn: 2800,
+  king: 10400, queen: 10400, bishop: 9200, knight: 9200, rook: 8400, pawn: 5600,
 };
+// One shared per-point size base (fraction of viewport height). Smaller than
+// the old 0.0042 so the denser clouds pack into crisp solids, not bloom.
+const PT_BASE = 0.0033;
 
 // Cell → spherical coordinates. Ranks are latitude bands between ±60°,
 // files wrap the longitude; file 3.5 faces the camera at spin 0.
@@ -77,12 +81,14 @@ const GAME_VERT = /* glsl */ `
     float diff = max(dot(wn, lightDir), 0.0);
     vec3 vn = normalize(normalMatrix * normal);
     float rim = pow(1.0 - abs(vn.z), 3.0);
-    vec3 base = mix(uColor, vec3(0.015), aBlack);   // black finial
-    vec3 col = base * (0.34 + diff * 0.72) * uBoost;
+    vec3 base = mix(uColor, vec3(0.015), aBlack);   // true-black particles
+    // High ambient floor: the WHITE army must read solid white, never a
+    // gray speckle — shading is a gentle 30% swing, not a blackout.
+    vec3 col = base * (0.70 + diff * 0.38) * uBoost;
     col = mix(col, vec3(1.0), rim * uRim * (1.0 - aBlack)); // white silhouette
     vColor = col;
-    // Mostly opaque so dense small points read as a solid surface, not haze.
-    vA = clamp(aLum * (0.78 + diff * 0.3 + rim * 0.4), 0.62, 1.0);
+    // Near-opaque so dense small points read as a solid surface, not haze.
+    vA = clamp(aLum * (0.88 + diff * 0.12 + rim * 0.2), 0.8, 1.0);
     gl_PointSize = uScale * (300.0 / max(60.0, -mv.z * 100.0));
     gl_Position = projectionMatrix * mv;
   }
@@ -94,7 +100,7 @@ const GAME_FRAG = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
-    float edge = 1.0 - smoothstep(0.42, 0.5, d); // crisp disc, 1px feather
+    float edge = 1.0 - smoothstep(0.46, 0.5, d); // near-hard disc — crisp, no halo
     gl_FragColor = vec4(vColor, vA * edge);
   }
 `;
@@ -148,7 +154,9 @@ export function ChessHero() {
         const H = () => host.clientHeight || 640;
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // Full device resolution (retina = 3): the single biggest crispness
+        // lever — at capped DPR every particle edge is antialiased into mush.
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
         renderer.setSize(W(), H());
         renderer.domElement.className = "lp-chess-canvas";
         renderer.domElement.setAttribute("aria-hidden", "true");
@@ -171,7 +179,7 @@ export function ChessHero() {
         const mkPieceMat = (col: import("three").Color = WHITE_ARMY, rim = 0.35) => {
           const m = new THREE.ShaderMaterial({
             uniforms: {
-              uScale: { value: H() * 0.0042 },
+              uScale: { value: H() * PT_BASE },
               uBoost: { value: 1 },
               uColor: { value: col.clone() },
               uRim: { value: rim },
@@ -186,11 +194,14 @@ export function ChessHero() {
         };
 
         // ── The planet, checkered to MATCH the playing field ──
+        // BOTH colors carry particles: light squares SOLID WHITE, dark squares
+        // BLACK ink — a real checkerboard, maximum contrast on the blue.
         {
-          const N = 52000; // dense enough that light squares read WHITE
+          const N = 150000;
           const pos = new Float32Array(N * 3);
           const nor = new Float32Array(N * 3);
           const lum = new Float32Array(N);
+          const blk = new Float32Array(N);
           let i = 0, made = 0, guard = 0;
           while (made < N && guard++ < N * 10) {
             const u = Math.random() * 2 - 1;
@@ -199,37 +210,33 @@ export function ChessHero() {
             const nx = s * Math.cos(th), ny = u, nz = s * Math.sin(th);
             const lat = (Math.asin(ny) * 180) / Math.PI;
             const lon = (Math.atan2(nx, nz) * 180) / Math.PI; // matches lonDeg mapping
-            let l: number;
-            if (Math.abs(lat) <= LAT_SPAN) {
-              // Groove lines between cells so the 8×8 board reads clearly.
-              const latIn = lat + LAT_SPAN;
-              const dLat = Math.abs(latIn / BAND - Math.round(latIn / BAND)) * BAND;
-              const lonIn = lon + 180;
-              const dLon = Math.abs(lonIn / 45 - Math.round(lonIn / 45)) * 45 * Math.cos((lat * Math.PI) / 180);
-              if (Math.min(dLat, dLon) < 1.15) continue;
-              const r = Math.min(7, Math.floor(latIn / BAND));
-              const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
-              const light = (r + f) % 2 === 0;
-              // Only the LIGHT squares carry particles — dark squares are open
-              // blue. No dim specks muddying them.
-              if (!light) continue;
-              l = Math.random() > 0.9 ? 1 : 0.96;
-            } else {
-              continue; // no polar caps — keep it clean
-            }
+            if (Math.abs(lat) > LAT_SPAN) continue; // no polar caps — keep it clean
+            // Groove lines between cells so the 8×8 board reads clearly.
+            const latIn = lat + LAT_SPAN;
+            const dLat = Math.abs(latIn / BAND - Math.round(latIn / BAND)) * BAND;
+            const lonIn = lon + 180;
+            const dLon = Math.abs(lonIn / 45 - Math.round(lonIn / 45)) * 45 * Math.cos((lat * Math.PI) / 180);
+            if (Math.min(dLat, dLon) < 1.0) continue;
+            const r = Math.min(7, Math.floor(latIn / BAND));
+            const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
+            const light = (r + f) % 2 === 0;
+            // Black ink needs less coverage than white to read — keep the dark
+            // squares a touch sparser so they stay velvety, not muddy.
+            if (!light && Math.random() < 0.3) continue;
             pos[i] = nx * GLOBE_R; pos[i + 1] = ny * GLOBE_R; pos[i + 2] = nz * GLOBE_R;
             nor[i] = nx; nor[i + 1] = ny; nor[i + 2] = nz;
-            lum[made] = l;
+            lum[made] = light ? (Math.random() > 0.9 ? 1 : 0.96) : 1;
+            blk[made] = light ? 0 : 1;
             i += 3; made++;
           }
           const geo = new THREE.BufferGeometry();
           geo.setAttribute("position", new THREE.BufferAttribute(pos.slice(0, made * 3), 3));
           geo.setAttribute("normal", new THREE.BufferAttribute(nor.slice(0, made * 3), 3));
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum.slice(0, made), 1));
-          geo.setAttribute("aBlack", new THREE.BufferAttribute(new Float32Array(made), 1));
+          geo.setAttribute("aBlack", new THREE.BufferAttribute(blk.slice(0, made), 1));
           const m = mkPieceMat(WHITE_ARMY, 0.2);
-          m.uniforms.uScale.value = H() * 0.0042 * 0.66;
-          m.userData.scaleMul = 0.66;
+          m.uniforms.uScale.value = H() * PT_BASE * 0.95;
+          m.userData.scaleMul = 0.95;
           root.add(new THREE.Points(geo, m));
         }
 
@@ -286,7 +293,9 @@ export function ChessHero() {
           let d = dense.get(type);
           if (!d) {
             const src = points.get(type)!;
-            d = densify(src, Math.ceil(SAMPLES[type] / src.meta.count));
+            // Tight jitter (0.0035 vs the 0.006 default) keeps the extra
+            // points hugging the surface — solid shape, not fuzz.
+            d = densify(src, Math.ceil(SAMPLES[type] / src.meta.count), 0.0035);
             dense.set(type, d);
           }
           return d;
@@ -659,7 +668,7 @@ export function ChessHero() {
           renderer.setSize(W(), H());
           camera.aspect = W() / H();
           camera.updateProjectionMatrix();
-          const base = H() * 0.0042;
+          const base = H() * PT_BASE;
           for (const m of allMats) {
             const mul = (m.userData.scaleMul as number) ?? 1;
             m.uniforms.uScale.value = base * mul;
