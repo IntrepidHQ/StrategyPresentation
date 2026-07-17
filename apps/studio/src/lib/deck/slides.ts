@@ -27,6 +27,7 @@ const SLIDE_TITLES: Record<SlideId, string> = {
   "strengths": "What's working",
   "risks": "What it's costing you",
   "roadmap": "The route to 90+",
+  "remediation": "How we lift your score",
   "system": "The system",
   "build-sheet": "Build sheet",
   "investment": "Investment",
@@ -211,6 +212,71 @@ export function renderRoadmap(model: DeckModel): string {
 ${SLIDE_CLOSE}`;
 }
 
+// ── 6.5 Remediation — "How we lift your score" ────────────────
+
+export function renderRemediation(model: DeckModel): string {
+  const cards = model.remediation.items
+    .map((d) => {
+      const headline = d.headline
+        ? `<p class="rem-headline">${esc(d.headline)}</p>`
+        : "";
+
+      const fixes = d.fixes.length
+        ? `<ul class="rem-fixes">${d.fixes
+            .map((f) => {
+              const pri = f.priority
+                ? ` <span class="rem-pri rem-pri-${esc(f.priority)}">${esc(f.priority)}</span>`
+                : "";
+              return `<li><h4>${esc(f.title)}${pri}</h4><p class="muted">${esc(f.detail)}</p></li>`;
+            })
+            .join("")}</ul>`
+        : "";
+
+      // Recommended action: the productized add-on when WCS flagged one,
+      // otherwise the self-serve path.
+      const action =
+        d.mode === "addon" && d.addon
+          ? `<div class="rem-action rem-action-addon">
+            <p class="rem-action-label">Done-for-you · Brainztem</p>
+            <div class="rem-addon-head">
+              <span class="rem-addon-name">${esc(d.addon.name)}</span>
+              <span class="rem-addon-price">${money(d.addon.price)}</span>
+            </div>
+            <p class="muted">${esc(d.addon.pitch)}</p>
+          </div>`
+          : `<div class="rem-action rem-action-self">
+            <p class="rem-action-label">Self-serve path</p>
+            <ol class="rem-selfserve">${(d.selfServe.length
+              ? d.selfServe
+              : ["We'll hand you the step-by-step playbook for this dimension."]
+            )
+              .map((s) => `<li>${esc(s)}</li>`)
+              .join("")}</ol>
+          </div>`;
+
+      return `<article class="card rem-card" data-reveal>
+        <header class="rem-card-head">
+          <h3>${esc(d.label)}</h3>
+          <span class="rem-score" aria-label="Current score ${d.score} out of 100, grade ${esc(d.grade)}"><strong>${d.score}</strong><small>/100 · ${esc(d.grade)}</small></span>
+        </header>
+        <div class="rem-bar" aria-hidden="true"><span style="width:${d.score}%"></span></div>
+        ${headline}
+        ${fixes}
+        ${action}
+      </article>`;
+    })
+    .join("\n      ");
+
+  return `${slideOpen("remediation", model, "rem-h")}
+    <p class="eyebrow" data-reveal>How we lift your score</p>
+    <h2 id="rem-h" data-reveal>The plan to move your weakest dimensions</h2>
+    <p class="lede" data-reveal>The scan pinpointed exactly where ${esc(model.meta.clientName)} loses trust. Here is the fix for each weak dimension — biggest opportunity first — and the fastest way to execute it.</p>
+    <div class="rem-grid">
+      ${cards}
+    </div>
+${SLIDE_CLOSE}`;
+}
+
 // ── 7. System ─────────────────────────────────────────────────
 
 export function renderSystem(model: DeckModel): string {
@@ -334,6 +400,7 @@ export const SLIDE_RENDERERS: Record<SlideId, (model: DeckModel) => string> = {
   "strengths": renderStrengths,
   "risks": renderRisks,
   "roadmap": renderRoadmap,
+  "remediation": renderRemediation,
   "system": renderSystem,
   "build-sheet": renderBuildSheet,
   "investment": renderInvestment,

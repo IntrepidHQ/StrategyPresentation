@@ -30,6 +30,28 @@ export interface WCSEvidenceItem {
   title?: string;
 }
 
+// Per-dimension remediation the WCS agent attaches to weak dimensions (score < 75).
+
+export interface WCSSuggestedFix {
+  title: string;
+  detail: string;
+  priority?: "high" | "medium" | "low";
+}
+
+export interface WCSRemediationAddon {
+  id: string;
+  name: string;
+  price_usd: number;
+  pitch: string;
+}
+
+export interface WCSRemediation {
+  headline: string;
+  self_serve: string[];
+  mode: "addon" | "self_serve";
+  addon?: WCSRemediationAddon; // present when mode === "addon"
+}
+
 export interface WCSDimension {
   key: DimensionKey;
   label: string;
@@ -38,6 +60,11 @@ export interface WCSDimension {
   weight: number;
   verdict: string;
   evidence: WCSEvidenceItem[];
+  // Present only on weak dimensions (score < 75). WCS writes these so SP can
+  // build the "How we lift your score" plan. Optional so strong dimensions and
+  // legacy reports parse unchanged.
+  suggested_fixes?: WCSSuggestedFix[];
+  remediation?: WCSRemediation;
 }
 
 export interface WCSFlag {

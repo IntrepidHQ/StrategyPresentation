@@ -253,6 +253,45 @@ html.js .slide:not(.in) .dim-bar > span { transform: scaleX(0); }
 .phase-card li { margin: 0.35rem 0; }
 .phase-outcome { border-top: 1px solid var(--line); padding-top: 0.7rem; font-weight: 600; }
 
+/* ── Remediation ("How we lift your score") ── */
+.rem-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); }
+.rem-card {
+  border-left: 5px solid var(--accent-strong);
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.rem-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; }
+.rem-card-head h3 { margin: 0; }
+.rem-score { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rem-score strong { font-family: var(--font-display); font-size: 1.6rem; color: var(--accent-strong); }
+.rem-score small { color: var(--muted); font-weight: 600; }
+.rem-bar { background: color-mix(in srgb, var(--line) 55%, transparent); border-radius: 999px; height: 8px; overflow: hidden; }
+.rem-bar > span { display: block; height: 100%; background: var(--accent); border-radius: inherit; transform-origin: left; }
+html.js .slide:not(.in) .rem-bar > span { transform: scaleX(0); }
+.slide.in .rem-bar > span { transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1); transform: scaleX(1); }
+.rem-headline { margin: 0; font-weight: 600; }
+.rem-fixes { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.rem-fixes h4 { font-family: var(--font-display); font-size: 1rem; margin: 0 0 0.15rem; }
+.rem-fixes p { margin: 0; font-size: 0.92rem; }
+.rem-pri {
+  display: inline-block; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 999px;
+  border: 1px solid currentColor; vertical-align: middle; margin-left: 0.35rem;
+}
+.rem-pri-high { color: var(--bad); }
+.rem-pri-medium { color: var(--warn); }
+.rem-pri-low { color: var(--muted); }
+.rem-action { margin-top: auto; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.05rem; }
+.rem-action-label {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent-strong); margin: 0 0 0.45rem;
+}
+.rem-action-addon { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border-color: var(--accent-strong); }
+.rem-addon-head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; }
+.rem-addon-name { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+.rem-addon-price { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--accent-strong); white-space: nowrap; }
+.rem-addon-head + p { margin: 0.35rem 0 0; font-size: 0.92rem; }
+.rem-selfserve { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.3rem; font-size: 0.95rem; }
+
 /* ── Crew ── */
 .crew-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
 .crew-list li {
@@ -321,8 +360,9 @@ html.js .slide:not(.in) [data-reveal] { opacity: 0; transform: translateY(16px);
 
 @media (prefers-reduced-motion: reduce) {
   html.js .slide:not(.in) [data-reveal] { opacity: 1; transform: none; }
-  .slide.in [data-reveal], .slide.in .dim-bar > span, .score-ring .ring-value { transition: none !important; }
+  .slide.in [data-reveal], .slide.in .dim-bar > span, .slide.in .rem-bar > span, .score-ring .ring-value { transition: none !important; }
   html.js .slide:not(.in) .dim-bar > span { transform: none; }
+  html.js .slide:not(.in) .rem-bar > span { transform: none; }
 }
 
 /* ── Print / PDF ── */
@@ -332,6 +372,7 @@ html.js .slide:not(.in) [data-reveal] { opacity: 0; transform: translateY(16px);
   .slide { min-height: 0; page-break-after: always; break-after: page; padding: 2rem 1rem; }
   html.js .slide:not(.in) [data-reveal] { opacity: 1; transform: none; }
   html.js .slide:not(.in) .dim-bar > span { transform: none; }
+  html.js .slide:not(.in) .rem-bar > span { transform: none; }
   .bs-totalbar { position: static; box-shadow: none; }
   a[href^="http"]::after { content: "" ; }
 }
