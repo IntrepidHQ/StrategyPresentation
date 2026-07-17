@@ -102,6 +102,11 @@ export default function LandingPage() {
       {JSON_LD.map((d, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(d) }} />
       ))}
+      {/* Pre-paint: mark that JS runs BEFORE the hero below parses, so the
+          static SVG fallback never flashes on refresh — CSS hides it under
+          html.js and the WebGL boot ring takes over. No-JS visitors (and
+          crawlers) still get the static art. */}
+      <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       <a className="lp-skip" href="#main">
         Skip to content
       </a>
@@ -173,7 +178,7 @@ export default function LandingPage() {
 
         {/* ── 02 · The math — salary vs system ── */}
         <section className="lp-slide" id="math" data-slide-name="The math" aria-labelledby="math-h">
-          <PieceScene className="lp-chess-rook" cast={[{ name: "rook", x: 0, scale: 0.72, rotY: 0.3 }]} fallbackHtml={particlePiece("rook", "sp-math")} />
+          <PieceScene className="lp-chess-rook" cast={[{ name: "rook", x: -0.28, scale: 0.72, rotY: 0.3 }, { name: "knight", x: 0.42, z: 0.2, scale: 0.62, rotY: -0.6, color: "black" }]} fallbackHtml={particlePiece("rook", "sp-math")} />
           <div className="lp-doodle lp-doodle-worknote" aria-hidden="true"><NoteWorkDone /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">The math</p>
@@ -196,7 +201,7 @@ export default function LandingPage() {
 
         {/* ── 03 · Live demo (column form) ── */}
         <section className="lp-slide" id="demo" data-slide-name="Live demo" aria-labelledby="demo-h">
-          <PieceScene className="lp-chess-royalty" cast={[{ name: "king", x: -0.5, scale: 1.34, rotY: 0.2 }, { name: "queen", x: 0.52, z: 0.15, scale: 1.2, rotY: -0.25 }]} fallbackHtml={particleRoyalty("sp-demo")} camY={0.62} camZ={3.35} />
+          <PieceScene className="lp-chess-royalty" cast={[{ name: "king", x: -0.5, scale: 1.34, rotY: 0.2 }, { name: "queen", x: 0.52, z: 0.15, scale: 1.2, rotY: -0.25, color: "black" }]} fallbackHtml={particleRoyalty("sp-demo")} camY={0.62} camZ={3.35} />
           <div className="lp-doodle lp-doodle-lifenote" aria-hidden="true"><NoteLifeBack /></div>
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Live demo</p>
@@ -226,7 +231,7 @@ export default function LandingPage() {
 
         {/* ── 05 · How it works ── */}
         <section className="lp-slide" id="how" data-slide-name="How it works" aria-labelledby="how-h">
-          <PieceScene className="lp-chess-bishop" cast={[{ name: "bishop", x: 0, scale: 0.8, rotY: 0.5 }]} fallbackHtml={particlePiece("bishop", "sp-how")} />
+          <PieceScene className="lp-chess-bishop" cast={[{ name: "bishop", x: -0.3, scale: 0.8, rotY: 0.5 }, { name: "pawn", x: 0.4, z: 0.18, scale: 0.46, color: "black" }]} fallbackHtml={particlePiece("bishop", "sp-how")} />
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">How it works</p>
             <h2 id="how-h">Scan. Pitch. Run.</h2>
@@ -252,7 +257,7 @@ export default function LandingPage() {
 
         {/* ── 06 · FAQ + close ── */}
         <section className="lp-slide lp-final" id="faq" data-slide-name="FAQ" aria-labelledby="faq-h">
-          <PieceScene className="lp-chess-queen" cast={[{ name: "queen", x: 0, scale: 0.85, rotY: 0 }, { name: "pawn", x: 0.55, z: 0.25, scale: 0.42 }]} fallbackHtml={particlePiece("queen", "sp-faq")} camZ={2.9} />
+          <PieceScene className="lp-chess-queen" cast={[{ name: "queen", x: -0.1, scale: 0.85, rotY: 0 }, { name: "rook", x: 0.58, z: 0.25, scale: 0.6, rotY: 0.4, color: "black" }]} fallbackHtml={particlePiece("queen", "sp-faq")} camZ={2.9} />
           <div className="lp-slide-inner">
             <p className="lp-eyebrow">Fair questions</p>
             <h2 id="faq-h">FAQ.</h2>
