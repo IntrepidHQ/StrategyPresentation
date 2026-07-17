@@ -60,14 +60,34 @@
     {
       "key": "transparency",
       "label": "Transparency & Disclosure",
-      "score": 78,
-      "grade": "B+",
+      "score": 71,
+      "grade": "C-",
       "weight": 0.10,
       "verdict": "Pricing is clear and published. Privacy policy is detailed and consumer-friendly. However, right-to-repair restrictions and App Store commission opacity have drawn regulatory scrutiny in EU and US. Refund policies are strict but visible.",
       "evidence": [
         { "claim": "Apple faced EU antitrust investigation over App Store commissions in 2024", "url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_24_1161", "title": "EU Commission: Apple DMA Investigation" },
         { "claim": "Apple's repair program has expanded but still limits third-party repair access", "url": "https://www.apple.com/legal/repairs/", "title": "Apple Repair Legal" }
-      ]
+      ],
+      "suggested_fixes": [
+        { "title": "Publish a plain-language repairability statement", "detail": "Add a dedicated page spelling out exactly which repairs are user- or third-party-serviceable, with parts pricing — the fastest way to close the disclosure gap regulators keep citing.", "priority": "high" },
+        { "title": "Surface App Store commission terms in-context", "detail": "Link the commission schedule directly from developer-facing pages instead of burying it in legal PDFs, so the terms read as confident rather than concealed.", "priority": "medium" },
+        { "title": "Add a refund-policy explainer with worked examples", "detail": "Strict policies read as fair when illustrated. A short worked-example section removes ambiguity without changing the policy itself.", "priority": "low" }
+      ],
+      "remediation": {
+        "headline": "Transparency is the only self-imposed drag on an otherwise A-grade profile — and the cheapest point to buy back.",
+        "self_serve": [
+          "Draft the repairability statement from the existing legal repair pages.",
+          "Move commission terms out of PDFs and onto the developer site.",
+          "Add worked examples to the refund policy."
+        ],
+        "mode": "addon",
+        "addon": {
+          "id": "trust-transparency-pack",
+          "name": "Trust & Transparency Pack",
+          "price_usd": 750,
+          "pitch": "We write and ship the repairability statement, in-context commission disclosures, and refund explainer — reviewed by you, live in a week — lifting the dimension buyers and regulators scrutinize most."
+        }
+      }
     },
     {
       "key": "technical",

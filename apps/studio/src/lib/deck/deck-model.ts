@@ -51,6 +51,7 @@ export const SLIDE_IDS = [
   "strengths",
   "risks",
   "roadmap",
+  "remediation",
   "system",
   "build-sheet",
   "investment",
@@ -109,6 +110,26 @@ export interface AddonGroupVM {
   items: AddonItemVM[];
 }
 
+export interface RemediationFixVM {
+  title: string;
+  detail: string;
+  priority?: "high" | "medium" | "low";
+}
+
+/** One weak dimension and the plan to lift it. */
+export interface RemediationItemVM {
+  key: DimensionKey;
+  label: string;
+  score: number;
+  grade: string;
+  headline?: string;                 // remediation.headline, if provided
+  fixes: RemediationFixVM[];         // top suggested_fixes, priority-ordered
+  mode: "addon" | "self_serve";
+  selfServe: string[];               // remediation.self_serve steps
+  /** The productized "done-for-you" option, present when mode === "addon". */
+  addon?: { id: string; name: string; price: number; pitch: string };
+}
+
 export interface DeckModel {
   meta: DeckMeta;
   score: ScoreSummary;
@@ -117,6 +138,9 @@ export interface DeckModel {
   strengths: { items: FlagVM[] };
   risks: { items: FlagVM[] };
   roadmap: { phases: RoadmapPhaseVM[] };
+  /** "How we lift your score" — one entry per weak dimension, biggest gap first.
+   *  Empty when every dimension is strong; the slide is dropped from slideOrder. */
+  remediation: { items: RemediationItemVM[] };
   system: {
     intro: string;
     agents: { name: string; role: string }[];
@@ -158,6 +182,42 @@ export interface DeckOptions {
 // ── Builder ───────────────────────────────────────────────────
 
 const SEVERITY_RANK = { critical: 0, high: 1, medium: 2, low: 3 } as const;
+const PRIORITY_RANK = { high: 0, medium: 1, low: 2 } as const;
+
+/** Weak dimensions carrying a plan, biggest opportunity (lowest score) first. */
+function buildRemediation(report: WCSReport): RemediationItemVM[] {
+  return report.dimensions
+    .filter((d) => (d.suggested_fixes && d.suggested_fixes.length > 0) || d.remediation)
+    .sort((a, b) => a.score - b.score)
+    .map((d) => {
+      const fixes: RemediationFixVM[] = [...(d.suggested_fixes ?? [])]
+        .sort(
+          (a, b) =>
+            PRIORITY_RANK[a.priority ?? "medium"] - PRIORITY_RANK[b.priority ?? "medium"],
+        )
+        .slice(0, 3)
+        .map(({ title, detail, priority }) => ({ title, detail, priority }));
+      const rem = d.remediation;
+      return {
+        key: d.key,
+        label: d.label,
+        score: d.score,
+        grade: d.grade,
+        headline: rem?.headline,
+        fixes,
+        mode: rem?.mode ?? "self_serve",
+        selfServe: rem?.self_serve ?? [],
+        addon: rem?.addon
+          ? {
+              id: rem.addon.id,
+              name: rem.addon.name,
+              price: rem.addon.price_usd,
+              pitch: rem.addon.pitch,
+            }
+          : undefined,
+      };
+    });
+}
 
 export function buildDeckModel(report: WCSReport, opts: DeckOptions): DeckModel {
   const narrative = opts.narrative ?? null;
@@ -206,6 +266,8 @@ export function buildDeckModel(report: WCSReport, opts: DeckOptions): DeckModel 
 
   const clientLabel = opts.clientName || report.company_name || report.domain;
 
+  const remediationItems = buildRemediation(report);
+
   return {
     meta: {
       clientName: clientLabel,
@@ -233,6 +295,7 @@ export function buildDeckModel(report: WCSReport, opts: DeckOptions): DeckModel 
         ? narrative.strategyRoadmap
         : defaultRoadmap(report, weakest),
     },
+    remediation: { items: remediationItems },
     system: {
       intro:
         `Everything on the roadmap is delivered inside your own Brainztem instance — ` +
@@ -264,7 +327,10 @@ export function buildDeckModel(report: WCSReport, opts: DeckOptions): DeckModel 
     },
     nextStep: buildNextStep(clientLabel, report, opts, brainztemBase),
     sources: report.sources.map(({ url, title }) => ({ url, title })),
-    slideOrder: [...SLIDE_IDS],
+    // Drop the remediation slide entirely when every dimension is strong.
+    slideOrder: SLIDE_IDS.filter(
+      (id) => id !== "remediation" || remediationItems.length > 0,
+    ),
   };
 }
 
