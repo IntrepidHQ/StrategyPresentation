@@ -13,6 +13,10 @@ import { post as evidenceBacked } from "./posts/evidence-backed-presentations";
 import { post as templateStyles } from "./posts/presentation-template-styles";
 import { post as scoreExplained } from "./posts/website-credibility-score-explained";
 import { post as firstHire } from "./posts/first-hire-assistant-agency-or-ai";
+import { post as htmlVsPowerpoint } from "./posts/html-presentations-vs-powerpoint";
+import { post as aiBuildsDeck } from "./posts/how-ai-builds-a-pitch-deck";
+import { post as deckTaxonomy } from "./posts/sales-deck-vs-pitch-deck";
+import { post as presentAudit } from "./posts/present-website-audit-to-client";
 
 const POSTS: BlogPost[] = [
   auditToDeck,
@@ -21,6 +25,10 @@ const POSTS: BlogPost[] = [
   templateStyles,
   scoreExplained,
   firstHire,
+  htmlVsPowerpoint,
+  aiBuildsDeck,
+  deckTaxonomy,
+  presentAudit,
 ];
 
 export function getAllPosts(): BlogPost[] {
