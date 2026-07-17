@@ -388,6 +388,9 @@ body {
 .lp-chess-hero .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
 .lp-chess-hero .lp-chess-fallback { position: absolute; inset: 0; }
 .lp-chess-hero.is-live .lp-chess-fallback { display: none; }
+/* JS is running (html.js set pre-paint): the old static cluster must never
+   flash on refresh — the boot ring, then the live globe, are the only art. */
+html.js .lp-chess-hero .lp-chess-fallback { display: none; }
 /* Quiet loading placeholder — a faint globe outline, never the old cluster. */
 .lp-chess-boot {
   position: absolute; inset: 0; display: grid; place-items: center;

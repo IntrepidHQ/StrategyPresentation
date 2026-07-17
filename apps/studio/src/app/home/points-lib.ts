@@ -69,12 +69,17 @@ export function densify(data: PieceData, factor: number, jitter = 0.006): PieceD
   return { meta: { ...data.meta, count: n }, pos, nor };
 }
 
-// Crisp particle shaders: hard-edged sprites, strong light contrast, and a
-// per-point luminance attribute.
+// Crisp particle shaders: hard-edged sprites, strong light contrast, a
+// per-point luminance attribute, and an ARMY COLOR uniform (uColor) so
+// vignettes can field black pieces beside white ones. uRim lifts a white
+// silhouette on dark pieces so they read against the blue sheet.
 export const VERT = /* glsl */ `
   uniform float uScale;
+  uniform vec3 uColor;
+  uniform float uRim;
   attribute float aLum;
   varying float vL;
+  varying vec3 vColor;
   void main() {
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     vec3 lightDir = normalize(vec3(-0.4, 0.55, 0.82));
@@ -82,7 +87,9 @@ export const VERT = /* glsl */ `
     float diff = max(dot(wn, lightDir), 0.0);
     vec3 vn = normalize(normalMatrix * normal);
     float rim = pow(1.0 - abs(vn.z), 2.2);
-    vL = clamp(aLum * (0.4 + diff * 0.7 + rim * 0.55), 0.2, 1.0);
+    vL = clamp(aLum * (0.55 + diff * 0.55 + rim * 0.45), 0.3, 1.0);
+    vec3 col = uColor * (0.72 + diff * 0.36);
+    vColor = mix(col, vec3(1.0), rim * uRim); // white silhouette edge
     // Uniform SMALL point (no size-by-brightness → crisp, not blurry);
     // shading is carried by brightness + density.
     gl_PointSize = uScale * 0.8 * (300.0 / max(60.0, -mv.z * 100.0));
@@ -91,11 +98,12 @@ export const VERT = /* glsl */ `
 `;
 export const FRAG = /* glsl */ `
   varying float vL;
+  varying vec3 vColor;
   void main() {
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
-    float edge = smoothstep(0.5, 0.42, d); // near-hard disc
-    gl_FragColor = vec4(vec3(1.0), (0.12 + vL * 0.88) * edge);
+    float edge = smoothstep(0.5, 0.44, d); // near-hard disc
+    gl_FragColor = vec4(vColor, (0.2 + vL * 0.8) * edge);
   }
 `;

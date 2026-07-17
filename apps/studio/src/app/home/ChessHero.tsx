@@ -197,7 +197,7 @@ export function ChessHero() {
         // BOTH colors carry particles: light squares SOLID WHITE, dark squares
         // BLACK ink — a real checkerboard, maximum contrast on the blue.
         {
-          const N = 150000;
+          const N = 220000; // packed tight — a near-solid board, not a dot screen
           const pos = new Float32Array(N * 3);
           const nor = new Float32Array(N * 3);
           const lum = new Float32Array(N);
@@ -220,10 +220,14 @@ export function ChessHero() {
             const r = Math.min(7, Math.floor(latIn / BAND));
             const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
             const light = (r + f) % 2 === 0;
-            // Black ink needs less coverage than white to read — keep the dark
-            // squares a touch sparser so they stay velvety, not muddy.
-            if (!light && Math.random() < 0.3) continue;
-            pos[i] = nx * GLOBE_R; pos[i + 1] = ny * GLOBE_R; pos[i + 2] = nz * GLOBE_R;
+            // Black ink needs slightly less coverage than white to read.
+            if (!light && Math.random() < 0.12) continue;
+            // Slight diffuse at the surface: a few particles float just above
+            // the sheet so the globe's silhouette has a soft fuzz, not a
+            // machined edge.
+            const lift = Math.random() < 0.05 ? 1 + Math.random() * 0.014 : 1;
+            const rr = GLOBE_R * lift;
+            pos[i] = nx * rr; pos[i + 1] = ny * rr; pos[i + 2] = nz * rr;
             nor[i] = nx; nor[i + 1] = ny; nor[i + 2] = nz;
             lum[made] = light ? (Math.random() > 0.9 ? 1 : 0.96) : 1;
             blk[made] = light ? 0 : 1;
