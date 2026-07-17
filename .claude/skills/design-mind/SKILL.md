@@ -130,6 +130,13 @@ Hans, verbatim: *"I'd rather see the full hero be the same blue and the text be 
 - **Fit the cover to short viewports**: monumental center-column covers must size the ring in vh (min(210px, 28vh)) or it crops at 800px.
 - The 8 signatures: Summit=boardroom memo (centered, double rules, ledger), Signal=product dashboard (chips, glass, glow), Editorial=magazine (italic didone, drop cap, numbered rules), Monospace=terminal (vim bar, $ prompt + blinking cursor, hatched bars), Gallery=exhibition (centered monumental, hairline plinths), Beacon=sunrise (mirrored cover, pillowed cards), Voltage=print-shop brutalism, Blueprint=drafting sheet. All axe-clean AA.
 
+### Cover-art systems + checkerboard ink (2026-07-16, Hans: "same design behind the score in the hero… slides move too fast… crisper… black particles in the black squares")
+- **The cover backdrop is part of the theme's architecture.** One shared constellation behind every score ring re-flattened the 8 templates; art.ts now has `coverArt(templateId, seed)` — Summit engraved rosette (dashed concentric circles + radial ticks), Signal telemetry (dot matrix + rising node line), Editorial print furniture (registration circle + hairline cross + scattered †✦§ glyphs), Monospace ASCII plot ('+' grid + step line + square markers), Gallery sculpture wire (3 vast rotated ellipse outlines), Beacon dawn arcs from below the fold, Voltage halftone ramp, Blueprint keeps the house constellation. All deterministic per seed, currentColor-tinted, same `.cover-constellation` positioning contract.
+- **Autoplay dwell: reading speed, not video speed.** 5-8.5s/slide felt frantic; now 8s cover / 10s default / 15s dense / 12s CTA. A viewer must FINISH a slide before it moves.
+- **Checkerboard = two inks.** Light squares white particles + dark squares BLACK particles (aBlack=1, ~70% of white density — black ink needs less coverage to read) turns the globe from "white lace on blue" into a real high-contrast board. Blue lives in the grooves.
+- **Solid white beats shaded white.** Piece ambient floor raised to 0.70 (+0.38 diff swing) and alpha floor 0.8: any lower and the shadow side reads as "black particles in the white pieces" (Hans's exact complaint). Rim stays the only bright accent.
+- **DPR cap is the blur.** min(dpr,2)→min(dpr,3): on a retina-3 display the cap was the single biggest source of mush; sprite edge tightened to smoothstep(0.46,0.5).
+
 ### (Next entry goes here — date it, name the source, extract mechanics not adjectives.)
 
 ## The SP design system (distilled from the above, applied 2026-07-15)

@@ -173,14 +173,15 @@ export const RUNTIME_JS = /* js */ `
       return;
     }
     var autoplayOn = /[?&]autoplay=1\\b/.test(window.location.search);
-    var rafId = null, slideStart = 0, dwell = 6000, playing = false, apIndex = 0;
+    var rafId = null, slideStart = 0, dwell = 10000, playing = false, apIndex = 0;
 
+    // Unhurried: a viewer should finish reading before the deck moves.
     function dwellFor(i) {
       var id = (slides[i] && slides[i].id) || "";
-      if (/next-step/.test(id)) return 7000;              // let the CTA land
-      if (/cover/.test(id)) return 5000;
-      if (/build-sheet|investment|scorecard|roadmap|risks/.test(id)) return 8500; // dense slides
-      return 6000;
+      if (/next-step/.test(id)) return 12000;             // let the CTA land
+      if (/cover/.test(id)) return 8000;
+      if (/build-sheet|investment|scorecard|roadmap|risks/.test(id)) return 15000; // dense slides
+      return 10000;
     }
     function paint(ts) {
       if (!playing) return;

@@ -15,7 +15,9 @@ const WAVE_VERT = /* glsl */ `
   uniform float uTime;
   uniform float uScale;
   attribute float aLum;
+  attribute float aBlack;
   varying float vL;
+  varying float vB;
 
   float waveZ(vec2 p) {
     return 0.16 * sin(p.x * 2.1 + uTime * 0.9)
@@ -33,7 +35,8 @@ const WAVE_VERT = /* glsl */ `
     vec3 n = normalize(vec3(-zx / e, -zy / e, 1.0));
     vec3 lightDir = normalize(vec3(-0.35, 0.5, 0.8));
     float diff = max(dot(n, lightDir), 0.0);
-    vL = clamp(aLum * (0.25 + diff * 0.8), 0.0, 1.0);
+    vL = clamp(aLum * (0.35 + diff * 0.7), 0.0, 1.0);
+    vB = aBlack;
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
     gl_PointSize = (0.7 + vL * 1.0) * uScale * (300.0 / max(60.0, -mv.z * 100.0));
     gl_Position = projectionMatrix * mv;
@@ -41,12 +44,17 @@ const WAVE_VERT = /* glsl */ `
 `;
 const WAVE_FRAG = /* glsl */ `
   varying float vL;
+  varying float vB;
   void main() {
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
     float edge = smoothstep(0.5, 0.46, d);
-    gl_FragColor = vec4(vec3(1.0), (0.08 + vL * 0.85) * edge);
+    // Dark cells are BLACK ink, light cells white — the same two-ink
+    // checkerboard as the hero globe.
+    vec3 col = mix(vec3(1.0), vec3(0.02), vB);
+    float a = mix(0.08 + vL * 0.85, 0.5 + vL * 0.5, vB);
+    gl_FragColor = vec4(col, a * edge);
   }
 `;
 
@@ -91,6 +99,7 @@ export function CheckerWave() {
         const N = NX * NY;
         const pos = new Float32Array(N * 3);
         const lum = new Float32Array(N);
+        const blk = new Float32Array(N);
         let i = 0, j = 0;
         for (let gy = 0; gy < NY; gy++) {
           for (let gx = 0; gx < NX; gx++) {
@@ -98,13 +107,16 @@ export function CheckerWave() {
             const y = (gy / (NY - 1) - 0.5) * SPAN_Y + (Math.random() - 0.5) * 0.02;
             pos[i] = x; pos[i + 1] = y; pos[i + 2] = 0;
             const cell = (Math.floor((gx / (NX - 1)) * 22) + Math.floor((gy / (NY - 1)) * 7)) % 2 === 0;
-            lum[j] = cell ? (Math.random() > 0.93 ? 1 : 0.85) : 0.18;
+            // Two inks, like the hero globe: white cells + true-black cells.
+            lum[j] = cell ? (Math.random() > 0.93 ? 1 : 0.85) : 0.9;
+            blk[j] = cell ? 0 : 1;
             i += 3; j++;
           }
         }
         const geo = new THREE.BufferGeometry();
         geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
         geo.setAttribute("aLum", new THREE.BufferAttribute(lum, 1));
+        geo.setAttribute("aBlack", new THREE.BufferAttribute(blk, 1));
         const mat = new THREE.ShaderMaterial({
           uniforms: { uTime: { value: 0 }, uScale: { value: H() * 0.0095 } },
           vertexShader: WAVE_VERT,

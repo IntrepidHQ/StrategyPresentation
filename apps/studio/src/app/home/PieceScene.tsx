@@ -11,7 +11,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FRAG, VERT, densify, loadPoints } from "./points-lib";
 
-export type SceneCast = { name: string; x: number; z?: number; scale: number; rotY?: number };
+export type SceneCast = { name: string; x: number; z?: number; scale: number; rotY?: number; color?: "white" | "black" };
 
 export function PieceScene({
   cast,
@@ -102,8 +102,15 @@ export function PieceScene({
           geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
           geo.setAttribute("normal", new THREE.BufferAttribute(data.nor.slice(), 3));
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum, 1));
+          // Black army pieces: dark slate body + strong white silhouette rim
+          // (same recipe as the hero's BLACK_ARMY) so they read on the blue.
+          const isBlack = c.color === "black";
           const mat = new THREE.ShaderMaterial({
-            uniforms: { uScale: { value: H() * 0.006 } },
+            uniforms: {
+              uScale: { value: H() * 0.006 },
+              uColor: { value: isBlack ? new THREE.Color(0.16, 0.18, 0.34) : new THREE.Color(1, 1, 1) },
+              uRim: { value: isBlack ? 0.9 : 0.22 },
+            },
             vertexShader: VERT,
             fragmentShader: FRAG,
             transparent: true,
