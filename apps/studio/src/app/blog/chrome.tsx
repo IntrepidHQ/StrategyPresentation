@@ -1,15 +1,16 @@
 // ============================================================
-//  SP Blog — shared chrome (header + footer)
+//  SP Blog + Docs — shared chrome (header + footer)
 //  apps/studio/src/app/blog/chrome.tsx
 //
 //  Same Blueprint register as the landing page: fixed blue
 //  header bar with the king mark, hairline footer. Server
-//  components — no client JS on the blog at all.
+//  components — no client JS on the blog or docs at all.
+//  `current` marks the active nav item (blog | docs).
 // ============================================================
 
 import { KingMark } from "../home/doodles";
 
-export function BlogHeader() {
+export function BlogHeader({ current = "blog" }: { current?: "blog" | "docs" }) {
   return (
     <header className="bp-header">
       <a className="bp-mark" href="/home">
@@ -19,7 +20,8 @@ export function BlogHeader() {
       <nav aria-label="Site" className="bp-nav">
         <a href="/home#demo">Live demo</a>
         <a href="/home#templates">Templates</a>
-        <a href="/blog" aria-current="true">Blog</a>
+        <a href="/blog" aria-current={current === "blog" ? "true" : undefined}>Blog</a>
+        <a href="/docs" aria-current={current === "docs" ? "true" : undefined}>Docs</a>
       </nav>
     </header>
   );
@@ -36,6 +38,7 @@ export function BlogFooter() {
         <nav aria-label="Footer" className="bp-footer-links">
           <a href="/home">Home</a>
           <a href="/blog">Blog</a>
+          <a href="/docs">Docs</a>
           <a href="https://websitecreditscore.com" rel="noopener" target="_blank">WebsiteCreditScore</a>
           <a href="https://brainztem.com" rel="noopener" target="_blank">Brainztem</a>
           <a href="mailto:seekercray@gmail.com">Contact</a>

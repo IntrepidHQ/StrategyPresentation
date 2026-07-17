@@ -18,6 +18,7 @@ const PUBLIC_PATHS = [
   "/login",
   "/home",
   "/blog",        // public marketing blog (index + /blog/[slug])
+  "/docs",        // public docs — how Strategy Presentation works
   "/templates",   // template gallery thumbnails (public/)
   "/icon.svg",
   "/api/webhook",

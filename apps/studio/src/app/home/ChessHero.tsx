@@ -41,10 +41,14 @@ const SCALES: Record<string, number> = {
   king: 0.27, queen: 0.26, bishop: 0.235, knight: 0.22, rook: 0.21, pawn: 0.165,
 };
 // Beyond the 4.2K points stored per piece in the .bin — the loader densifies
-// tangentially, so the white army reads as a near-solid lit surface.
+// tangentially, so the armies read as SOLID lit surfaces (tight jitter +
+// ~2× the old sample counts; per-point size is dialed down to compensate).
 const SAMPLES: Record<string, number> = {
-  king: 5200, queen: 5200, bishop: 4600, knight: 4600, rook: 4200, pawn: 2800,
+  king: 10400, queen: 10400, bishop: 9200, knight: 9200, rook: 8400, pawn: 5600,
 };
+// One shared per-point size base (fraction of viewport height). Smaller than
+// the old 0.0042 so the denser clouds pack into crisp solids, not bloom.
+const PT_BASE = 0.0033;
 
 // Cell → spherical coordinates. Ranks are latitude bands between ±60°,
 // files wrap the longitude; file 3.5 faces the camera at spin 0.
@@ -171,7 +175,7 @@ export function ChessHero() {
         const mkPieceMat = (col: import("three").Color = WHITE_ARMY, rim = 0.35) => {
           const m = new THREE.ShaderMaterial({
             uniforms: {
-              uScale: { value: H() * 0.0042 },
+              uScale: { value: H() * PT_BASE },
               uBoost: { value: 1 },
               uColor: { value: col.clone() },
               uRim: { value: rim },
@@ -187,7 +191,7 @@ export function ChessHero() {
 
         // ── The planet, checkered to MATCH the playing field ──
         {
-          const N = 52000; // dense enough that light squares read WHITE
+          const N = 150000; // dense enough that light squares read as SOLID white
           const pos = new Float32Array(N * 3);
           const nor = new Float32Array(N * 3);
           const lum = new Float32Array(N);
@@ -206,7 +210,7 @@ export function ChessHero() {
               const dLat = Math.abs(latIn / BAND - Math.round(latIn / BAND)) * BAND;
               const lonIn = lon + 180;
               const dLon = Math.abs(lonIn / 45 - Math.round(lonIn / 45)) * 45 * Math.cos((lat * Math.PI) / 180);
-              if (Math.min(dLat, dLon) < 1.15) continue;
+              if (Math.min(dLat, dLon) < 1.0) continue;
               const r = Math.min(7, Math.floor(latIn / BAND));
               const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
               const light = (r + f) % 2 === 0;
@@ -228,8 +232,8 @@ export function ChessHero() {
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum.slice(0, made), 1));
           geo.setAttribute("aBlack", new THREE.BufferAttribute(new Float32Array(made), 1));
           const m = mkPieceMat(WHITE_ARMY, 0.2);
-          m.uniforms.uScale.value = H() * 0.0042 * 0.66;
-          m.userData.scaleMul = 0.66;
+          m.uniforms.uScale.value = H() * PT_BASE * 0.95;
+          m.userData.scaleMul = 0.95;
           root.add(new THREE.Points(geo, m));
         }
 
@@ -286,7 +290,9 @@ export function ChessHero() {
           let d = dense.get(type);
           if (!d) {
             const src = points.get(type)!;
-            d = densify(src, Math.ceil(SAMPLES[type] / src.meta.count));
+            // Tight jitter (0.0035 vs the 0.006 default) keeps the extra
+            // points hugging the surface — solid shape, not fuzz.
+            d = densify(src, Math.ceil(SAMPLES[type] / src.meta.count), 0.0035);
             dense.set(type, d);
           }
           return d;
@@ -659,7 +665,7 @@ export function ChessHero() {
           renderer.setSize(W(), H());
           camera.aspect = W() / H();
           camera.updateProjectionMatrix();
-          const base = H() * 0.0042;
+          const base = H() * PT_BASE;
           for (const m of allMats) {
             const mul = (m.userData.scaleMul as number) ?? 1;
             m.uniforms.uScale.value = base * mul;
