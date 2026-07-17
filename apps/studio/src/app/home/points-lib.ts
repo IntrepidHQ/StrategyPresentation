@@ -42,7 +42,7 @@ export function loadPoints(url = "/chess-points.bin"): Promise<Map<string, Piece
  * normal), so the extra particles stay ON the piece instead of fuzzing it.
  * This is how the art gets denser than the 4.2K points stored in the .bin.
  */
-export function densify(data: PieceData, factor: number, jitter = 0.006): PieceData {
+export function densify(data: PieceData, factor: number, jitter = 0.0035): PieceData {
   const f = Math.max(1, Math.round(factor));
   if (f === 1) return data;
   const n = data.meta.count * f;

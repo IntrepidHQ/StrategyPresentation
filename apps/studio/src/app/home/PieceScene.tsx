@@ -83,8 +83,8 @@ export function PieceScene({
         const pieces: Piece[] = [];
 
         for (const c of cast) {
-          // 2× the stored samples (tangential densify) — near-solid surfaces.
-          const data = densify(points.get(c.name)!, 2);
+          // 4× the stored samples (tight tangential densify) — solid surfaces.
+          const data = densify(points.get(c.name)!, 4);
           const s = c.scale;
           const h = s;
           const half = h / 2;
@@ -107,7 +107,7 @@ export function PieceScene({
           const isBlack = c.color === "black";
           const mat = new THREE.ShaderMaterial({
             uniforms: {
-              uScale: { value: H() * 0.0075 },
+              uScale: { value: H() * 0.006 },
               uColor: { value: isBlack ? new THREE.Color(0.16, 0.18, 0.34) : new THREE.Color(1, 1, 1) },
               uRim: { value: isBlack ? 0.9 : 0.22 },
             },
@@ -237,7 +237,7 @@ export function PieceScene({
           renderer.setSize(W(), H());
           camera.aspect = W() / H();
           camera.updateProjectionMatrix();
-          mats.forEach((m) => (m.uniforms.uScale.value = H() * 0.0075));
+          mats.forEach((m) => (m.uniforms.uScale.value = H() * 0.006));
         };
         ro = new ResizeObserver(onResize);
         ro.observe(host!);

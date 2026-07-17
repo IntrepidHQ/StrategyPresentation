@@ -94,7 +94,7 @@ export function CheckerWave() {
         camera.lookAt(0, -0.15, 0);
 
         // Particle cloth: NX×NY grid, checkered by cell parity.
-        const NX = 340, NY = 62;
+        const NX = 500, NY = 92;
         const SPAN_X = 20, SPAN_Y = 3.0;
         const N = NX * NY;
         const pos = new Float32Array(N * 3);
@@ -118,7 +118,7 @@ export function CheckerWave() {
         geo.setAttribute("aLum", new THREE.BufferAttribute(lum, 1));
         geo.setAttribute("aBlack", new THREE.BufferAttribute(blk, 1));
         const mat = new THREE.ShaderMaterial({
-          uniforms: { uTime: { value: 0 }, uScale: { value: H() * 0.012 } },
+          uniforms: { uTime: { value: 0 }, uScale: { value: H() * 0.0095 } },
           vertexShader: WAVE_VERT,
           fragmentShader: WAVE_FRAG,
           transparent: true,
@@ -149,7 +149,7 @@ export function CheckerWave() {
           renderer.setSize(W(), H());
           camera.aspect = W() / H();
           camera.updateProjectionMatrix();
-          mat.uniforms.uScale.value = H() * 0.012;
+          mat.uniforms.uScale.value = H() * 0.0095;
         };
         ro = new ResizeObserver(onResize);
         ro.observe(host!);

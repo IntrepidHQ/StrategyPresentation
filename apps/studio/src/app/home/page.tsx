@@ -120,6 +120,8 @@ export default function LandingPage() {
           <a href="#demo">Live demo</a>
           <a href="#templates">Templates</a>
           <a href="#faq">FAQ</a>
+          <a href="/blog">Blog</a>
+          <a href="/docs">Docs</a>
         </nav>
       </header>
 
@@ -285,6 +287,8 @@ export default function LandingPage() {
                   Strategy<span>Presentation</span>
                 </span>
                 <nav aria-label="Footer" className="lp-footer-links">
+                  <a href="/blog">Blog</a>
+                  <a href="/docs">Docs</a>
                   <a href="https://websitecreditscore.com" rel="noopener" target="_blank">WebsiteCreditScore</a>
                   <a href="https://brainztem.com" rel="noopener" target="_blank">Brainztem</a>
                   <a href="mailto:seekercray@gmail.com">Contact</a>
