@@ -17,8 +17,12 @@ import { post as htmlVsPowerpoint } from "./posts/html-presentations-vs-powerpoi
 import { post as aiBuildsDeck } from "./posts/how-ai-builds-a-pitch-deck";
 import { post as deckTaxonomy } from "./posts/sales-deck-vs-pitch-deck";
 import { post as presentAudit } from "./posts/present-website-audit-to-client";
+import { post as deckTimeline } from "./posts/how-long-to-make-a-pitch-deck";
+import { post as deckCost } from "./posts/how-much-does-a-pitch-deck-cost";
 
 const POSTS: BlogPost[] = [
+  deckTimeline,
+  deckCost,
   auditToDeck,
   deckStructure,
   evidenceBacked,
