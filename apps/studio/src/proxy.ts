@@ -19,6 +19,8 @@ const PUBLIC_PATHS = [
   "/home",
   "/blog",        // public marketing blog (index + /blog/[slug])
   "/docs",        // public docs — how Strategy Presentation works
+  "/privacy",     // public legal page — must not gate to /login (crawlable)
+  "/terms",       // public legal page — must not gate to /login (crawlable)
   "/templates",   // template gallery thumbnails (public/)
   "/icon.svg",
   "/apple-icon.png", // iOS home-screen icon (special file in src/app/); favicon.ico
