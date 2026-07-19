@@ -21,6 +21,8 @@ const PUBLIC_PATHS = [
   "/docs",        // public docs — how Strategy Presentation works
   "/templates",   // template gallery thumbnails (public/)
   "/icon.svg",
+  "/apple-icon.png", // iOS home-screen icon (special file in src/app/); favicon.ico
+                     // bypasses this proxy entirely via the matcher below.
   "/api/webhook",
   // Crawler surface — robots + sitemap must never gate to /login (they were
   // 307ing there until 2026-07-15, so search engines could index nothing).

@@ -10,5 +10,16 @@
     { "source": "/monday.html", "destination": "/legacy/monday.html" },
     { "source": "/brain.html", "destination": "/legacy/brain.html" },
     { "source": "/brain-editor.html", "destination": "/legacy/brain-editor.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "saunders.strategypresentation.com" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/(saunders-strategy|intake|monday|brain|brain-editor).html",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    }
   ]
 }
