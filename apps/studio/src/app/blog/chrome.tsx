@@ -41,6 +41,8 @@ export function BlogFooter() {
           <a href="/docs">Docs</a>
           <a href="https://websitecreditscore.com" rel="noopener" target="_blank">WebsiteCreditScore</a>
           <a href="https://brainztem.com" rel="noopener" target="_blank">Brainztem</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
           <a href="mailto:seekercray@gmail.com">Contact</a>
         </nav>
       </div>
