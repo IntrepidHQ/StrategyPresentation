@@ -1,10 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/legacy/saunders-strategy.html",
-      "has": [{ "type": "host", "value": "saunders.strategypresentation.com" }]
-    },
     { "source": "/saunders-strategy.html", "destination": "/legacy/saunders-strategy.html" },
     { "source": "/intake.html", "destination": "/legacy/intake.html" },
     { "source": "/monday.html", "destination": "/legacy/monday.html" },
@@ -12,11 +7,6 @@
     { "source": "/brain-editor.html", "destination": "/legacy/brain-editor.html" }
   ],
   "headers": [
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "saunders.strategypresentation.com" }],
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
-    },
     {
       "source": "/(saunders-strategy|intake|monday|brain|brain-editor).html",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
