@@ -385,7 +385,48 @@ body {
     max-height: 92vh;
   }
 }
-.lp-chess-hero .lp-chess-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; pointer-events: auto; touch-action: manipulation; }
+.lp-chess-hero { overflow: visible; }
+/* Overscanned canvas: renders 18% larger than the host so pieces at the
+   globe's edge are never clipped top/bottom/left/right. */
+.lp-chess-hero .lp-chess-canvas { position: absolute; inset: -9%; width: 118% !important; height: 118% !important; pointer-events: auto; touch-action: manipulation; }
+/* Label layer overlays the canvas exactly — same overscan box. */
+.lp-chess-labels { position: absolute; inset: -9%; z-index: 2; pointer-events: none; overflow: visible; }
+.lp-piece-tag {
+  position: absolute; top: 0; left: 0; will-change: transform, opacity;
+  font-size: 0.5rem; font-weight: 800; letter-spacing: 0.22em;
+  padding: 0.16rem 0.45rem 0.14rem; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92); color: var(--ink, #10131f);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.15s linear;
+}
+.lp-piece-tag--black { background: rgba(13, 16, 30, 0.85); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 2px 8px rgba(0,0,0,0.35); }
+/* End-of-game banner. */
+.lp-chess-banner {
+  position: absolute; inset: 0; z-index: 4;
+  display: grid; place-content: center; justify-items: center; gap: 0.5rem;
+  text-align: center; pointer-events: auto;
+  animation: lp-banner-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.lp-chess-banner::before {
+  content: ""; position: absolute; inset: 12%;
+  background: radial-gradient(closest-side, rgba(6, 8, 18, 0.92), rgba(6, 8, 18, 0.55) 70%, transparent);
+  z-index: -1; border-radius: 50%;
+}
+.lp-chess-banner strong {
+  font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 3rem);
+  color: #fff; line-height: 1.05; letter-spacing: 0.01em;
+}
+.lp-chess-banner.is-win strong { color: #ffe9a8; text-shadow: 0 0 34px rgba(255, 214, 120, 0.45); }
+.lp-chess-banner span { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.8); max-width: 32ch; }
+.lp-chess-banner button {
+  margin-top: 0.9rem; background: #fff; color: var(--ink, #10131f); border: 0; cursor: pointer;
+  font: inherit; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 0.7rem 1.5rem; border-radius: 999px;
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+.lp-chess-banner button:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); }
+@keyframes lp-banner-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lp-chess-banner { animation: none; } }
 .lp-chess-hero .lp-chess-fallback { position: absolute; inset: 0; }
 .lp-chess-hero.is-live .lp-chess-fallback { display: none; }
 /* JS is running (html.js set pre-paint): the old static cluster must never

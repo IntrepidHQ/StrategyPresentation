@@ -369,6 +369,97 @@
       .phase { padding: 20px; }
     }
   </style>
+
+  <style id="sp-polish">
+    /* ═══ SP polish layer — additive, remove this block to revert ═══ */
+    :root{ --muted: rgba(255,255,255,.58); --gold-glow: rgba(201,164,76,.35); }
+    [data-theme="light"]{ --muted: rgba(20,18,12,.56); }
+
+    /* type rhythm */
+    h1,h2{ letter-spacing:-.015em; text-wrap:balance; }
+    .hero-headline{ letter-spacing:-.02em; }
+    #exec-summary p:first-of-type::first-letter{
+      font-family:var(--font-display); font-size:3.2em; float:left;
+      line-height:.85; padding:4px 10px 0 0; color:var(--gold); }
+
+    /* hero: slow aurora + scroll cue */
+    #hero::after{ content:""; position:absolute; inset:-20%;
+      background:
+        radial-gradient(ellipse 40% 30% at 20% 80%, rgba(201,164,76,.05), transparent 70%),
+        radial-gradient(ellipse 30% 40% at 90% 10%, rgba(201,164,76,.06), transparent 70%);
+      animation:sp-aurora 16s ease-in-out infinite alternate; pointer-events:none; }
+    @keyframes sp-aurora{ from{transform:translate3d(0,0,0) scale(1)} to{transform:translate3d(2%,3%,0) scale(1.06)} }
+    .sp-scrollcue{ position:absolute; left:50%; bottom:26px; transform:translateX(-50%);
+      width:22px; height:34px; border:1.5px solid var(--gold); border-radius:12px; opacity:.55; }
+    .sp-scrollcue::before{ content:""; position:absolute; left:50%; top:7px; width:3px; height:7px;
+      margin-left:-1.5px; border-radius:2px; background:var(--gold); animation:sp-drip 1.8s ease-in-out infinite; }
+    @keyframes sp-drip{ 0%,100%{transform:translateY(0);opacity:1} 70%{transform:translateY(10px);opacity:0} }
+
+    /* score badge: gold ring glow */
+    .score-badge{ box-shadow:0 0 0 1px rgba(201,164,76,.12), 0 20px 50px -20px var(--gold-glow); }
+
+    /* scorecard: injected meter bars */
+    .sp-meter{ height:5px; border-radius:99px; background:rgba(201,164,76,.12);
+      margin-top:8px; overflow:hidden; max-width:420px; }
+    .sp-meter i{ display:block; height:100%; width:0; border-radius:99px;
+      background:linear-gradient(90deg, #a8863a, var(--gold-2));
+      transition:width 1.1s cubic-bezier(.22,.9,.28,1); }
+    .scorecard td{ font-variant-numeric:tabular-nums; }
+    .scorecard tr{ transition:background .15s; }
+    .scorecard tbody tr:hover{ background:rgba(201,164,76,.04); }
+
+    /* findings: severity chips + hover lift */
+    .finding{ transition:transform .18s, box-shadow .18s, border-color .18s; }
+    .finding:hover{ transform:translateY(-2px); border-color:rgba(201,164,76,.4);
+      box-shadow:0 14px 34px -18px rgba(0,0,0,.6); }
+    .finding-sev{ display:inline-block; padding:3px 10px; border-radius:99px;
+      font-weight:600; letter-spacing:.12em; }
+    .finding-critical .finding-sev{ background:rgba(239,68,68,.14); color:#f87171; }
+    .finding-high     .finding-sev{ background:rgba(249,115,22,.14); color:#fb923c; }
+    .finding-medium   .finding-sev{ background:rgba(234,179,8,.14);  color:#facc15; }
+    .finding-low      .finding-sev{ background:rgba(107,114,128,.18); color:#9ca3af; }
+
+    /* roadmap: numbered spine */
+    .phases{ position:relative; }
+    .phase{ transition:border-color .18s, box-shadow .18s; }
+    .phase:hover{ border-color:rgba(201,164,76,.45); box-shadow:0 18px 44px -24px var(--gold-glow); }
+    .sp-phase-num{ position:absolute; right:24px; top:18px;
+      font-family:var(--font-display); font-size:2.6rem; line-height:1;
+      color:rgba(201,164,76,.16); font-weight:600; pointer-events:none; }
+
+    /* investment: featured + hover */
+    .invest-option{ position:relative; transition:transform .18s, border-color .18s, box-shadow .18s; }
+    .invest-option:hover{ transform:translateY(-3px); border-color:rgba(201,164,76,.5);
+      box-shadow:0 22px 50px -24px var(--gold-glow); }
+    .invest-option.sp-featured{ border-color:rgba(201,164,76,.55);
+      background:linear-gradient(180deg, rgba(201,164,76,.07), var(--dark-2) 55%); }
+    .sp-featured-tag{ position:absolute; top:-11px; left:22px; background:var(--gold); color:var(--dark);
+      font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+      padding:4px 12px; border-radius:99px; }
+
+    /* CTA: pill + lift (matches the studio's button language) */
+    .cta-btn{ border-radius:999px; box-shadow:0 6px 24px -10px var(--gold-glow);
+      transition:background .18s, transform .15s, box-shadow .2s; }
+    .cta-btn:hover{ transform:translateY(-2px); box-shadow:0 14px 34px -12px var(--gold-glow); }
+
+    /* reveal stagger (delays set by JS) + reduced motion */
+    .reveal{ transition-duration:.6s; }
+    @media (prefers-reduced-motion:reduce){
+      .reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
+      #hero::after,.sp-scrollcue::before{ animation:none !important; }
+      .sp-meter i{ transition:none !important; }
+    }
+    :where(a,button,.cta-btn):focus-visible{ outline:2px solid var(--gold); outline-offset:3px; border-radius:6px; }
+
+    /* print: clean deck */
+    @media print{
+      #hero{ min-height:auto; padding:40px 0; }
+      .sp-scrollcue, #site-header-root{ display:none !important; }
+      section{ padding:28px 0; break-inside:avoid; }
+      body{ background:#fff; color:#111; }
+    }
+  </style>
+
 </head>
 <body>
 
@@ -581,6 +672,73 @@
       }, { threshold: 0.1 });
       document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
     })();
+  </script>
+
+
+  <script id="sp-polish-js">
+  /* SP polish layer — additive; safe if any hook is missing */
+  (function(){
+    var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* 1 · score count-up */
+    var num = document.querySelector('.score-ring-num');
+    if (num && !rm){
+      var target = parseInt(num.textContent, 10);
+      if (!isNaN(target)){
+        var t0 = null;
+        var io = new IntersectionObserver(function(es){
+          if (!es[0].isIntersecting) return; io.disconnect();
+          requestAnimationFrame(function step(ts){
+            if (!t0) t0 = ts;
+            var p = Math.min((ts - t0) / 1100, 1);
+            num.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(step);
+          });
+        });
+        io.observe(num);
+      }
+    }
+    /* 2 · scorecard meter bars from each score cell */
+    document.querySelectorAll('.scorecard tbody tr').forEach(function(tr){
+      var sc = tr.querySelector('.score-cell'); if (!sc) return;
+      var v = parseInt(sc.textContent, 10); if (isNaN(v)) return;
+      var host = tr.querySelector('td:first-child') || tr.cells[0]; if (!host) return;
+      var m = document.createElement('div'); m.className = 'sp-meter';
+      m.innerHTML = '<i></i>'; host.appendChild(m);
+      var io2 = new IntersectionObserver(function(es){
+        if (!es[0].isIntersecting) return; io2.disconnect();
+        requestAnimationFrame(function(){ m.firstChild.style.width = Math.max(4, Math.min(100, v)) + '%'; });
+      });
+      io2.observe(m);
+    });
+    /* 3 · roadmap phase numbers */
+    document.querySelectorAll('.phases .phase').forEach(function(ph, i){
+      if (ph.querySelector('.sp-phase-num')) return;
+      var n = document.createElement('span'); n.className = 'sp-phase-num';
+      n.textContent = '0' + (i + 1); ph.appendChild(n);
+    });
+    /* 4 · feature the middle investment option */
+    var opts = document.querySelectorAll('.invest-grid .invest-option');
+    if (opts.length >= 2){
+      var pick = opts[Math.min(1, opts.length - 1)];
+      pick.classList.add('sp-featured');
+      if (!pick.querySelector('.sp-featured-tag')){
+        var tag = document.createElement('span'); tag.className = 'sp-featured-tag';
+        tag.textContent = 'Recommended'; pick.appendChild(tag);
+      }
+    }
+    /* 5 · reveal stagger */
+    document.querySelectorAll('section').forEach(function(sec){
+      sec.querySelectorAll('.reveal').forEach(function(el, i){
+        el.style.transitionDelay = Math.min(i * 70, 350) + 'ms';
+      });
+    });
+    /* 6 · hero scroll cue */
+    var hero = document.getElementById('hero');
+    if (hero && !hero.querySelector('.sp-scrollcue') && !rm){
+      var cue = document.createElement('div'); cue.className = 'sp-scrollcue';
+      cue.setAttribute('aria-hidden', 'true'); hero.appendChild(cue);
+    }
+  })();
   </script>
 
 </body>

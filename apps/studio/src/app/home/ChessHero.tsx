@@ -29,7 +29,9 @@ import {
   type GameState,
   type Move,
   applyMove,
+  inCheck,
   initialState,
+  isAttacked,
   legalMoves,
   statusText,
 } from "./sphere-chess";
@@ -133,7 +135,14 @@ export function ChessHero() {
   // live = interactive board. The 3-piece SVG only shows on svg.
   const [phase, setPhase] = useState<"svg" | "boot" | "live">("svg");
   const [hud, setHud] = useState("LOADING BOARD…");
+  const [banner, setBanner] = useState<null | { big: string; sub: string; win: boolean }>(null);
+  const [labelsOn, setLabelsOn] = useState(true);
+  const labelsOnRef = useRef(true);
+  useEffect(() => {
+    labelsOnRef.current = labelsOn;
+  }, [labelsOn]);
   const resetRef = useRef<() => void>(() => {});
+  const hintRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const host = hostRef.current;
@@ -152,17 +161,23 @@ export function ChessHero() {
 
         const W = () => host.clientWidth || 640;
         const H = () => host.clientHeight || 640;
+        // Overscan: the canvas renders 18% past the host on every side so
+        // pieces at the globe's edge are never clipped by the container.
+        // FOV widens to compensate, so the globe's on-screen size is unchanged.
+        const OS = 1.18;
+        const CW = () => Math.round(W() * OS);
+        const CH = () => Math.round(H() * OS);
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         // Full device resolution (retina = 3): the single biggest crispness
         // lever — at capped DPR every particle edge is antialiased into mush.
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
-        renderer.setSize(W(), H());
+        renderer.setSize(CW(), CH());
         renderer.domElement.className = "lp-chess-canvas";
         renderer.domElement.setAttribute("aria-hidden", "true");
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(44, W() / H(), 0.1, 30);
+        const camera = new THREE.PerspectiveCamera(51, CW() / CH(), 0.1, 30); // 44° × 1.18 overscan
         camera.position.set(0, 0.2, 3.0);
         camera.lookAt(CENTER.x, CENTER.y + 0.05, 0);
 
@@ -179,7 +194,7 @@ export function ChessHero() {
         const mkPieceMat = (col: import("three").Color = WHITE_ARMY, rim = 0.35) => {
           const m = new THREE.ShaderMaterial({
             uniforms: {
-              uScale: { value: H() * PT_BASE },
+              uScale: { value: CH() * PT_BASE },
               uBoost: { value: 1 },
               uColor: { value: col.clone() },
               uRim: { value: rim },
@@ -216,7 +231,7 @@ export function ChessHero() {
             const dLat = Math.abs(latIn / BAND - Math.round(latIn / BAND)) * BAND;
             const lonIn = lon + 180;
             const dLon = Math.abs(lonIn / 45 - Math.round(lonIn / 45)) * 45 * Math.cos((lat * Math.PI) / 180);
-            if (Math.min(dLat, dLon) < 1.0) continue;
+            if (Math.min(dLat, dLon) < 0.3) continue; // hairline seam — cells sit shoulder to shoulder
             const r = Math.min(7, Math.floor(latIn / BAND));
             const f = ((Math.floor(lon / 45 + 4) % 8) + 8) % 8;
             const light = (r + f) % 2 === 0;
@@ -239,7 +254,7 @@ export function ChessHero() {
           geo.setAttribute("aLum", new THREE.BufferAttribute(lum.slice(0, made), 1));
           geo.setAttribute("aBlack", new THREE.BufferAttribute(blk.slice(0, made), 1));
           const m = mkPieceMat(WHITE_ARMY, 0.2);
-          m.uniforms.uScale.value = H() * PT_BASE * 0.95;
+          m.uniforms.uScale.value = CH() * PT_BASE * 0.95;
           m.userData.scaleMul = 0.95;
           root.add(new THREE.Points(geo, m));
         }
@@ -267,11 +282,17 @@ export function ChessHero() {
 
         // ── Game state + piece objects ──
         let game: GameState = initialState();
+        // DOM layer for piece name tags — overlays the (overscanned) canvas.
+        const labelLayer = document.createElement("div");
+        labelLayer.className = "lp-chess-labels";
+        labelLayer.setAttribute("aria-hidden", "true");
+        host.appendChild(labelLayer);
         type Vis = {
           piece: GamePiece;
           obj: import("three").Points;
           proxy: import("three").Mesh;
           mat: import("three").ShaderMaterial;
+          label: HTMLDivElement;
           scale: number;
           anim: null | {
             from: import("three").Vector3;
@@ -315,7 +336,10 @@ export function ChessHero() {
           let topY = -Infinity;
           for (let k = 0; k < bodyN; k++) topY = Math.max(topY, data.pos[k * stride * 3 + 1]);
           const finialN = withFinial ? Math.round(bodyN * 0.05) + 30 : 0;
-          const n = bodyN + finialN;
+          // Base skirt: a dense ring of particles at the foot so every piece
+          // visibly SITS on the board instead of hovering over it.
+          const baseN = Math.round(bodyN * 0.12) + 120;
+          const n = bodyN + finialN + baseN;
           const pos = new Float32Array(n * 3);
           const nor = new Float32Array(n * 3);
           const lum = new Float32Array(n).fill(0.92);
@@ -345,6 +369,21 @@ export function ChessHero() {
             lum[o] = 1;
             blk[o] = 1;
           }
+          // Skirt ring: hugs the base radius, slightly flared, a couple of
+          // particle-widths tall — a solid visual footing.
+          const baseR = data.meta.baseR * scale;
+          for (let k = 0; k < baseN; k++) {
+            const o = bodyN + finialN + k;
+            const a = Math.random() * Math.PI * 2;
+            const rr = baseR * (0.86 + Math.random() * 0.3);
+            const yy = -scale / 2 + Math.random() * scale * 0.035;
+            pos[o * 3] = Math.cos(a) * rr;
+            pos[o * 3 + 1] = yy;
+            pos[o * 3 + 2] = Math.sin(a) * rr;
+            nor[o * 3] = Math.cos(a) * 0.8; nor[o * 3 + 1] = 0.6; nor[o * 3 + 2] = Math.sin(a) * 0.8;
+            lum[o] = 1;
+            blk[o] = 0;
+          }
           const geo = new THREE.BufferGeometry();
           geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
           geo.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
@@ -365,6 +404,7 @@ export function ChessHero() {
           for (const v of visuals) {
             root.remove(v.obj, v.proxy);
             v.obj.geometry.dispose();
+            v.label.remove();
           }
           visuals.length = 0;
           for (const p of game.pieces) {
@@ -380,7 +420,11 @@ export function ChessHero() {
             );
             proxy.userData.pieceId = p.id;
             root.add(obj, proxy);
-            const v: Vis = { piece: p, obj, proxy, mat, scale, anim: null };
+            const label = document.createElement("div");
+            label.className = `lp-piece-tag lp-piece-tag--${p.color}`;
+            label.textContent = p.type.toUpperCase();
+            labelLayer.appendChild(label);
+            const v: Vis = { piece: p, obj, proxy, mat, label, scale, anim: null };
             placeAtCell(v);
             visuals.push(v);
           }
@@ -405,7 +449,7 @@ export function ChessHero() {
         })();
         const mkRing = (alpha: number) => {
           const m = new THREE.ShaderMaterial({
-            uniforms: { uScale: { value: H() * 0.0075 }, uTime: { value: 0 }, uAlpha: { value: alpha } },
+            uniforms: { uScale: { value: CH() * 0.0075 }, uTime: { value: 0 }, uAlpha: { value: alpha } },
             vertexShader: RING_VERT,
             fragmentShader: RING_FRAG,
             transparent: true,
@@ -418,6 +462,9 @@ export function ChessHero() {
         };
         const moveRings = Array.from({ length: 30 }, () => mkRing(0.85));
         const selRing = mkRing(1.0);
+        // The hint target: a wider, brighter ring on the recommended square.
+        const hintRing = mkRing(1.0);
+        hintRing.m.uniforms.uScale.value = CH() * 0.0105;
         // Invisible discs to click target squares.
         const discGeo = new THREE.CircleGeometry(0.18, 12);
         const moveDiscs = Array.from({ length: 30 }, () => {
@@ -436,6 +483,7 @@ export function ChessHero() {
           if (selected) selected.mat.uniforms.uBoost.value = 1;
           selected = null;
           selRing.p.visible = false;
+          hintRing.p.visible = false;
           moveRings.forEach((r) => (r.p.visible = false));
           moveDiscs.forEach((d) => (d.visible = false));
         }
@@ -472,6 +520,7 @@ export function ChessHero() {
           if (idx < 0) return;
           const v = visuals[idx];
           root.remove(v.proxy);
+          v.label.remove();
           const n = cellNormal(target.file, target.rank, new THREE.Vector3());
           flyers.push({
             obj: v.obj,
@@ -494,11 +543,21 @@ export function ChessHero() {
             v.obj.geometry.dispose();
             v.scale = SCALES.queen;
             v.obj.geometry = pieceGeometry("queen", v.scale, v.piece.color === "black");
+            v.label.textContent = "QUEEN";
           }
           const { posLocal, q } = frameFor(v.piece.file, v.piece.rank, v.piece.color, v.scale);
           if (reduced) placeAtCell(v);
           else v.anim = { from: fromP, to: posLocal, qFrom: fromQ, qTo: q, t: 0 };
           setHud(statusText(game));
+          if (game.result) {
+            const r = game.result;
+            setTimeout(() => {
+              if (disposed) return;
+              if (r.reason === "stalemate") setBanner({ big: "Stalemate.", sub: "Nobody blinked. Run it back?", win: false });
+              else if (r.winner === "white") setBanner({ big: "Congratulations!", sub: "Strategy was on point.", win: true });
+              else setBanner({ big: "Checkmate.", sub: "Let's work on that strategy for next time.", win: false });
+            }, 700);
+          }
         }
 
         // Black is a deliberately dumb opponent: it plays a random legal move,
@@ -510,8 +569,10 @@ export function ChessHero() {
           const options: { v: Vis; m: Move }[] = [];
           for (const v of movers) for (const m of legalMoves(game, v.piece)) options.push({ v, m });
           if (!options.length) return;
-          const caps = options.filter((o) => o.m.capture);
-          const pool = caps.length && Math.random() < 0.5 ? caps : options;
+          // Easy-win tuning: it rarely captures, and when it can take your
+          // queen it usually "doesn't notice."
+          const caps = options.filter((o) => o.m.capture && !(o.m.capture.type === "queen" && Math.random() < 0.75));
+          const pool = caps.length && Math.random() < 0.2 ? caps : options;
           const pick = pool[Math.floor(Math.random() * pool.length)];
           commitMove(pick.v, pick.m);
         }
@@ -526,6 +587,44 @@ export function ChessHero() {
           }
         }
 
+        // ── Hint: a one-ply coach. Value captured material, reward checks
+        // and mate, punish hanging the mover — then light the best move up.
+        const VAL: Record<string, number> = { pawn: 1, knight: 3, bishop: 3.1, rook: 5, queen: 9, king: 0 };
+        function scoreMove(p: GamePiece, m: Move): number {
+          let sc = m.capture ? VAL[m.capture.type] * 10 : 0;
+          const undoF = p.file, undoR = p.rank, cap = m.capture;
+          if (cap) cap.alive = false;
+          p.file = m.file; p.rank = m.rank;
+          if (inCheck(game, "black")) {
+            sc += 4;
+            // Mate? No black piece has a legal reply.
+            const mate = !game.pieces.some((q) => q.alive && q.color === "black" && legalMoves(game, q).length > 0);
+            if (mate) sc += 10000;
+          }
+          if (isAttacked(game, m.file, m.rank, "black")) sc -= VAL[p.type] * 8;
+          if (p.type === "pawn") sc += m.rank * 0.3; // march toward promotion
+          sc += Math.random(); // break ties differently each press
+          p.file = undoF; p.rank = undoR;
+          if (cap) cap.alive = true;
+          return sc;
+        }
+        hintRef.current = () => {
+          if (game.result || game.turn !== "white") return;
+          let best: { v: Vis; m: Move; sc: number } | null = null;
+          for (const v of visuals) {
+            if (v.piece.color !== "white" || !v.piece.alive) continue;
+            for (const m of legalMoves(game, v.piece)) {
+              const sc = scoreMove(v.piece, m);
+              if (!best || sc > best.sc) best = { v, m, sc };
+            }
+          }
+          if (!best) return;
+          select(best.v);
+          ringToCell(hintRing.p, best.m.file, best.m.rank, 0.02);
+          hintRing.p.visible = true;
+          setHud(`HINT — ${best.v.piece.type.toUpperCase()} TO THE MARKED SQUARE`);
+        };
+
         resetRef.current = () => {
           if (aiTimer) clearTimeout(aiTimer);
           clearHighlights();
@@ -536,6 +635,7 @@ export function ChessHero() {
           flyers.length = 0;
           game = initialState();
           buildPieces();
+          setBanner(null);
           setHud(statusText(game));
         };
 
@@ -552,6 +652,8 @@ export function ChessHero() {
         let lastInteract = performance.now();
         const ray = new THREE.Raycaster();
         const ndc = new THREE.Vector2();
+        const vTip = new THREE.Vector3();
+        const vDir = new THREE.Vector3();
 
         const el = renderer.domElement;
         el.style.cursor = "grab";
@@ -659,8 +761,29 @@ export function ChessHero() {
             }
           }
 
+          // Piece name tags: project each piece's crown to the label layer;
+          // hide tags on the far side of the planet.
+          if (labelsOnRef.current) {
+            labelLayer.style.display = "";
+            const lw = labelLayer.clientWidth, lh = labelLayer.clientHeight;
+            for (const v of visuals) {
+              vTip.set(0, v.scale * 0.66, 0);
+              v.obj.localToWorld(vTip);
+              vDir.copy(vTip).sub(center);
+              if (vDir.z < 0.22) { v.label.style.opacity = "0"; continue; }
+              vTip.project(camera);
+              const x = ((vTip.x + 1) / 2) * lw;
+              const y = ((1 - vTip.y) / 2) * lh;
+              v.label.style.opacity = String(Math.min(1, (vDir.z - 0.22) * 3.2));
+              v.label.style.transform = `translate(-50%, -100%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+            }
+          } else {
+            labelLayer.style.display = "none";
+          }
+
           // Pulse the rings.
           selRing.m.uniforms.uTime.value = time;
+          hintRing.m.uniforms.uTime.value = time;
           moveRings.forEach((r) => (r.m.uniforms.uTime.value = time));
 
           renderer!.render(scene, camera);
@@ -669,7 +792,7 @@ export function ChessHero() {
 
         const onResize = () => {
           if (!renderer) return;
-          renderer.setSize(W(), H());
+          renderer.setSize(CW(), CH());
           camera.aspect = W() / H();
           camera.updateProjectionMatrix();
           const base = H() * PT_BASE;
@@ -677,8 +800,9 @@ export function ChessHero() {
             const mul = (m.userData.scaleMul as number) ?? 1;
             m.uniforms.uScale.value = base * mul;
           }
-          selRing.m.uniforms.uScale.value = H() * 0.0075;
-          moveRings.forEach((r) => (r.m.uniforms.uScale.value = H() * 0.0075));
+          selRing.m.uniforms.uScale.value = CH() * 0.0075;
+          hintRing.m.uniforms.uScale.value = CH() * 0.0105;
+          moveRings.forEach((r) => (r.m.uniforms.uScale.value = CH() * 0.0075));
         };
         ro = new ResizeObserver(onResize);
         ro.observe(host);
@@ -703,6 +827,7 @@ export function ChessHero() {
 
     return () => {
       disposed = true;
+      hostRef.current?.querySelector(".lp-chess-labels")?.remove();
       cancelAnimationFrame(raf);
       ro?.disconnect();
       renderer?.dispose();
@@ -721,7 +846,18 @@ export function ChessHero() {
       {ready ? (
         <div className="lp-game-hud">
           <span aria-live="polite">{hud}</span>
+          <button type="button" onClick={() => hintRef.current()}>Hint</button>
+          <button type="button" aria-pressed={labelsOn} onClick={() => setLabelsOn((v) => !v)}>
+            {labelsOn ? "Labels: on" : "Labels: off"}
+          </button>
           <button type="button" onClick={() => resetRef.current()}>Reset</button>
+        </div>
+      ) : null}
+      {banner ? (
+        <div className={`lp-chess-banner${banner.win ? " is-win" : ""}`} role="status">
+          <strong>{banner.big}</strong>
+          <span>{banner.sub}</span>
+          <button type="button" onClick={() => resetRef.current()}>Play again</button>
         </div>
       ) : null}
     </div>
